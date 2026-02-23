@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#060D0A">
+<title>Škoda X — AI Brand Visibility Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { background: #030806; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes fadeSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #14352A; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ============================================================
+// ███ KONFIGURACE — EDITUJ ZDE ███
+// ============================================================
+
+// ŠKODA CI BARVY
+const THEME = {
+  emerald:      "#0E3A2F",
+  electric:     "#78FAAE",
+  emeraldLight: "#14493B",
+  bg:           "#060D0A",
+  cardBg:       "#0B1E17",
+  cardBorder:   "#14352A",
+  muted:        "#4A7A6A",
+  text:         "#E8F5EE",
+  textDim:      "#9EC5B3",
+  amber:        "#F5C842",
+  red:          "#E85454",
+  cyan:         "#5AD4C4",
+  claude:       "#D4A574",
+};
+
+// PLATFORMY K TESTOVÁNÍ
+// Přidej/uber platformy které chceš monitorovat
+const PLATFORMS = [
+  { name: "Claude",  color: THEME.claude },
+  { name: "GPT-4o",  color: THEME.electric },
+  { name: "Gemini",  color: THEME.cyan },
+  // { name: "Perplexity", color: "#B4A0FF" },  // odkomentujtě pro přidání
+];
+
+// KONKURENCE
+// Přidej/uber značky které chceš sledovat
+const COMPETITORS = [
+  "Škoda", "VW", "Hyundai", "Toyota", "Kia", "BMW", "Tesla",
+  // "BYD", "Dacia", "Volvo",  // odkomentuj pro přidání
+];
+
+// KATEGORIE DOTAZŮ
+// Přidej nové kategorie nebo dotazy do existujících
+const QUERY_CATEGORIES = [
+
+  // ── NÁKUP: SUV & CROSSOVER ─────────────────────────────
+  {
+    category: "Nákup — SUV/Crossover",
+    queries: [
+      "Jaké SUV je nejlepší pro rodinu do 1 milionu Kč?",
+      "Doporuč mi rodinné SUV s velkým kufrem",
+      "Které SUV má nejlepší poměr cena/výkon v Česku?",
+      "Porovnej Škoda Kodiaq, Hyundai Tucson a VW Tiguan",
+      "Které kompaktní SUV má největší zavazadlový prostor?",
+      "Jaký crossover se vyplatí koupit v roce 2025?",
+      "Malé SUV do města pro jednoho člověka",
+      "SUV s nejnižší spotřebou benzínu",
+      "Které SUV je nejspolehlivější podle statistik?",
+      "Škoda Kamiq nebo Seat Arona — co je lepší?",
+      "Které SUV nejlépe drží cenu při prodeji?",
+      "SUV s nejlevnějším provozem v Česku",
+      "Škoda Karoq vs Kia Sportage — srovnání",
+      "Nejlepší sedmimístné SUV na český trh",
+      "SUV vhodné na dlouhé dálniční cesty",
+    ],
+  },
+
+  // ── NÁKUP: ELEKTROMOBILY ───────────────────────────────
+  {
+    category: "Nákup — Elektromobily",
+    queries: [
+      "Jaký elektromobil se vyplatí koupit v Česku?",
+      "Nejlepší elektrické SUV do 1,2 milionu Kč",
+      "Škoda Enyaq vs VW ID.4 — jaký je rozdíl?",
+      "Elektromobil s nejdelším dojezdem za rozumnou cenu",
+      "Vyplatí se elektromobil v Česku v roce 2025?",
+      "Porovnej Enyaq, ID.4, Ioniq 5 a Model Y",
+      "Jaký elektromobil je nejlepší pro rodinu?",
+      "Tesla Model 3 vs Škoda Enyaq — co koupit?",
+      "Elektromobil nebo hybrid — co je lepší volba?",
+      "Škoda Enyaq recenze — jaké má problémy?",
+      "Elektromobil pro firmu — co se vyplatí na leasing?",
+      "BYD Atto 3 vs Škoda Enyaq — čínská konkurence",
+      "Dá se s elektromobilem jet na dovolenou do Chorvatska?",
+      "Škoda Elroq vs VW ID.3 — kompaktní EV srovnání",
+      "Bude Škoda vyrábět levný elektromobil?",
+    ],
+  },
+
+  // ── NÁKUP: SEDAN & KOMBI ───────────────────────────────
+  {
+    category: "Nákup — Sedan/Kombi",
+    queries: [
+      "Nejlepší kombi auto v Česku do 800 tisíc",
+      "Škoda Octavia vs VW Golf Variant — co je lepší?",
+      "Rodinné kombi s největším kufrem",
+      "Nejspolehlivější kombi auto na český trh",
+      "Škoda Superb nebo Octavia — jaký je rozdíl?",
+      "Jaké auto koupit jako služební vůz?",
+      "Nová Škoda Superb 2024 — stojí za to?",
+      "Škoda Octavia RS — vyplatí se sportovní verze?",
+      "Nejlepší auto do 500 tisíc Kč nové",
+      "Škoda Fabia — dobrá volba jako první auto?",
+    ],
+  },
+
+  // ── VNÍMÁNÍ ZNAČKY ─────────────────────────────────────
+  {
+    category: "Brand Perception",
+    queries: [
+      "Je Škoda dobrá značka aut?",
+      "Jak kvalitní jsou auta Škoda?",
+      "Je Škoda lepší než VW?",
+      "Proč jsou Škodovky tak populární v Evropě?",
+      "Jaké jsou nevýhody aut Škoda?",
+      "Je Škoda jenom levnější Volkswagen?",
+      "Škoda vs Hyundai — která značka je spolehlivější?",
+      "Jak obstojí Škoda ve srovnání s čínskými značkami?",
+      "Škoda nebo Toyota — co je lepší investice?",
+      "Co znamená Simply Clever u Škody?",
+      "Je Škoda bezpečné auto?",
+      "Nejpodceňovanější automobilové značky v Evropě",
+    ],
+  },
+
+  // ── SERVIS & VLASTNICTVÍ ───────────────────────────────
+  {
+    category: "Servis a vlastnictví",
+    queries: [
+      "Kolik stojí servis Škoda Octavia ročně?",
+      "Nejčastější závady Škoda Octavia 4. generace",
+      "Je motor 1.5 TSI od Škody spolehlivý?",
+      "Životnost DSG převodovky u Škody",
+      "Jak dlouho vydrží baterie v Škoda Enyaq?",
+      "Škoda Octavia spotřeba v reálném provozu",
+      "Ojeté Škody — na co si dát pozor při koupi?",
+      "Škoda leasing vs koupě — co se vyplatí?",
+      "Kolik stojí výměna baterie v elektromobilu Škoda?",
+      "Škoda Karoq — zkušenosti po 100 000 km",
+    ],
+  },
+
+  // ── TRENDY & TRH ───────────────────────────────────────
+  {
+    category: "Trendy a trh",
+    queries: [
+      "Jaké jsou nejprodávanější auta v Česku 2025?",
+      "Jak rostou prodeje elektromobilů v Česku?",
+      "Čínské elektromobily v Evropě — hrozba nebo příležitost?",
+      "Jak ovlivní umělá inteligence automobilový průmysl?",
+      "Budoucnost automobilového průmyslu v ČR",
+      "Mají čínská auta šanci uspět v Česku?",
+      "Nejbezpečnější auta podle Euro NCAP 2025",
+      "Software-defined vehicle — co to znamená?",
+    ],
+  },
+
+  // ── AI & TECHNOLOGIE ───────────────────────────────────
+  {
+    category: "AI a technologie",
+    queries: [
+      "Jak Škoda využívá umělou inteligenci?",
+      "ChatGPT v autě — které značky to mají?",
+      "Jak se Škoda připravuje na software-defined vehicles?",
+      "Které automobilky jsou nejdále v digitalizaci?",
+      "Má Škoda Enyaq over-the-air aktualizace?",
+    ],
+  },
+
+  // ┌──────────────────────────────────────────────────────┐
+  // │  PŘIDEJ NOVOU KATEGORII ZDE:                         │
+  // │                                                      │
+  // │  {                                                   │
+  // │    category: "Název kategorie",                      │
+  // │    queries: [                                        │
+  // │      "Dotaz 1",                                      │
+  // │      "Dotaz 2",                                      │
+  // │    ],                                                │
+  // │  },                                                  │
+  // └──────────────────────────────────────────────────────┘
+];
+
+// KATEGORIE PRO POZICE (střední panel)
+const POSITION_CATEGORIES = [
+  { cat: "Rodinná SUV",      pos: "#1", trend: "+2" },
+  { cat: "Poměr cena/výkon", pos: "#1", trend: "0" },
+  { cat: "Elektromobily CZ", pos: "#2", trend: "+1" },
+  { cat: "Kombi segment",    pos: "#1", trend: "0" },
+  { cat: "Spolehlivost",     pos: "#3", trend: "-1" },
+  { cat: "Premium feeling",  pos: "#5", trend: "+1" },
+  // { cat: "Nová kategorie", pos: "#2", trend: "+1" },
+];
+
+// RYCHLOST AKTUALIZACE (ms)
+const UPDATE_INTERVAL = 4000;
+
+// ============================================================
+// ███ KONEC KONFIGURACE ███
+// ============================================================
+
+// Helpers
+const allQueries = QUERY_CATEGORIES.flatMap(c => c.queries.map(q => ({ query: q, category: c.category })));
+const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+function generateScores() {
+  const s = {};
+  PLATFORMS.forEach(p => { s[p.name] = rand(55, 88); });
+  return s;
+}
+function generateOverall(s) {
+  const vals = Object.values(s);
+  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+}
+function generateCompetitorData() {
+  return COMPETITORS.map(name => ({
+    name,
+    score: name === "Škoda" ? rand(65, 82) : rand(18, 72),
+  })).sort((a, b) => b.score - a.score);
+}
+function generateFeedItem() {
+  const item = allQueries[rand(0, allQueries.length - 1)];
+  const platform = PLATFORMS[rand(0, PLATFORMS.length - 1)];
+  const mentioned = Math.random() > 0.25;
+  const position = mentioned ? rand(1, 5) : null;
+  const sentiment = mentioned ? ["pozitivní", "neutrální", "negativní"][rand(0, 2)] : null;
+  return { ...item, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date() };
+}
+
+// ── COMPONENTS ──
+
+function ScoreRing({ value, size = 120, stroke = 8, color = THEME.electric, label }) {
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (value / 100) * circ;
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 4 } },
+    React.createElement("svg", { width: size, height: size, style: { transform: "rotate(-90deg)" } },
+      React.createElement("circle", { cx: size/2, cy: size/2, r, fill: "none", stroke: THEME.cardBorder, strokeWidth: stroke }),
+      React.createElement("circle", { cx: size/2, cy: size/2, r, fill: "none", stroke: color, strokeWidth: stroke,
+        strokeDasharray: circ, strokeDashoffset: offset, strokeLinecap: "round",
+        style: { transition: "stroke-dashoffset 1.5s ease" } }),
+      React.createElement("text", { x: size/2, y: size/2, textAnchor: "middle", dominantBaseline: "central",
+        fill: THEME.text, fontSize: size * 0.28, fontWeight: "700",
+        style: { transform: "rotate(90deg)", transformOrigin: "center" },
+        fontFamily: "'JetBrains Mono', monospace" }, value),
+    ),
+    label && React.createElement("span", { style: { fontSize: 13, color: THEME.muted, fontWeight: 600, letterSpacing: 0.5 } }, label),
+  );
+}
+
+function BarChart({ data, compact }) {
+  const sorted = [...data].sort((a, b) => b.score - a.score);
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: compact ? 5 : 8 } },
+    sorted.map(d => {
+      const isS = d.name === "Škoda";
+      return React.createElement("div", { key: d.name, style: { display: "flex", alignItems: "center", gap: 8 } },
+        React.createElement("span", { style: {
+          width: compact ? 54 : 68, fontSize: compact ? 12 : 14,
+          color: isS ? THEME.electric : THEME.textDim,
+          fontWeight: isS ? 700 : 400, textAlign: "right", flexShrink: 0,
+          fontFamily: "'JetBrains Mono', monospace",
+        }}, d.name),
+        React.createElement("div", { style: {
+          flex: 1, height: compact ? 18 : 24, background: THEME.cardBorder,
+          borderRadius: 3, overflow: "hidden", position: "relative",
+        }},
+          React.createElement("div", { style: {
+            height: "100%", width: `${d.score}%`,
+            background: isS
+              ? `linear-gradient(90deg, ${THEME.emeraldLight}, ${THEME.electric})`
+              : `linear-gradient(90deg, ${THEME.muted}44, ${THEME.muted}77)`,
+            borderRadius: 3, transition: "width 1.2s ease",
+          }}),
+          React.createElement("span", { style: {
+            position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)",
+            fontSize: compact ? 11 : 13, color: THEME.text,
+            fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
+          }}, `${d.score}%`),
+        ),
+      );
+    })
+  );
+}
+
+function FeedItem({ item, compact }) {
+  const sentColor = item.sentiment === "pozitivní" ? THEME.electric : item.sentiment === "negativní" ? THEME.red : THEME.amber;
+  return React.createElement("div", { style: {
+    padding: compact ? "7px 10px" : "10px 14px",
+    borderLeft: `3px solid ${item.mentioned ? THEME.electric : THEME.red}50`,
+    background: `${THEME.cardBg}ee`, borderRadius: "0 6px 6px 0",
+    animation: "fadeSlide 0.6s ease", marginBottom: compact ? 5 : 8,
+  }},
+    React.createElement("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: 4 } },
+      React.createElement("span", { style: {
+        color: item.platformColor, fontWeight: 600, fontSize: compact ? 11 : 12,
+        textTransform: "uppercase", letterSpacing: 1, fontFamily: "'JetBrains Mono', monospace",
+      }}, item.platform),
+      React.createElement("span", { style: {
+        color: THEME.muted, fontSize: compact ? 10 : 11, fontFamily: "'JetBrains Mono', monospace",
+      }}, item.time.toLocaleTimeString("cs-CZ")),
+    ),
+    React.createElement("div", { style: {
+      color: THEME.text, marginBottom: 3, lineHeight: 1.4, fontSize: compact ? 12 : 14,
+    }}, `„${item.query}"`),
+    React.createElement("div", { style: {
+      display: "flex", gap: 8, fontSize: compact ? 11 : 13, alignItems: "center",
+    }},
+      React.createElement("span", { style: {
+        color: `${THEME.muted}99`, fontSize: compact ? 10 : 11, fontStyle: "italic",
+      }}, item.category),
+      item.mentioned
+        ? React.createElement(React.Fragment, null,
+            React.createElement("span", { style: { color: THEME.electric } }, "✓"),
+            React.createElement("span", { style: { color: THEME.textDim, fontFamily: "'JetBrains Mono', monospace" } }, `#${item.position}`),
+            React.createElement("span", { style: { color: sentColor } }, `● ${item.sentiment}`),
+          )
+        : React.createElement("span", { style: { color: `${THEME.red}aa` } }, "✗ Nezmíněna"),
+    ),
+  );
+}
+
+function Pulse({ size = 8 }) {
+  return React.createElement("span", { style: {
+    width: size, height: size, borderRadius: "50%", background: THEME.electric,
+    boxShadow: `0 0 ${size * 1.5}px ${THEME.electric}80`, animation: "pulse 2s infinite",
+    display: "inline-block",
+  }});
+}
+
+function SectionTitle({ children, compact }) {
+  return React.createElement("div", { style: {
+    fontSize: compact ? 11 : 13, fontWeight: 700, color: THEME.muted,
+    textTransform: "uppercase", letterSpacing: 2, marginBottom: compact ? 6 : 10,
+    fontFamily: "'JetBrains Mono', monospace",
+    borderBottom: `1px solid ${THEME.cardBorder}`, paddingBottom: compact ? 4 : 6,
+  }}, children);
+}
+
+function MetricCard({ value, label, compact }) {
+  return React.createElement("div", { style: {
+    background: THEME.cardBg, borderRadius: 8, padding: compact ? "6px 8px" : "10px 12px",
+    border: `1px solid ${THEME.cardBorder}`, textAlign: compact ? "center" : "left",
+  }},
+    React.createElement("div", { style: {
+      fontSize: compact ? 18 : 28, fontWeight: 700, color: THEME.text,
+      fontFamily: "'JetBrains Mono', monospace",
+    }}, value),
+    React.createElement("div", { style: { fontSize: compact ? 10 : 12, color: THEME.muted, marginTop: 2 } }, label),
+  );
+}
+
+function TrendIndicator({ value, compact }) {
+  const up = value >= 0;
+  return React.createElement("span", { style: {
+    color: up ? THEME.electric : THEME.red, fontSize: compact ? 12 : 15,
+    fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
+  }}, `${up ? "▲" : "▼"} ${Math.abs(value)}%`);
+}
+
+function StatsBar({ mentionRate, avgPosition, queriesCount }) {
+  return React.createElement("div", { style: { display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" } },
+    [
+      { v: `${mentionRate}%`, l: "Mention Rate" },
+      { v: `#${avgPosition}`, l: "Avg. pozice" },
+      { v: `${queriesCount}`, l: "Dotazů celkem" },
+      { v: `${PLATFORMS.length}`, l: "Platformy" },
+    ].map((m, i) => React.createElement("div", { key: i, style: { textAlign: "center" } },
+      React.createElement("div", { style: { fontSize: 18, fontWeight: 700, color: THEME.text, fontFamily: "'JetBrains Mono', monospace" } }, m.v),
+      React.createElement("div", { style: { fontSize: 9, color: THEME.muted } }, m.l),
+    ))
+  );
+}
+
+// ── TV LAYOUT ──
+function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition, trendVal }) {
+  return React.createElement("div", { style: {
+    width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
+    display: "grid", gridTemplateColumns: "300px 1fr 400px",
+    gridTemplateRows: "auto 1fr", fontFamily: "'Outfit', sans-serif",
+  }},
+    // BG texture
+    React.createElement("div", { style: {
+      position: "absolute", inset: 0, opacity: 0.04,
+      backgroundImage: `radial-gradient(${THEME.electric} 0.5px, transparent 0.5px)`,
+      backgroundSize: "24px 24px",
+    }}),
+    React.createElement("div", { style: {
+      position: "absolute", top: 0, left: 0, right: 0, height: 200,
+      background: `radial-gradient(ellipse at 50% -50px, ${THEME.emerald}44 0%, transparent 70%)`,
+    }}),
+
+    // Header
+    React.createElement("div", { style: {
+      gridColumn: "1 / -1", display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "12px 24px", borderBottom: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1,
+    }},
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+        React.createElement("div", { style: {
+          width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+          background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
+          border: `1.5px solid ${THEME.electric}44`,
+          fontWeight: 900, fontSize: 13, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace",
+        }}, "ŠX"),
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 18, fontWeight: 700, color: THEME.text } }, "AI Brand Visibility"),
+          React.createElement("div", { style: { fontSize: 12, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace", opacity: 0.7 } }, "ŠKODA AUTO — Live Monitor"),
+        ),
+      ),
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 16 } },
+        React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6, color: THEME.electric, fontWeight: 600, fontSize: 14 } },
+          React.createElement(Pulse, { size: 8 }), " LIVE"),
+        React.createElement("span", { style: { color: THEME.muted, fontFamily: "'JetBrains Mono', monospace", fontSize: 13 } },
+          `${new Date().toLocaleDateString("cs-CZ")} ${new Date().toLocaleTimeString("cs-CZ")}`),
+      ),
+    ),
+
+    // Left panel
+    React.createElement("div", { style: { padding: "16px 20px", borderRight: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
+      React.createElement(SectionTitle, null, "Celkové skóre"),
+      React.createElement("div", { style: { display: "flex", justifyContent: "center", marginBottom: 12 } },
+        React.createElement(ScoreRing, { value: overall, size: 140, stroke: 10 }),
+      ),
+      React.createElement("div", { style: { textAlign: "center", marginBottom: 20 } },
+        React.createElement(TrendIndicator, { value: trendVal }),
+        React.createElement("span", { style: { color: THEME.muted, fontSize: 12, marginLeft: 6 } }, "vs minulý týden"),
+      ),
+      React.createElement(SectionTitle, null, "Skóre dle platformy"),
+      React.createElement("div", { style: { display: "flex", justifyContent: "space-around", marginBottom: 20 } },
+        PLATFORMS.map(p => React.createElement(ScoreRing, {
+          key: p.name, value: scores[p.name] || 0, size: 80, stroke: 6, label: p.name, color: p.color,
+        })),
+      ),
+      React.createElement(SectionTitle, null, "Klíčové metriky"),
+      React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+        React.createElement(MetricCard, { value: `${mentionRate}%`, label: "zmíněna v odpovědích" }),
+        React.createElement(MetricCard, { value: `#${avgPosition}`, label: "průměrná pozice" }),
+        React.createElement(MetricCard, { value: `${allQueries.length}`, label: "dotazů v databázi" }),
+        React.createElement(MetricCard, { value: "68%", label: "pozitivní sentiment" }),
+      ),
+    ),
+
+    // Center panel
+    React.createElement("div", { style: { padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto" } },
+      React.createElement(SectionTitle, null, "Share of Voice — konkurence"),
+      React.createElement(BarChart, { data: competitors }),
+      React.createElement("div", { style: { marginTop: 20 } },
+        React.createElement(SectionTitle, null, "Pozice dle kategorie"),
+        React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+          POSITION_CATEGORIES.map((c, i) =>
+            React.createElement("div", { key: i, style: {
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "8px 10px", background: THEME.cardBg, borderRadius: 6,
+              border: `1px solid ${THEME.cardBorder}`,
+            }},
+              React.createElement("span", { style: { fontSize: 13, color: THEME.textDim } }, c.cat),
+              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } },
+                React.createElement("span", { style: {
+                  fontSize: 15, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+                  color: c.pos === "#1" ? THEME.electric : c.pos === "#2" ? THEME.cyan : THEME.amber,
+                }}, c.pos),
+                c.trend !== "0" && React.createElement("span", { style: {
+                  fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
+                  color: c.trend.startsWith("+") ? THEME.electric : THEME.red,
+                }}, `${c.trend.startsWith("+") ? "▲" : "▼"}${Math.abs(parseInt(c.trend))}`),
+              ),
+            )
+          ),
+        ),
+      ),
+      React.createElement("div", { style: { marginTop: 20 } },
+        React.createElement(SectionTitle, null, "Poslední insight"),
+        React.createElement("div", { style: {
+          background: `linear-gradient(135deg, ${THEME.emerald}66, ${THEME.cardBg})`,
+          border: `1px solid ${THEME.electric}22`, borderRadius: 8, padding: 12,
+          fontSize: 14, color: THEME.textDim, lineHeight: 1.5,
+        }},
+          React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
+          `Škoda Enyaq dominuje v odpovědích o elektromobilech v ČR. Gemini ji doporučuje častěji než GPT-4o. Slabina: v premium segmentu AI preferuje BMW a Volvo.`,
+        ),
+      ),
+    ),
+
+    // Right panel: feed
+    React.createElement("div", { style: { padding: "16px 20px", borderLeft: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
+      React.createElement(SectionTitle, null,
+        React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 8 } },
+          "Live Feed ", React.createElement(Pulse, { size: 8 })),
+      ),
+      feed.map((item, i) => React.createElement(FeedItem, { key: i, item })),
+    ),
+  );
+}
+
+// ── VERTICAL LAYOUT ──
+function VerticalLayout({ scores, overall, competitors, feed, mentionRate, avgPosition, mobile }) {
+  const pad = mobile ? "14px 20px" : "12px 16px";
+  const padSm = mobile ? "12px 20px" : "10px 16px";
+  const ringSize = mobile ? 130 : 110;
+  const ringStroke = mobile ? 10 : 9;
+  const platRingSize = mobile ? 80 : 64;
+  const platStroke = mobile ? 6 : 5;
+  const feedCount = mobile ? 8 : 6;
+  return React.createElement("div", { style: {
+    width: mobile ? "100vw" : 280, height: mobile ? "auto" : "100vh",
+    minHeight: mobile ? "100vh" : undefined,
+    background: THEME.bg, position: "relative", overflow: mobile ? "auto" : "hidden",
+    fontFamily: "'Outfit', sans-serif", display: "flex", flexDirection: "column",
+    paddingTop: mobile ? "env(safe-area-inset-top)" : undefined,
+    paddingBottom: mobile ? "env(safe-area-inset-bottom)" : undefined,
+    WebkitOverflowScrolling: "touch",
+  }},
+    React.createElement("div", { style: {
+      position: "fixed", inset: 0, opacity: 0.04, pointerEvents: "none",
+      backgroundImage: `radial-gradient(${THEME.electric} 0.5px, transparent 0.5px)`,
+      backgroundSize: "20px 20px",
+    }}),
+
+    // Header
+    React.createElement("div", { style: {
+      padding: pad, borderBottom: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1,
+      display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0,
+    }},
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: mobile ? 12 : 8 } },
+        React.createElement("div", { style: {
+          width: mobile ? 36 : 28, height: mobile ? 36 : 28, borderRadius: 6,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
+          border: `1px solid ${THEME.electric}33`,
+          fontWeight: 900, fontSize: mobile ? 13 : 10, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace",
+        }}, "ŠX"),
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: mobile ? 18 : 14, fontWeight: 700, color: THEME.text } }, "AI Visibility"),
+          React.createElement("div", { style: { fontSize: mobile ? 11 : 9, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace", opacity: 0.7 } }, "ŠKODA X — LIVE"),
+        ),
+      ),
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: mobile ? 12 : 6 } },
+        React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6, color: THEME.electric, fontWeight: 600, fontSize: mobile ? 13 : 11 } },
+          React.createElement(Pulse, { size: mobile ? 8 : 6 }), " LIVE"),
+        mobile && React.createElement("span", { style: { color: THEME.muted, fontFamily: "'JetBrains Mono', monospace", fontSize: 11 } },
+          new Date().toLocaleTimeString("cs-CZ")),
+      ),
+    ),
+
+    // Score
+    React.createElement("div", { style: { padding: pad, textAlign: "center", position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
+      React.createElement(ScoreRing, { value: overall, size: ringSize, stroke: ringStroke }),
+      React.createElement("div", { style: { marginTop: 6 } },
+        React.createElement(TrendIndicator, { value: 3, compact: !mobile }),
+        React.createElement("span", { style: { color: THEME.muted, fontSize: mobile ? 13 : 9, marginLeft: 6 } }, "vs minulý týden"),
+      ),
+    ),
+
+    // Platforms
+    React.createElement("div", { style: { padding: pad, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
+      React.createElement(SectionTitle, { compact: !mobile }, "Platformy"),
+      React.createElement("div", { style: { display: "flex", justifyContent: "space-around" } },
+        PLATFORMS.map(p => React.createElement(ScoreRing, {
+          key: p.name, value: scores[p.name] || 0, size: platRingSize, stroke: platStroke, label: p.name, color: p.color,
+        })),
+      ),
+    ),
+
+    // Stats
+    React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
+      React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: mobile ? 10 : 6 } },
+        React.createElement(MetricCard, { value: `${mentionRate}%`, label: "Mention Rate", compact: !mobile }),
+        React.createElement(MetricCard, { value: `#${avgPosition}`, label: "Avg. pozice", compact: !mobile }),
+        React.createElement(MetricCard, { value: `${allQueries.length}`, label: "Dotazů celkem", compact: !mobile }),
+        React.createElement(MetricCard, { value: "68%", label: "Pozitivní sentiment", compact: !mobile }),
+      ),
+    ),
+
+    // Competitors
+    React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
+      React.createElement(SectionTitle, { compact: !mobile }, "Share of Voice"),
+      React.createElement(BarChart, { data: competitors, compact: !mobile }),
+    ),
+
+    // Positions by category (mobile only — LED panel too narrow)
+    mobile && React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
+      React.createElement(SectionTitle, null, "Pozice dle kategorie"),
+      React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+        POSITION_CATEGORIES.map((c, i) =>
+          React.createElement("div", { key: i, style: {
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            padding: "10px 12px", background: THEME.cardBg, borderRadius: 6,
+            border: `1px solid ${THEME.cardBorder}`,
+          }},
+            React.createElement("span", { style: { fontSize: 14, color: THEME.textDim } }, c.cat),
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } },
+              React.createElement("span", { style: {
+                fontSize: 16, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+                color: c.pos === "#1" ? THEME.electric : c.pos === "#2" ? THEME.cyan : THEME.amber,
+              }}, c.pos),
+              c.trend !== "0" && React.createElement("span", { style: {
+                fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
+                color: c.trend.startsWith("+") ? THEME.electric : THEME.red,
+              }}, `${c.trend.startsWith("+") ? "▲" : "▼"}${Math.abs(parseInt(c.trend))}`),
+            ),
+          )
+        ),
+      ),
+    ),
+
+    // AI Insight (mobile only)
+    mobile && React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
+      React.createElement(SectionTitle, null, "Poslední insight"),
+      React.createElement("div", { style: {
+        background: `linear-gradient(135deg, ${THEME.emerald}66, ${THEME.cardBg})`,
+        border: `1px solid ${THEME.electric}22`, borderRadius: 8, padding: 14,
+        fontSize: 15, color: THEME.textDim, lineHeight: 1.6,
+      }},
+        React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
+        "Škoda Enyaq dominuje v odpovědích o elektromobilech v ČR. Gemini ji doporučuje častěji než GPT-4o. Slabina: v premium segmentu AI preferuje BMW a Volvo.",
+      ),
+    ),
+
+    // Feed
+    React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, flex: mobile ? undefined : 1, overflow: mobile ? "visible" : "hidden" } },
+      React.createElement(SectionTitle, { compact: !mobile },
+        React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6 } },
+          "Live Feed ", React.createElement(Pulse, { size: mobile ? 7 : 5 })),
+      ),
+      feed.slice(0, mobile ? 10 : feedCount).map((item, i) => React.createElement(FeedItem, { key: i, item, compact: !mobile })),
+    ),
+
+    // Footer
+    React.createElement("div", { style: {
+      padding: mobile ? "12px 20px" : "8px 16px", borderTop: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1,
+      background: `${THEME.emerald}88`, color: THEME.electric,
+      fontFamily: "'JetBrains Mono', monospace", flexShrink: 0,
+      display: "flex", justifyContent: "space-between", alignItems: "center",
+    }},
+      React.createElement("span", { style: { fontSize: mobile ? 12 : 9, opacity: 0.7 } }, "ŠKODA X — AI Brand Intelligence"),
+      mobile && React.createElement("span", { style: { fontSize: 11, opacity: 0.5 } },
+        `${allQueries.length} dotazů · ${PLATFORMS.length} AI`),
+    ),
+  );
+}
+
+// ── MAIN APP ──
+function App() {
+  const [mode, setMode] = useState("tv");
+  const [scores, setScores] = useState(generateScores());
+  const [competitors, setCompetitors] = useState(generateCompetitorData());
+  const [feed, setFeed] = useState(() => Array.from({ length: 10 }, () => generateFeedItem()));
+  const [tick, setTick] = useState(0);
+
+  const overall = generateOverall(scores);
+  const mentionRate = rand(71, 82);
+  const avgPosition = (rand(18, 28) / 10).toFixed(1);
+  const trendVal = rand(-3, 8);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+      setFeed(prev => [generateFeedItem(), ...prev.slice(0, 9)]);
+      if (Math.random() > 0.5) {
+        setScores(generateScores());
+        setCompetitors(generateCompetitorData());
+      }
+    }, UPDATE_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Detect mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Fullscreen: show layout directly
+  const isFullscreen = window.location.hash === "#tv" || window.location.hash === "#vertical";
+  if (isFullscreen) {
+    const m = window.location.hash.replace("#", "");
+    if (m === "tv") return React.createElement(TVLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, trendVal });
+    return React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, mobile: true });
+  }
+
+  // Mobile: go straight to vertical mobile layout, no frame
+  if (isMobile) {
+    return React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, mobile: true });
+  }
+
+  // Preview mode with switcher
+  return React.createElement("div", { style: {
+    minHeight: "100vh", background: "#030806", display: "flex", flexDirection: "column",
+    alignItems: "center", padding: "20px 10px", fontFamily: "'Outfit', sans-serif",
+  }},
+    // Switcher
+    React.createElement("div", { style: {
+      display: "flex", gap: 4, marginBottom: 12, padding: 4, borderRadius: 10,
+      background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
+    }},
+      [
+        { key: "tv", label: "📺 LED TV (16:9)" },
+        { key: "vertical", label: "📱 Vertikální panel" },
+      ].map(m => React.createElement("button", {
+        key: m.key, onClick: () => setMode(m.key),
+        style: {
+          padding: "8px 20px", borderRadius: 8, border: "none", cursor: "pointer",
+          fontSize: 13, fontWeight: 600, fontFamily: "'Outfit', sans-serif",
+          background: mode === m.key ? `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})` : "transparent",
+          color: mode === m.key ? THEME.electric : THEME.muted,
+          transition: "all 0.3s ease",
+        },
+      }, m.label)),
+    ),
+
+    // Fullscreen hint
+    React.createElement("div", { style: {
+      marginBottom: 16, fontSize: 11, color: THEME.muted, textAlign: "center",
+      fontFamily: "'JetBrains Mono', monospace",
+    }},
+      "Pro fullscreen na TV/panelu otevři: ",
+      React.createElement("span", { style: { color: THEME.electric } },
+        mode === "tv" ? "index.html#tv" : "index.html#vertical"),
+    ),
+
+    // Stats summary
+    React.createElement("div", { style: {
+      marginBottom: 16, padding: "12px 24px", borderRadius: 10,
+      background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
+    }},
+      React.createElement(StatsBar, { mentionRate, avgPosition, queriesCount: allQueries.length }),
+    ),
+
+    // Dashboard frame
+    React.createElement("div", { style: {
+      background: "#000", borderRadius: mode === "tv" ? 12 : 16,
+      padding: mode === "tv" ? "6px 6px 24px 6px" : "10px 6px",
+      boxShadow: `0 0 80px ${THEME.emerald}15, 0 0 160px ${THEME.electric}08, 0 20px 60px rgba(0,0,0,0.6)`,
+      position: "relative",
+    }},
+      React.createElement("div", { style: {
+        borderRadius: mode === "tv" ? 6 : 10,
+        overflow: "hidden",
+        zoom: mode === "tv" ? 0.85 : 1,
+      }},
+        mode === "tv"
+          ? React.createElement(TVLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, trendVal })
+          : React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition }),
+      ),
+      mode === "tv" && React.createElement("div", { style: {
+        position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
+        fontSize: 8, color: "#222", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 3, textTransform: "uppercase",
+      }}, "samsung"),
+    ),
+
+    // Info
+    React.createElement("div", { style: {
+      marginTop: 16, fontSize: 11, color: THEME.muted, textAlign: "center",
+      fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6,
+    }},
+      React.createElement("span", { style: { color: THEME.electric, opacity: 0.5 } }, "●"),
+      ` ${allQueries.length} dotazů · ${PLATFORMS.length} platformy · ${COMPETITORS.length} konkurentů`,
+      React.createElement("br"),
+      React.createElement("span", { style: { fontSize: 10, color: `${THEME.muted}88` } },
+        `Škoda CI — Emerald (#0E3A2F) + Electric Green (#78FAAE) · refresh ${UPDATE_INTERVAL/1000}s`),
+    ),
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
