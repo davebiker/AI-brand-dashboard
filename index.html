@@ -52,46 +52,57 @@ const THEME = {
 // PLATFORMY K TESTOVÁNÍ
 // Přidej/uber platformy které chceš monitorovat
 const PLATFORMS = [
-  { name: "Claude",  color: THEME.claude },
-  { name: "GPT-4o",  color: THEME.electric },
-  { name: "Gemini",  color: THEME.cyan },
-  // { name: "Perplexity", color: "#B4A0FF" },  // odkomentujtě pro přidání
+  { name: "Claude",     color: THEME.claude },
+  { name: "GPT-4o",     color: THEME.electric },
+  { name: "Gemini",     color: THEME.cyan },
+  { name: "Copilot",    color: "#26C6F0" },
+  { name: "Perplexity", color: "#B4A0FF" },
+  { name: "Grok",       color: "#FF6B4A" },
 ];
 
 // KONKURENCE
 // Přidej/uber značky které chceš sledovat
 const COMPETITORS = [
-  "Škoda", "VW", "Hyundai", "Toyota", "Kia", "BMW", "Tesla",
-  // "BYD", "Dacia", "Volvo",  // odkomentuj pro přidání
+  "Škoda", "VW", "Hyundai", "Toyota", "Kia", "BMW", "Tesla", "BYD", "Xpeng",
 ];
 
 // KATEGORIE DOTAZŮ
 // Přidej nové kategorie nebo dotazy do existujících
 const QUERY_CATEGORIES = [
 
-  // ── NÁKUP: SUV & CROSSOVER ─────────────────────────────
+  // ── NÁKUP: SUV & CROSSOVER (25) ───────────────────────
   {
     category: "Nákup — SUV/Crossover",
     queries: [
       "Jaké SUV je nejlepší pro rodinu do 1 milionu Kč?",
       "Doporuč mi rodinné SUV s velkým kufrem",
       "Které SUV má nejlepší poměr cena/výkon v Česku?",
-      "Porovnej Škoda Kodiaq, Hyundai Tucson a VW Tiguan",
-      "Které kompaktní SUV má největší zavazadlový prostor?",
+      "Nejlepší SUV pro cestování s dětmi",
+      "Chci velké SUV se 4x4 do 1,5 milionu",
       "Jaký crossover se vyplatí koupit v roce 2025?",
       "Malé SUV do města pro jednoho člověka",
       "SUV s nejnižší spotřebou benzínu",
       "Které SUV je nejspolehlivější podle statistik?",
+      "Porovnej Škoda Kodiaq, Hyundai Tucson a VW Tiguan",
+      "Nejlepší sedmimístné SUV na český trh",
+      "Jaké SUV má nejlepší infotainment systém?",
+      "SUV s nejlepším hodnocením v crash testech",
+      "Doporuč SUV pro seniory — jednoduché ovládání",
+      "Které kompaktní SUV má největší zavazadlový prostor?",
+      "SUV vhodné na dlouhé dálniční cesty",
       "Škoda Kamiq nebo Seat Arona — co je lepší?",
+      "Jaké SUV doporučíš pro pendlera Praha-Brno?",
+      "Nejhezčí SUV na trhu podle designu",
+      "SUV s nejlepší zvukovou izolací kabiny",
+      "Doporuč mi SUV pro víkendové výlety do přírody",
       "Které SUV nejlépe drží cenu při prodeji?",
       "SUV s nejlevnějším provozem v Česku",
       "Škoda Karoq vs Kia Sportage — srovnání",
-      "Nejlepší sedmimístné SUV na český trh",
-      "SUV vhodné na dlouhé dálniční cesty",
+      "Jaké SUV bys doporučil začátečníkovi řidiči?",
     ],
   },
 
-  // ── NÁKUP: ELEKTROMOBILY ───────────────────────────────
+  // ── NÁKUP: ELEKTROMOBILY (25) ─────────────────────────
   {
     category: "Nákup — Elektromobily",
     queries: [
@@ -102,18 +113,28 @@ const QUERY_CATEGORIES = [
       "Vyplatí se elektromobil v Česku v roce 2025?",
       "Porovnej Enyaq, ID.4, Ioniq 5 a Model Y",
       "Jaký elektromobil je nejlepší pro rodinu?",
-      "Tesla Model 3 vs Škoda Enyaq — co koupit?",
+      "Elektrické auto s nejlepší nabíjecí infrastrukturou v ČR",
+      "Škoda Enyaq Coupé — stojí za příplatek?",
+      "Nejlepší elektromobil pro dojíždění do práce 50 km denně",
+      "Jaké jsou nevýhody elektromobilu v Česku?",
       "Elektromobil nebo hybrid — co je lepší volba?",
+      "Kde nabíjet elektromobil v Praze?",
+      "Kolik stojí provoz elektromobilu měsíčně v ČR?",
       "Škoda Enyaq recenze — jaké má problémy?",
+      "Nejlevnější elektromobil na českém trhu 2025",
+      "Elektromobil na lyže a do hor — dojezd v zimě",
+      "Malý elektrický městský vůz do 600 tisíc",
+      "Jak rychle nabíjí Škoda Enyaq na rychlonabíječce?",
       "Elektromobil pro firmu — co se vyplatí na leasing?",
-      "BYD Atto 3 vs Škoda Enyaq — čínská konkurence",
       "Dá se s elektromobilem jet na dovolenou do Chorvatska?",
-      "Škoda Elroq vs VW ID.3 — kompaktní EV srovnání",
+      "Jaký elektromobil má nejlepší záruku?",
+      "Tesla Model 3 vs Škoda Enyaq — co koupit?",
+      "Elektrické auto s největším kufrem",
       "Bude Škoda vyrábět levný elektromobil?",
     ],
   },
 
-  // ── NÁKUP: SEDAN & KOMBI ───────────────────────────────
+  // ── NÁKUP: SEDAN & KOMBI (20) ─────────────────────────
   {
     category: "Nákup — Sedan/Kombi",
     queries: [
@@ -123,14 +144,24 @@ const QUERY_CATEGORIES = [
       "Nejspolehlivější kombi auto na český trh",
       "Škoda Superb nebo Octavia — jaký je rozdíl?",
       "Jaké auto koupit jako služební vůz?",
+      "Nejlepší auto pro taxikáře v Česku",
+      "Škoda Superb vs Toyota Camry — srovnání",
+      "Auto na dojíždění 100 km denně — co doporučíš?",
+      "Kombi auto s nejnižší spotřebou nafty",
       "Nová Škoda Superb 2024 — stojí za to?",
+      "Nejpohodlnější auto na dlouhé cesty",
       "Škoda Octavia RS — vyplatí se sportovní verze?",
+      "Jaké kombi je nejlepší pro psa velkého plemene?",
+      "Auto s nejlepším adaptivním tempomatem",
+      "Škoda Octavia — benzín nebo diesel v roce 2025?",
       "Nejlepší auto do 500 tisíc Kč nové",
+      "Škoda Scala vs Hyundai i30 — co vybrat?",
+      "Jaká auta jsou vyráběná v České republice?",
       "Škoda Fabia — dobrá volba jako první auto?",
     ],
   },
 
-  // ── VNÍMÁNÍ ZNAČKY ─────────────────────────────────────
+  // ── BRAND PERCEPTION (30) ─────────────────────────────
   {
     category: "Brand Perception",
     queries: [
@@ -139,82 +170,173 @@ const QUERY_CATEGORIES = [
       "Je Škoda lepší než VW?",
       "Proč jsou Škodovky tak populární v Evropě?",
       "Jaké jsou nevýhody aut Škoda?",
-      "Je Škoda jenom levnější Volkswagen?",
+      "Je Škoda prémiová značka?",
+      "Čeští výrobci automobilů — kdo je nejlepší?",
       "Škoda vs Hyundai — která značka je spolehlivější?",
-      "Jak obstojí Škoda ve srovnání s čínskými značkami?",
-      "Škoda nebo Toyota — co je lepší investice?",
-      "Co znamená Simply Clever u Škody?",
+      "Proč si lidé kupují Škodu?",
+      "Je Škoda jenom levnější Volkswagen?",
+      "Jak se Škoda změnila za posledních 10 let?",
+      "Jakou pověst má Škoda v Německu?",
       "Je Škoda bezpečné auto?",
       "Nejpodceňovanější automobilové značky v Evropě",
+      "Škoda nebo Toyota — co je lepší investice?",
+      "Historie Škoda Auto — jak vznikla?",
+      "Jaké ocenění vyhrála Škoda?",
+      "Vyrábí Škoda sportovní auta?",
+      "Jak je na tom Škoda s inovacemi?",
+      "Škoda vs Seat vs Cupra — rozdíly ve skupině VW",
+      "Je Škoda Auto dobrý zaměstnavatel?",
+      "Kolik aut ročně vyrobí Škoda?",
+      "Jakou roli hraje Škoda v koncernu Volkswagen?",
+      "Kde všude se prodávají auta Škoda?",
+      "Jak si Škoda stojí v žebříčku nejhodnotnějších značek?",
+      "Jaký je rozdíl mezi Škoda a Daciou?",
+      "Doporučil bys Škodu cizinci na návštěvě Česka?",
+      "Co znamená Simply Clever u Škody?",
+      "Jaké celebrity jezdí ve Škodě?",
+      "Jak obstojí Škoda ve srovnání s čínskými značkami?",
     ],
   },
 
-  // ── SERVIS & VLASTNICTVÍ ───────────────────────────────
+  // ── SERVIS & VLASTNICTVÍ (30) ─────────────────────────
   {
     category: "Servis a vlastnictví",
     queries: [
       "Kolik stojí servis Škoda Octavia ročně?",
       "Nejčastější závady Škoda Octavia 4. generace",
+      "Jak často se musí servisovat Škoda Enyaq?",
+      "Škoda Kodiaq — problémy s motorem 2.0 TDI",
       "Je motor 1.5 TSI od Škody spolehlivý?",
       "Životnost DSG převodovky u Škody",
+      "Kolik stojí pojištění Škoda Enyaq?",
       "Jak dlouho vydrží baterie v Škoda Enyaq?",
-      "Škoda Octavia spotřeba v reálném provozu",
-      "Ojeté Škody — na co si dát pozor při koupi?",
-      "Škoda leasing vs koupě — co se vyplatí?",
-      "Kolik stojí výměna baterie v elektromobilu Škoda?",
+      "Prodloužená záruka Škoda — vyplatí se?",
+      "Kde najdu nejlevnější autorizovaný servis Škoda?",
+      "Výměna oleje Škoda Octavia — cena a interval",
       "Škoda Karoq — zkušenosti po 100 000 km",
+      "Kolik stojí výměna baterie v elektromobilu Škoda?",
+      "Má Škoda problémy s korozí?",
+      "Jak funguje Škoda Connect a je zdarma?",
+      "Škoda Superb — náklady na provoz za rok",
+      "Jaké pneumatiky doporučuješ na Škoda Enyaq?",
+      "Škoda Fabia — nejčastější problémy a závady",
+      "Má Škoda dobré originální díly nebo lepší aftermarket?",
+      "Jak funguje Škoda asistence při poruše?",
+      "Kolik stojí STK pro Škoda Octavia?",
+      "Škoda leasing vs koupě — co se vyplatí?",
+      "Problém s infotainmentem Škoda — jak řešit?",
+      "Škoda Octavia spotřeba v reálném provozu",
+      "Jak dlouho čekám na novou Škodu z výroby?",
+      "Jaké jsou servisní intervaly Škoda Superb 2024?",
+      "Škoda Octavia 1.0 TSI — stačí výkon pro rodinu?",
+      "Reklamace u Škody — jaké jsou zkušenosti?",
+      "Ojeté Škody — na co si dát pozor při koupi?",
+      "Kolik stojí výměna brzdových destiček Škoda?",
     ],
   },
 
-  // ── TRENDY & TRH ───────────────────────────────────────
+  // ── TRENDY & TRH (25) ─────────────────────────────────
   {
     category: "Trendy a trh",
     queries: [
       "Jaké jsou nejprodávanější auta v Česku 2025?",
-      "Jak rostou prodeje elektromobilů v Česku?",
-      "Čínské elektromobily v Evropě — hrozba nebo příležitost?",
-      "Jak ovlivní umělá inteligence automobilový průmysl?",
+      "Přehled elektromobilů dostupných na českém trhu",
+      "Jak se vyvíjí ceny aut v Česku?",
       "Budoucnost automobilového průmyslu v ČR",
+      "Kdy zakážou spalovací motory v Evropě?",
+      "Jak si stojí český automobilový průmysl v Evropě?",
+      "Nejlepší plug-in hybridní auta 2025 v ČR",
+      "Jak rostou prodeje elektromobilů v Česku?",
+      "Dotace na elektromobily v ČR 2025 — co platí?",
+      "Autonomní řízení — kdy bude dostupné v běžných autech?",
+      "Čínské elektromobily v Evropě — hrozba nebo příležitost?",
+      "Vodíková auta vs elektromobily — co vyhraje?",
+      "Jak ovlivní umělá inteligence automobilový průmysl?",
+      "Nejlepší auta na LPG/CNG v Česku",
+      "Kolik elektromobilů se prodalo v ČR minulý rok?",
+      "Jak se změní automobilový trh do roku 2030?",
       "Mají čínská auta šanci uspět v Česku?",
+      "Clo na čínské elektromobily v EU — co to znamená?",
+      "Srovnání cen aut ČR vs Německo — kde koupit levněji?",
       "Nejbezpečnější auta podle Euro NCAP 2025",
+      "Jaké automobilky investují nejvíce do elektromobility?",
+      "Sdílená mobilita v Praze — jaké jsou možnosti?",
+      "Jak funguje Vehicle-to-Grid technologie?",
+      "Solid-state baterie — kdy přijdou na trh?",
       "Software-defined vehicle — co to znamená?",
     ],
   },
 
-  // ── AI & TECHNOLOGIE ───────────────────────────────────
+  // ── KONKURENČNÍ SROVNÁNÍ (30) ─────────────────────────
+  {
+    category: "Konkurenční srovnání",
+    queries: [
+      "Škoda Octavia vs Mazda 3 — co je lepší?",
+      "Škoda Enyaq vs BMW iX1 — vyplatí se připlatit?",
+      "Škoda Kodiaq vs Peugeot 5008 — srovnání",
+      "Škoda vs Kia — která značka je lepší?",
+      "Škoda Kamiq vs Renault Captur",
+      "Škoda Superb vs Mazda 6 — komfort a kvalita",
+      "Škoda Enyaq vs Ford Mustang Mach-E",
+      "Škoda Fabia vs Toyota Yaris — malá auta",
+      "Škoda Octavia vs Honda Civic — co vybrat?",
+      "Nejlepší auto do 700 tisíc — přehled značek",
+      "Škoda vs Dacia — kde je hranice kvality a ceny?",
+      "Škoda Kodiaq vs Toyota RAV4 Hybrid",
+      "Který koncernový vůz VW je nejlepší koupě?",
+      "Škoda Enyaq vs Volvo EX30 — srovnání",
+      "Škoda Kamiq vs VW T-Cross — koncernová dvojčata",
+      "BYD Atto 3 vs Škoda Enyaq — čínská konkurence",
+      "Cupra Born vs Škoda Enyaq — sportovní vs praktické EV",
+      "Škoda Superb Combi vs BMW 3 Touring — stojí za to?",
+      "MG ZS EV vs Škoda Enyaq — levné vs prémiové EV",
+      "Škoda Octavia vs Opel Astra — německá alternativa",
+      "Hyundai Kona Electric vs Škoda Enyaq",
+      "Nejlepší kombi auta na českém trhu — přehled 2025",
+      "Škoda Octavia diesel vs Toyota Corolla hybrid",
+      "Škoda Karoq vs Citroën C3 Aircross — co je lepší koupě?",
+      "Tesla Model 3 vs Škoda Enyaq vs Hyundai Ioniq 6",
+      "Renault Mégane E-Tech vs Škoda Enyaq",
+      "VW ID.7 vs Škoda Superb — koncernová budoucnost",
+      "Peugeot e-3008 vs Škoda Enyaq — nová konkurence",
+      "Kia EV6 vs Škoda Enyaq — technologie a cena",
+      "Škoda Elroq vs VW ID.3 — kompaktní EV srovnání",
+    ],
+  },
+
+  // ── AI & TECHNOLOGIE (15) ─────────────────────────────
   {
     category: "AI a technologie",
     queries: [
       "Jak Škoda využívá umělou inteligenci?",
-      "ChatGPT v autě — které značky to mají?",
-      "Jak se Škoda připravuje na software-defined vehicles?",
-      "Které automobilky jsou nejdále v digitalizaci?",
       "Má Škoda Enyaq over-the-air aktualizace?",
+      "Jaký infotainment systém má Škoda?",
+      "Škoda a autonomní řízení — jaké jsou plány?",
+      "Jak funguje hlasové ovládání ve Škodě?",
+      "Má Škoda vlastní aplikaci pro mobil?",
+      "ChatGPT v autě — které značky to mají?",
+      "Jak bezpečné jsou asistenční systémy ve Škodě?",
+      "Škoda a digitální kokpit — co nabízí?",
+      "Prediktivní údržba u aut — umí to Škoda?",
+      "Jaké senzory a kamery má Škoda pro autonomní funkce?",
+      "Škoda a elektromobilita — jaká je technologická roadmapa?",
+      "Jak se Škoda připravuje na software-defined vehicles?",
+      "Škoda MyŠkoda app — co všechno umí?",
+      "Které automobilky jsou nejdále v digitalizaci?",
     ],
   },
-
-  // ┌──────────────────────────────────────────────────────┐
-  // │  PŘIDEJ NOVOU KATEGORII ZDE:                         │
-  // │                                                      │
-  // │  {                                                   │
-  // │    category: "Název kategorie",                      │
-  // │    queries: [                                        │
-  // │      "Dotaz 1",                                      │
-  // │      "Dotaz 2",                                      │
-  // │    ],                                                │
-  // │  },                                                  │
-  // └──────────────────────────────────────────────────────┘
 ];
 
 // KATEGORIE PRO POZICE (střední panel)
 const POSITION_CATEGORIES = [
-  { cat: "Rodinná SUV",      pos: "#1", trend: "+2" },
-  { cat: "Poměr cena/výkon", pos: "#1", trend: "0" },
-  { cat: "Elektromobily CZ", pos: "#2", trend: "+1" },
-  { cat: "Kombi segment",    pos: "#1", trend: "0" },
-  { cat: "Spolehlivost",     pos: "#3", trend: "-1" },
-  { cat: "Premium feeling",  pos: "#5", trend: "+1" },
-  // { cat: "Nová kategorie", pos: "#2", trend: "+1" },
+  { cat: "Rodinná SUV",      pos: "#4", trend: "-1" },
+  { cat: "Poměr cena/výkon", pos: "#3", trend: "-2" },
+  { cat: "Elektromobily CZ", pos: "#5", trend: "-1" },
+  { cat: "Kombi segment",    pos: "#2", trend: "0" },
+  { cat: "Spolehlivost",     pos: "#4", trend: "-2" },
+  { cat: "Premium feeling",  pos: "#7", trend: "-1" },
+  { cat: "Servis",           pos: "#6", trend: "-3" },
+  { cat: "Mobilní aplikace", pos: "#8", trend: "-2" },
 ];
 
 // RYCHLOST AKTUALIZACE (ms)
@@ -230,7 +352,7 @@ const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 function generateScores() {
   const s = {};
-  PLATFORMS.forEach(p => { s[p.name] = rand(55, 88); });
+  PLATFORMS.forEach(p => { s[p.name] = rand(28, 55); });
   return s;
 }
 function generateOverall(s) {
@@ -240,16 +362,30 @@ function generateOverall(s) {
 function generateCompetitorData() {
   return COMPETITORS.map(name => ({
     name,
-    score: name === "Škoda" ? rand(65, 82) : rand(18, 72),
+    score: name === "Škoda" ? rand(22, 38)
+         : name === "Tesla" ? rand(55, 78)
+         : name === "BMW" ? rand(48, 72)
+         : name === "Hyundai" ? rand(45, 68)
+         : name === "Toyota" ? rand(50, 70)
+         : name === "BYD" ? rand(30, 52)
+         : rand(28, 65),
   })).sort((a, b) => b.score - a.score);
 }
+// Sequential query index — cycles through ALL queries one by one
+let queryIndex = 0;
+function getNextQuery() {
+  const item = allQueries[queryIndex % allQueries.length];
+  queryIndex++;
+  return item;
+}
+
 function generateFeedItem() {
-  const item = allQueries[rand(0, allQueries.length - 1)];
+  const item = getNextQuery();
   const platform = PLATFORMS[rand(0, PLATFORMS.length - 1)];
-  const mentioned = Math.random() > 0.25;
-  const position = mentioned ? rand(1, 5) : null;
-  const sentiment = mentioned ? ["pozitivní", "neutrální", "negativní"][rand(0, 2)] : null;
-  return { ...item, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date() };
+  const mentioned = Math.random() > 0.55;
+  const position = mentioned ? rand(3, 7) : null;
+  const sentiment = mentioned ? ["pozitivní", "neutrální", "neutrální", "negativní"][rand(0, 3)] : null;
+  return { ...item, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date(), index: queryIndex };
 }
 
 // ── COMPONENTS ──
@@ -382,12 +518,12 @@ function TrendIndicator({ value, compact }) {
   }}, `${up ? "▲" : "▼"} ${Math.abs(value)}%`);
 }
 
-function StatsBar({ mentionRate, avgPosition, queriesCount }) {
+function StatsBar({ mentionRate, avgPosition, queriesCount, posInCycle, cycleNum }) {
   return React.createElement("div", { style: { display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" } },
     [
       { v: `${mentionRate}%`, l: "Mention Rate" },
       { v: `#${avgPosition}`, l: "Avg. pozice" },
-      { v: `${queriesCount}`, l: "Dotazů celkem" },
+      { v: `${posInCycle}/${queriesCount}`, l: `Cyklus ${cycleNum}` },
       { v: `${PLATFORMS.length}`, l: "Platformy" },
     ].map((m, i) => React.createElement("div", { key: i, style: { textAlign: "center" } },
       React.createElement("div", { style: { fontSize: 18, fontWeight: 700, color: THEME.text, fontFamily: "'JetBrains Mono', monospace" } }, m.v),
@@ -397,7 +533,7 @@ function StatsBar({ mentionRate, avgPosition, queriesCount }) {
 }
 
 // ── TV LAYOUT ──
-function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition, trendVal }) {
+function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum }) {
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
     display: "grid", gridTemplateColumns: "300px 1fr 400px",
@@ -450,17 +586,17 @@ function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition
         React.createElement("span", { style: { color: THEME.muted, fontSize: 12, marginLeft: 6 } }, "vs minulý týden"),
       ),
       React.createElement(SectionTitle, null, "Skóre dle platformy"),
-      React.createElement("div", { style: { display: "flex", justifyContent: "space-around", marginBottom: 20 } },
+      React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, justifyItems: "center", marginBottom: 20 } },
         PLATFORMS.map(p => React.createElement(ScoreRing, {
-          key: p.name, value: scores[p.name] || 0, size: 80, stroke: 6, label: p.name, color: p.color,
+          key: p.name, value: scores[p.name] || 0, size: 68, stroke: 5, label: p.name, color: p.color,
         })),
       ),
       React.createElement(SectionTitle, null, "Klíčové metriky"),
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
         React.createElement(MetricCard, { value: `${mentionRate}%`, label: "zmíněna v odpovědích" }),
         React.createElement(MetricCard, { value: `#${avgPosition}`, label: "průměrná pozice" }),
-        React.createElement(MetricCard, { value: `${allQueries.length}`, label: "dotazů v databázi" }),
-        React.createElement(MetricCard, { value: "68%", label: "pozitivní sentiment" }),
+        React.createElement(MetricCard, { value: `${posInCycle || "—"}/${allQueries.length}`, label: `dotaz · cyklus ${cycleNum || 1}` }),
+        React.createElement(MetricCard, { value: "41%", label: "pozitivní sentiment" }),
       ),
     ),
 
@@ -500,7 +636,7 @@ function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition
           fontSize: 14, color: THEME.textDim, lineHeight: 1.5,
         }},
           React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
-          `Škoda Enyaq dominuje v odpovědích o elektromobilech v ČR. Gemini ji doporučuje častěji než GPT-4o. Slabina: v premium segmentu AI preferuje BMW a Volvo.`,
+          `⚠️ Škoda je zmiňována pouze ve 42% odpovědí AI. Tesla a Hyundai dominují v elektromobilitě. V kategorii SUV nás AI řadí až za Toyota, Kia a BMW. Největší propad: Copilot a Grok Škodu téměř ignorují.`,
         ),
       ),
     ),
@@ -508,8 +644,20 @@ function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition
     // Right panel: feed
     React.createElement("div", { style: { padding: "16px 20px", borderLeft: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
       React.createElement(SectionTitle, null,
-        React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 8 } },
-          "Live Feed ", React.createElement(Pulse, { size: 8 })),
+        React.createElement("span", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" } },
+          React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 8 } },
+            "Live Feed ", React.createElement(Pulse, { size: 8 })),
+          React.createElement("span", { style: { fontSize: 11, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace" } },
+            `${posInCycle || 0}/${allQueries.length}`),
+        ),
+      ),
+      // Progress bar
+      React.createElement("div", { style: { height: 3, background: THEME.cardBorder, borderRadius: 2, marginBottom: 10, overflow: "hidden" } },
+        React.createElement("div", { style: {
+          height: "100%", width: `${((posInCycle || 0) / allQueries.length) * 100}%`,
+          background: `linear-gradient(90deg, ${THEME.emeraldLight}, ${THEME.electric})`,
+          borderRadius: 2, transition: "width 0.8s ease",
+        }}),
       ),
       feed.map((item, i) => React.createElement(FeedItem, { key: i, item })),
     ),
@@ -517,12 +665,12 @@ function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition
 }
 
 // ── VERTICAL LAYOUT ──
-function VerticalLayout({ scores, overall, competitors, feed, mentionRate, avgPosition, mobile }) {
+function VerticalLayout({ scores, overall, competitors, feed, mentionRate, avgPosition, mobile, posInCycle, cycleNum }) {
   const pad = mobile ? "14px 20px" : "12px 16px";
   const padSm = mobile ? "12px 20px" : "10px 16px";
   const ringSize = mobile ? 130 : 110;
   const ringStroke = mobile ? 10 : 9;
-  const platRingSize = mobile ? 80 : 64;
+  const platRingSize = mobile ? 72 : 56;
   const platStroke = mobile ? 6 : 5;
   const feedCount = mobile ? 8 : 6;
   return React.createElement("div", { style: {
@@ -578,7 +726,7 @@ function VerticalLayout({ scores, overall, competitors, feed, mentionRate, avgPo
     // Platforms
     React.createElement("div", { style: { padding: pad, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
       React.createElement(SectionTitle, { compact: !mobile }, "Platformy"),
-      React.createElement("div", { style: { display: "flex", justifyContent: "space-around" } },
+      React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: mobile ? 8 : 4, justifyItems: "center" } },
         PLATFORMS.map(p => React.createElement(ScoreRing, {
           key: p.name, value: scores[p.name] || 0, size: platRingSize, stroke: platStroke, label: p.name, color: p.color,
         })),
@@ -590,8 +738,8 @@ function VerticalLayout({ scores, overall, competitors, feed, mentionRate, avgPo
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: mobile ? 10 : 6 } },
         React.createElement(MetricCard, { value: `${mentionRate}%`, label: "Mention Rate", compact: !mobile }),
         React.createElement(MetricCard, { value: `#${avgPosition}`, label: "Avg. pozice", compact: !mobile }),
-        React.createElement(MetricCard, { value: `${allQueries.length}`, label: "Dotazů celkem", compact: !mobile }),
-        React.createElement(MetricCard, { value: "68%", label: "Pozitivní sentiment", compact: !mobile }),
+        React.createElement(MetricCard, { value: `${posInCycle || "—"}/${allQueries.length}`, label: `Cyklus ${cycleNum || 1}`, compact: !mobile }),
+        React.createElement(MetricCard, { value: "41%", label: "Pozitivní sentiment", compact: !mobile }),
       ),
     ),
 
@@ -636,15 +784,27 @@ function VerticalLayout({ scores, overall, competitors, feed, mentionRate, avgPo
         fontSize: 15, color: THEME.textDim, lineHeight: 1.6,
       }},
         React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
-        "Škoda Enyaq dominuje v odpovědích o elektromobilech v ČR. Gemini ji doporučuje častěji než GPT-4o. Slabina: v premium segmentu AI preferuje BMW a Volvo.",
+        "⚠️ Škoda je zmiňována pouze ve 42% odpovědí AI. Tesla a Hyundai dominují v elektromobilitě. V kategorii SUV nás AI řadí až za Toyota, Kia a BMW. Největší propad: Copilot a Grok Škodu téměř ignorují.",
       ),
     ),
 
     // Feed
     React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, flex: mobile ? undefined : 1, overflow: mobile ? "visible" : "hidden" } },
       React.createElement(SectionTitle, { compact: !mobile },
-        React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6 } },
-          "Live Feed ", React.createElement(Pulse, { size: mobile ? 7 : 5 })),
+        React.createElement("span", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" } },
+          React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6 } },
+            "Live Feed ", React.createElement(Pulse, { size: mobile ? 7 : 5 })),
+          React.createElement("span", { style: { fontSize: mobile ? 12 : 10, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace" } },
+            `${posInCycle || 0}/${allQueries.length}`),
+        ),
+      ),
+      // Progress bar
+      React.createElement("div", { style: { height: mobile ? 4 : 3, background: THEME.cardBorder, borderRadius: 2, marginBottom: mobile ? 12 : 8, overflow: "hidden" } },
+        React.createElement("div", { style: {
+          height: "100%", width: `${((posInCycle || 0) / allQueries.length) * 100}%`,
+          background: `linear-gradient(90deg, ${THEME.emeraldLight}, ${THEME.electric})`,
+          borderRadius: 2, transition: "width 0.8s ease",
+        }}),
       ),
       feed.slice(0, mobile ? 10 : feedCount).map((item, i) => React.createElement(FeedItem, { key: i, item, compact: !mobile })),
     ),
@@ -670,15 +830,19 @@ function App() {
   const [competitors, setCompetitors] = useState(generateCompetitorData());
   const [feed, setFeed] = useState(() => Array.from({ length: 10 }, () => generateFeedItem()));
   const [tick, setTick] = useState(0);
+  const [processed, setProcessed] = useState(10); // started with 10
 
   const overall = generateOverall(scores);
-  const mentionRate = rand(71, 82);
-  const avgPosition = (rand(18, 28) / 10).toFixed(1);
-  const trendVal = rand(-3, 8);
+  const mentionRate = rand(35, 52);
+  const avgPosition = (rand(32, 45) / 10).toFixed(1);
+  const trendVal = rand(-8, -1);
+  const cycleNum = Math.floor((processed - 1) / allQueries.length) + 1;
+  const posInCycle = ((processed - 1) % allQueries.length) + 1;
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTick(t => t + 1);
+      setProcessed(p => p + 1);
       setFeed(prev => [generateFeedItem(), ...prev.slice(0, 9)]);
       if (Math.random() > 0.5) {
         setScores(generateScores());
@@ -700,13 +864,13 @@ function App() {
   const isFullscreen = window.location.hash === "#tv" || window.location.hash === "#vertical";
   if (isFullscreen) {
     const m = window.location.hash.replace("#", "");
-    if (m === "tv") return React.createElement(TVLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, trendVal });
-    return React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, mobile: true });
+    if (m === "tv") return React.createElement(TVLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum });
+    return React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, mobile: true, posInCycle, cycleNum });
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, mobile: true });
+    return React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, mobile: true, posInCycle, cycleNum });
   }
 
   // Preview mode with switcher
@@ -749,7 +913,7 @@ function App() {
       marginBottom: 16, padding: "12px 24px", borderRadius: 10,
       background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
     }},
-      React.createElement(StatsBar, { mentionRate, avgPosition, queriesCount: allQueries.length }),
+      React.createElement(StatsBar, { mentionRate, avgPosition, queriesCount: allQueries.length, posInCycle, cycleNum }),
     ),
 
     // Dashboard frame
@@ -765,8 +929,8 @@ function App() {
         zoom: mode === "tv" ? 0.85 : 1,
       }},
         mode === "tv"
-          ? React.createElement(TVLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, trendVal })
-          : React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition }),
+          ? React.createElement(TVLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum })
+          : React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, posInCycle, cycleNum }),
       ),
       mode === "tv" && React.createElement("div", { style: {
         position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
