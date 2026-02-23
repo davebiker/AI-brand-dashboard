@@ -371,6 +371,26 @@ function generateCompetitorData() {
          : rand(28, 65),
   })).sort((a, b) => b.score - a.score);
 }
+
+function generateSentimentData() {
+  return COMPETITORS.map(name => {
+    let pos, neu, neg;
+    if (name === "Škoda") {
+      pos = rand(18, 32); neg = rand(25, 40); neu = 100 - pos - neg;
+    } else if (name === "Tesla") {
+      pos = rand(50, 68); neg = rand(8, 18); neu = 100 - pos - neg;
+    } else if (name === "BMW") {
+      pos = rand(45, 62); neg = rand(10, 20); neu = 100 - pos - neg;
+    } else if (name === "Toyota") {
+      pos = rand(52, 70); neg = rand(5, 15); neu = 100 - pos - neg;
+    } else if (name === "Hyundai") {
+      pos = rand(42, 58); neg = rand(12, 22); neu = 100 - pos - neg;
+    } else {
+      pos = rand(30, 55); neg = rand(10, 28); neu = 100 - pos - neg;
+    }
+    return { name, pos, neu, neg };
+  }).sort((a, b) => b.pos - a.pos);
+}
 // Sequential query index — cycles through ALL queries one by one
 let queryIndex = 0;
 function getNextQuery() {
@@ -440,6 +460,59 @@ function BarChart({ data, compact }) {
         ),
       );
     })
+  );
+}
+
+function SentimentChart({ data, compact }) {
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: compact ? 5 : 7 } },
+    data.map(d => {
+      const isS = d.name === "Škoda";
+      return React.createElement("div", { key: d.name, style: { display: "flex", alignItems: "center", gap: 8 } },
+        React.createElement("span", { style: {
+          width: compact ? 54 : 68, fontSize: compact ? 11 : 12,
+          color: isS ? THEME.electric : THEME.textDim,
+          fontWeight: isS ? 700 : 400, textAlign: "right", flexShrink: 0,
+          fontFamily: "'JetBrains Mono', monospace",
+        }}, d.name),
+        React.createElement("div", { style: {
+          flex: 1, height: compact ? 16 : 20, display: "flex", borderRadius: 3, overflow: "hidden",
+          border: isS ? `1px solid ${THEME.electric}44` : "none",
+        }},
+          React.createElement("div", { style: {
+            width: `${d.pos}%`, height: "100%",
+            background: isS ? THEME.electric : `${THEME.electric}88`,
+            transition: "width 1.2s ease",
+          }}),
+          React.createElement("div", { style: {
+            width: `${d.neu}%`, height: "100%",
+            background: isS ? `${THEME.amber}cc` : `${THEME.amber}55`,
+            transition: "width 1.2s ease",
+          }}),
+          React.createElement("div", { style: {
+            width: `${d.neg}%`, height: "100%",
+            background: isS ? `${THEME.red}cc` : `${THEME.red}55`,
+            transition: "width 1.2s ease",
+          }}),
+        ),
+        React.createElement("span", { style: {
+          width: compact ? 32 : 36, fontSize: compact ? 10 : 11, textAlign: "right",
+          color: d.pos < 35 ? THEME.red : d.pos < 50 ? THEME.amber : THEME.electric,
+          fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, flexShrink: 0,
+        }}, `${d.pos}%`),
+      );
+    }),
+    // Legend
+    React.createElement("div", { style: { display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 2, fontSize: compact ? 9 : 10 } },
+      React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 4 } },
+        React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: THEME.electric, display: "inline-block" } }), 
+        React.createElement("span", { style: { color: THEME.muted } }, "pozitivní")),
+      React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 4 } },
+        React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: `${THEME.amber}aa`, display: "inline-block" } }),
+        React.createElement("span", { style: { color: THEME.muted } }, "neutrální")),
+      React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 4 } },
+        React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: `${THEME.red}aa`, display: "inline-block" } }),
+        React.createElement("span", { style: { color: THEME.muted } }, "negativní")),
+    ),
   );
 }
 
@@ -533,7 +606,7 @@ function StatsBar({ mentionRate, avgPosition, queriesCount, posInCycle, cycleNum
 }
 
 // ── TV LAYOUT ──
-function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum }) {
+function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum }) {
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
     display: "grid", gridTemplateColumns: "300px 1fr 400px",
@@ -605,6 +678,10 @@ function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition
       React.createElement(SectionTitle, null, "Share of Voice — konkurence"),
       React.createElement(BarChart, { data: competitors }),
       React.createElement("div", { style: { marginTop: 20 } },
+        React.createElement(SectionTitle, null, "Sentiment dle značky"),
+        React.createElement(SentimentChart, { data: sentiment }),
+      ),
+      React.createElement("div", { style: { marginTop: 20 } },
         React.createElement(SectionTitle, null, "Pozice dle kategorie"),
         React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
           POSITION_CATEGORIES.map((c, i) =>
@@ -665,7 +742,7 @@ function TVLayout({ scores, overall, competitors, feed, mentionRate, avgPosition
 }
 
 // ── VERTICAL LAYOUT ──
-function VerticalLayout({ scores, overall, competitors, feed, mentionRate, avgPosition, mobile, posInCycle, cycleNum }) {
+function VerticalLayout({ scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, mobile, posInCycle, cycleNum }) {
   const pad = mobile ? "14px 20px" : "12px 16px";
   const padSm = mobile ? "12px 20px" : "10px 16px";
   const ringSize = mobile ? 130 : 110;
@@ -749,6 +826,12 @@ function VerticalLayout({ scores, overall, competitors, feed, mentionRate, avgPo
       React.createElement(BarChart, { data: competitors, compact: !mobile }),
     ),
 
+    // Sentiment per brand
+    React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
+      React.createElement(SectionTitle, { compact: !mobile }, "Sentiment dle značky"),
+      React.createElement(SentimentChart, { data: sentiment, compact: !mobile }),
+    ),
+
     // Positions by category (mobile only — LED panel too narrow)
     mobile && React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
       React.createElement(SectionTitle, null, "Pozice dle kategorie"),
@@ -828,6 +911,7 @@ function App() {
   const [mode, setMode] = useState("tv");
   const [scores, setScores] = useState(generateScores());
   const [competitors, setCompetitors] = useState(generateCompetitorData());
+  const [sentiment, setSentiment] = useState(generateSentimentData());
   const [feed, setFeed] = useState(() => Array.from({ length: 10 }, () => generateFeedItem()));
   const [tick, setTick] = useState(0);
   const [processed, setProcessed] = useState(10); // started with 10
@@ -847,6 +931,7 @@ function App() {
       if (Math.random() > 0.5) {
         setScores(generateScores());
         setCompetitors(generateCompetitorData());
+        setSentiment(generateSentimentData());
       }
     }, UPDATE_INTERVAL);
     return () => clearInterval(interval);
@@ -864,13 +949,13 @@ function App() {
   const isFullscreen = window.location.hash === "#tv" || window.location.hash === "#vertical";
   if (isFullscreen) {
     const m = window.location.hash.replace("#", "");
-    if (m === "tv") return React.createElement(TVLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum });
-    return React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, mobile: true, posInCycle, cycleNum });
+    if (m === "tv") return React.createElement(TVLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum });
+    return React.createElement(VerticalLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, mobile: true, posInCycle, cycleNum });
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, mobile: true, posInCycle, cycleNum });
+    return React.createElement(VerticalLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, mobile: true, posInCycle, cycleNum });
   }
 
   // Preview mode with switcher
@@ -929,8 +1014,8 @@ function App() {
         zoom: mode === "tv" ? 0.85 : 1,
       }},
         mode === "tv"
-          ? React.createElement(TVLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum })
-          : React.createElement(VerticalLayout, { scores, overall, competitors, feed, mentionRate, avgPosition, posInCycle, cycleNum }),
+          ? React.createElement(TVLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum })
+          : React.createElement(VerticalLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, posInCycle, cycleNum }),
       ),
       mode === "tv" && React.createElement("div", { style: {
         position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
