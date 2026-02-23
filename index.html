@@ -1916,15 +1916,18 @@ function App() {
     : ((processed - 1) % totalQueries) + 1;
   const totalQueries = isModelMode ? (modelCfg ? modelCfg.queries.length : 20) : totalQueries;
 
+  const tickRef = useRef(0);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setTick(t => t + 1);
+      tickRef.current += 1;
+      setTick(tickRef.current);
       setProcessed(p => p + 1);
       setFeed(prev => {
         const newItem = viewMode === "model" ? generateModelFeedItem(selectedModel) : generateFeedItem();
         return [newItem, ...prev.slice(0, 9)];
       });
-      if (Math.random() > 0.5) {
+      if (tickRef.current % 3 === 0) {
         setScores(generateScores());
         if (viewMode === "brand") {
           setCompetitors(generateCompetitorData());
