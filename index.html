@@ -1908,13 +1908,9 @@ function App() {
   const mentionRate = rand(52, 65);
   const avgPosition = (rand(25, 35) / 10).toFixed(1);
   const trendVal = rand(-4, 4);
-  const cycleNum = isModelMode
-    ? Math.floor((processed - 1) / (modelCfg ? modelCfg.queries.length : 20)) + 1
-    : Math.floor((processed - 1) / totalQueries) + 1;
-  const posInCycle = isModelMode
-    ? ((processed - 1) % (modelCfg ? modelCfg.queries.length : 20)) + 1
-    : ((processed - 1) % totalQueries) + 1;
-  const totalQueries = isModelMode ? (modelCfg ? modelCfg.queries.length : 20) : totalQueries;
+  const totalQueries = isModelMode ? (modelCfg ? modelCfg.queries.length : 20) : allQueries.length;
+  const cycleNum = Math.floor((processed - 1) / totalQueries) + 1;
+  const posInCycle = ((processed - 1) % totalQueries) + 1;
 
   const tickRef = useRef(0);
 
