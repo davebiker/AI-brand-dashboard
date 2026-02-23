@@ -66,6 +66,157 @@ const COMPETITORS = [
   "Škoda", "VW", "Hyundai", "Toyota", "Kia", "BMW", "Tesla", "BYD", "Xpeng",
 ];
 
+// ── MODEL MODE KONFIGURACE ──
+const MODEL_CONFIG = {
+  enyaq: {
+    label: "Enyaq",
+    fullName: "Škoda Enyaq (+ Coupé)",
+    competitors: ["Tesla Model Y", "VW ID.4", "Hyundai Ioniq 5", "BMW iX1", "BYD Seal U", "Kia EV6"],
+    scoreRange: [10, 30],
+    competitorRanges: {
+      "Tesla Model Y": [55, 72], "VW ID.4": [35, 52], "Hyundai Ioniq 5": [38, 55],
+      "BMW iX1": [28, 45], "BYD Seal U": [8, 22], "Kia EV6": [30, 48],
+    },
+    categories: [
+      { key: "modRange", pos: "#4", trend: "-1" },
+      { key: "modCharging", pos: "#3", trend: "+1" },
+      { key: "modTrunk", pos: "#1", trend: "0" },
+      { key: "modPrice", pos: "#3", trend: "0" },
+      { key: "modInfotainment", pos: "#5", trend: "-2" },
+      { key: "modSafety", pos: "#2", trend: "+1" },
+      { key: "modDesign", pos: "#4", trend: "-1" },
+      { key: "modResale", pos: "#3", trend: "0" },
+    ],
+    queries: [
+      "Škoda Enyaq vs Tesla Model Y — co je lepší koupě?",
+      "Enyaq vs ID.4 — liší se vůbec?",
+      "Enyaq Coupé vs Ioniq 5 — design a dojezd",
+      "Jaký je reálný dojezd Enyaq 77 kWh?",
+      "Enyaq iV 80x — vyplatí se 4x4 verze?",
+      "Škoda Enyaq nabíjecí výkon — jak rychle nabíjí?",
+      "Enyaq vs BMW iX1 — vyplatí se příplatek za BMW?",
+      "Enyaq 85 kWh baterie — kolik km reálně ujede?",
+      "Škoda Enyaq Coupé RS — stojí za příplatek?",
+      "Enyaq kufr — největší v segmentu?",
+      "Škoda Enyaq vs Kia EV6 — technologie a cena",
+      "Enyaq facelift 2025 — co se změnilo?",
+      "Enyaq spotřeba dálnice 130 km/h — kolik kWh/100km?",
+      "Enyaq L&K vs sportovní RS — jaký je rozdíl?",
+      "Enyaq zimní dojezd — zkušenosti majitelů",
+      "Škoda Enyaq problémy a závady po 50 000 km",
+      "Enyaq vs BYD Seal U — čínská alternativa?",
+      "Enyaq infotainment — je lepší než Tesla displej?",
+      "Kolik stojí pojištění Škoda Enyaq?",
+      "Enyaq záruka na baterii — kolik let a km?",
+      "Enyaq OTA update — jaké funkce přibyly?",
+      "Enyaq vs VW ID.5 — který Coupé SUV je lepší?",
+      "Enyaq po 3 letech provozu — stojí za to?",
+      "Škoda Enyaq vs Hyundai Ioniq 5 — komfort a prostor",
+      "Enyaq nejlepší výbava za peníze — jakou zvolit?",
+      "Enyaq vozíčkář — bezbariérový přístup?",
+      "Enyaq tahání přívěsu — jaký je max. hmotnost?",
+      "Enyaq vs Model Y — bezpečnost a crash testy",
+      "Enyaq degradace baterie po 2 letech — data",
+      "Enyaq operativní leasing — nejlepší nabídky 2025",
+    ],
+    insightCs: "Enyaq si v AI drží solidní pozici v prostoru a kufru, ale Tesla Model Y dominuje v technologiích a nabíjení. Slabina: infotainment — AI často doporučuje konkurenci s lepším UX. Příležitost: facelift 2025 může zlepšit pozici v designu.",
+    insightEn: "Enyaq maintains solid AI positioning in space and trunk, but Tesla Model Y dominates in tech and charging. Weakness: infotainment — AI often recommends competitors with better UX. Opportunity: 2025 facelift can improve design perception.",
+  },
+  elroq: {
+    label: "Elroq",
+    fullName: "Škoda Elroq",
+    competitors: ["VW ID.3", "Hyundai Kona EV", "Kia Niro EV", "Peugeot e-2008", "BYD Dolphin", "Renault Scénic E-Tech"],
+    scoreRange: [6, 22],
+    competitorRanges: {
+      "VW ID.3": [30, 48], "Hyundai Kona EV": [35, 55], "Kia Niro EV": [28, 45],
+      "Peugeot e-2008": [18, 35], "BYD Dolphin": [12, 30], "Renault Scénic E-Tech": [20, 38],
+    },
+    categories: [
+      { key: "modRange", pos: "#3", trend: "+1" },
+      { key: "modCharging", pos: "#4", trend: "0" },
+      { key: "modTrunk", pos: "#2", trend: "+1" },
+      { key: "modPrice", pos: "#2", trend: "0" },
+      { key: "modInfotainment", pos: "#5", trend: "-1" },
+      { key: "modSafety", pos: "#2", trend: "0" },
+      { key: "modDesign", pos: "#4", trend: "-1" },
+      { key: "modResale", pos: "#5", trend: "-2" },
+    ],
+    queries: [
+      "Škoda Elroq vs VW ID.3 — kompaktní EV srovnání",
+      "Elroq vs Hyundai Kona Electric — kdo vyhraje?",
+      "Škoda Elroq recenze — první dojmy a zkušenosti",
+      "Elroq dojezd v reálném provozu — kolik km?",
+      "Elroq vs Kia Niro EV — praktičnost a cena",
+      "Škoda Elroq cena a výbava — co dostanu za peníze?",
+      "Elroq nabíjecí křivka — jak rychle nabíjí DC?",
+      "Elroq vs Peugeot e-2008 — francouzská alternativa",
+      "Elroq 58 vs 77 kWh — vyplatí se větší baterie?",
+      "Škoda Elroq kufr — kolik litrů a rozměry",
+      "Elroq vs BYD Dolphin — čínská levnější alternativa",
+      "Elroq zimní dojezd a spotřeba — test",
+      "Elroq vs Renault Scénic E-Tech — rodinné EV",
+      "Škoda Elroq závady — první problémy majitelů",
+      "Elroq záruka a servisní náklady",
+      "Elroq interiér a materiály — kvalita zpracování",
+      "Elroq vs Enyaq — který Škoda EV vybrat?",
+      "Elroq Simply Clever vychytávky — co je nového?",
+      "Elroq operativní leasing — měsíční splátka",
+      "Škoda Elroq spotřeba ve městě vs na dálnici",
+      "Elroq crash test Euro NCAP — kolik hvězd?",
+      "Elroq vs VW ID.3 GTX — sportovní kompaktní EV",
+      "Elroq head-up displej a digitální kokpit",
+      "Elroq OTA aktualizace — fungují?",
+      "Škoda Elroq pro seniory — jednoduché ovládání?",
+    ],
+    insightCs: "Elroq je v AI odpovědích zatím málo viditelný — dominuje Hyundai Kona EV a VW ID.3. Silná stránka: cena/výkon a kufr. Slabina: nedostatek recenzí a zkušeností majitelů zatím brzdí doporučování. Potřeba: více obsahu a testů.",
+    insightEn: "Elroq has low AI visibility so far — Hyundai Kona EV and VW ID.3 dominate. Strength: price/value and trunk. Weakness: lack of reviews and owner experiences slows AI recommendations. Need: more content and tests.",
+  },
+  epiq: {
+    label: "Epiq",
+    fullName: "Škoda Epiq",
+    competitors: ["Dacia Spring", "Citroën ë-C3", "VW ID.2", "Renault 5 E-Tech", "Fiat Grande Panda EV", "Smart #1"],
+    scoreRange: [2, 15],
+    competitorRanges: {
+      "Dacia Spring": [20, 40], "Citroën ë-C3": [25, 45], "VW ID.2": [15, 35],
+      "Renault 5 E-Tech": [35, 55], "Fiat Grande Panda EV": [10, 28], "Smart #1": [18, 35],
+    },
+    categories: [
+      { key: "modRange", pos: "#5", trend: "0" },
+      { key: "modCharging", pos: "#4", trend: "0" },
+      { key: "modTrunk", pos: "#3", trend: "0" },
+      { key: "modPrice", pos: "#2", trend: "0" },
+      { key: "modInfotainment", pos: "#3", trend: "0" },
+      { key: "modSafety", pos: "#3", trend: "0" },
+      { key: "modDesign", pos: "#4", trend: "0" },
+      { key: "modResale", pos: "#6", trend: "0" },
+    ],
+    queries: [
+      "Škoda Epiq — kdy vyjde a kolik bude stát?",
+      "Epiq vs Dacia Spring — nejlevnější EV v Evropě",
+      "Škoda Epiq dojezd — kolik km na nabití?",
+      "Epiq vs Citroën ë-C3 — malé městské EV srovnání",
+      "Škoda Epiq interiér a prostor — dost velký?",
+      "Epiq vs Renault 5 E-Tech — retro vs moderní",
+      "Škoda Epiq cena v Česku — bude pod 500 tisíc?",
+      "Epiq vs VW ID.2 — koncernová kompaktní EV",
+      "Škoda Epiq design — jak vypadá naživo?",
+      "Epiq nabíjení — jaký výkon a jak rychle?",
+      "Škoda Epiq výbava — co bude v základu?",
+      "Epiq vs Fiat Grande Panda EV — italská alternativa",
+      "Škoda Epiq jako první auto — dobrá volba?",
+      "Epiq vs Smart #1 — premium vs budget EV",
+      "Škoda Epiq bezpečnost — co víme o crash testech?",
+      "Epiq baterie a technologie — MEB nebo nová platforma?",
+      "Škoda Epiq vs Elroq — jaký je rozdíl?",
+      "Epiq městský EV — parkování a manévrovatelnost",
+      "Škoda Epiq objednávky — kdy bude možné objednat?",
+      "Epiq pro mladé řidiče — vyplatí se čekat?",
+    ],
+    insightCs: "Epiq zatím AI téměř nezná — většina platforem ho nezmiňuje nebo uvádí jen základní specifikace. Renault 5 E-Tech a Citroën ë-C3 mají výrazný náskok. Kritické: musíme začít budovat AI obsah PŘED uvedením na trh.",
+    insightEn: "Epiq is virtually unknown to AI — most platforms don't mention it or only list basic specs. Renault 5 E-Tech and Citroën ë-C3 have a significant lead. Critical: we must start building AI content BEFORE market launch.",
+  },
+};
+
 // KATEGORIE DOTAZŮ
 // Přidej nové kategorie nebo dotazy do existujících
 const QUERY_CATEGORIES = [
@@ -704,6 +855,16 @@ const LANG = {
     catApp: "Mobilní aplikace",
     catCharging: "Nabíjení / infra",
     catRange: "Dojezd EV",
+    modRange: "Dojezd",
+    modCharging: "Nabíjení",
+    modTrunk: "Kufr / prostor",
+    modPrice: "Cena / výbava",
+    modInfotainment: "Infotainment",
+    modSafety: "Bezpečnost",
+    modDesign: "Design",
+    modResale: "Zůstatková hodnota",
+    brandMode: "BRAND",
+    modelMode: "MODEL",
   },
   en: {
     shareOfVoice: "Share of Voice",
@@ -736,6 +897,16 @@ const LANG = {
     catApp: "Mobile app",
     catCharging: "Charging / infra",
     catRange: "EV range",
+    modRange: "Range",
+    modCharging: "Charging",
+    modTrunk: "Trunk / space",
+    modPrice: "Price / spec",
+    modInfotainment: "Infotainment",
+    modSafety: "Safety",
+    modDesign: "Design",
+    modResale: "Resale value",
+    brandMode: "BRAND",
+    modelMode: "MODEL",
   },
 };
 
@@ -754,10 +925,10 @@ function generateScores() {
   PLATFORMS.forEach(p => { s[p.name] = rand(35, 65); });
   return s;
 }
-function generateOverall(competitors) {
-  const skoda = competitors.find(c => c.name === "Škoda");
+function generateOverall(competitors, name = "Škoda") {
+  const entry = competitors.find(c => c.name === name);
   const total = competitors.reduce((sum, c) => sum + c.score, 0);
-  return skoda && total > 0 ? Math.round((skoda.score / total) * 100) : 0;
+  return entry && total > 0 ? Math.round((entry.score / total) * 100) : 0;
 }
 function generateCompetitorData() {
   return COMPETITORS.map(name => ({
@@ -773,6 +944,18 @@ function generateCompetitorData() {
          : name === "Xpeng" ? rand(1, 12)
          : rand(15, 40),
   })).sort((a, b) => b.score - a.score);
+}
+
+function generateModelCompetitorData(modelKey) {
+  const cfg = MODEL_CONFIG[modelKey];
+  if (!cfg) return [];
+  const all = [
+    { name: cfg.label, score: rand(cfg.scoreRange[0], cfg.scoreRange[1]) },
+    ...cfg.competitors.map(name => ({
+      name, score: rand((cfg.competitorRanges[name] || [15, 40])[0], (cfg.competitorRanges[name] || [15, 40])[1]),
+    })),
+  ];
+  return all.sort((a, b) => b.score - a.score);
 }
 
 function generateSentimentData() {
@@ -793,6 +976,46 @@ function generateSentimentData() {
     }
     return { name, pos, neu, neg };
   }).sort((a, b) => b.pos - a.pos);
+}
+
+function generateModelSentimentData(modelKey) {
+  const cfg = MODEL_CONFIG[modelKey];
+  if (!cfg) return [];
+  const all = [cfg.label, ...cfg.competitors];
+  return all.map(name => {
+    const isSkoda = name === cfg.label;
+    const pos = isSkoda ? rand(30, 48) : rand(28, 65);
+    const neg = isSkoda ? rand(18, 30) : rand(8, 28);
+    const neu = 100 - pos - neg;
+    return { name, pos, neu, neg };
+  }).sort((a, b) => b.pos - a.pos);
+}
+
+// Model queries cycling
+let modelQueryIndex = 0;
+function generateModelFeedItem(modelKey) {
+  const cfg = MODEL_CONFIG[modelKey];
+  if (!cfg) return generateFeedItem();
+  const q = cfg.queries[modelQueryIndex % cfg.queries.length];
+  modelQueryIndex++;
+  const platform = PLATFORMS[rand(0, PLATFORMS.length - 1)];
+  const mentioned = Math.random() > 0.45;
+  const position = mentioned ? rand(2, 6) : null;
+  const sentiment = mentioned ? ["pozitivní", "pozitivní", "neutrální", "neutrální", "negativní"][rand(0, 4)] : null;
+  return { query: q, category: cfg.fullName, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date(), index: modelQueryIndex };
+}
+
+function generateTrendData() {
+  // Generate 7 days of SoV data with slight random walk
+  const days = [];
+  let val = rand(5, 15);
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push({ day: d, value: Math.max(1, Math.min(25, val)) });
+    val += rand(-3, 4);
+  }
+  return days;
 }
 // Sequential query index — cycles through ALL queries one by one
 let queryIndex = 0;
@@ -818,25 +1041,108 @@ function ScoreRing({ value, size = 120, stroke = 8, color = THEME.electric, labe
   const circ = 2 * Math.PI * r;
   const offset = circ - (value / 100) * circ;
   return React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 4 } },
-    React.createElement("svg", { width: size, height: size, style: { transform: "rotate(-90deg)" } },
-      React.createElement("circle", { cx: size/2, cy: size/2, r, fill: "none", stroke: THEME.cardBorder, strokeWidth: stroke }),
-      React.createElement("circle", { cx: size/2, cy: size/2, r, fill: "none", stroke: color, strokeWidth: stroke,
-        strokeDasharray: circ, strokeDashoffset: offset, strokeLinecap: "round",
-        style: { transition: "stroke-dashoffset 1.5s ease" } }),
-      React.createElement("text", { x: size/2, y: size/2, textAnchor: "middle", dominantBaseline: "central",
-        fill: THEME.text, fontSize: size * 0.28, fontWeight: "700",
-        style: { transform: "rotate(90deg)", transformOrigin: "center" },
-        fontFamily: "'JetBrains Mono', monospace" }, value),
+    React.createElement("div", { style: { position: "relative", width: size, height: size } },
+      React.createElement("svg", { width: size, height: size, style: { transform: "rotate(-90deg)" } },
+        React.createElement("circle", { cx: size/2, cy: size/2, r, fill: "none", stroke: THEME.cardBorder, strokeWidth: stroke }),
+        React.createElement("circle", { cx: size/2, cy: size/2, r, fill: "none", stroke: color, strokeWidth: stroke,
+          strokeDasharray: circ, strokeDashoffset: offset, strokeLinecap: "round",
+          style: { transition: "stroke-dashoffset 1.5s ease" } }),
+      ),
+      React.createElement("div", { style: {
+        position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: size * 0.28, fontWeight: 700, color: THEME.text,
+        fontFamily: "'JetBrains Mono', monospace",
+      }}, value),
     ),
     label && React.createElement("span", { style: { fontSize: 13, color: THEME.muted, fontWeight: 600, letterSpacing: 0.5 } }, label),
   );
 }
 
-function BarChart({ data, compact }) {
+function TrendChart({ data, width = 260, height = 120, t, lang, compact }) {
+  const w = width;
+  const h = height;
+  const padL = 28, padR = 8, padT = 20, padB = 20;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
+  const vals = data.map(d => d.value);
+  const minV = Math.max(0, Math.min(...vals) - 3);
+  const maxV = Math.max(...vals) + 3;
+  const range = maxV - minV || 1;
+  const current = vals[vals.length - 1];
+  const prev = vals[vals.length - 2];
+  const diff = current - prev;
+
+  const pts = data.map((d, i) => {
+    const x = padL + (i / (data.length - 1)) * chartW;
+    const y = padT + chartH - ((d.value - minV) / range) * chartH;
+    return { x, y, val: d.value, day: d.day };
+  });
+  const linePath = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+  const areaPath = linePath + ` L${pts[pts.length-1].x},${padT + chartH} L${pts[0].x},${padT + chartH} Z`;
+  const last = pts[pts.length - 1];
+  const dayNames = lang === "en"
+    ? ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+    : ["Ne","Po","Út","St","Čt","Pá","So"];
+
+  return React.createElement("div", { style: { textAlign: "center" } },
+    // Current value big
+    React.createElement("div", { style: { display: "flex", alignItems: "baseline", justifyContent: "center", gap: 8, marginBottom: 4 } },
+      React.createElement("span", { style: {
+        fontSize: compact ? 36 : 44, fontWeight: 700, color: THEME.electric,
+        fontFamily: "'JetBrains Mono', monospace", lineHeight: 1,
+      }}, `${current}%`),
+      React.createElement("span", { style: {
+        fontSize: compact ? 13 : 15, fontWeight: 600,
+        color: diff >= 0 ? THEME.electric : THEME.red,
+        fontFamily: "'JetBrains Mono', monospace",
+      }}, `${diff >= 0 ? "▲" : "▼"} ${Math.abs(diff)}%`),
+    ),
+    React.createElement("div", { style: {
+      fontSize: compact ? 10 : 11, color: THEME.muted, marginBottom: 6,
+      fontFamily: "'JetBrains Mono', monospace",
+    }}, t.shareOfVoiceSub),
+    // SVG chart
+    React.createElement("svg", { width: w, height: h, style: { display: "block", margin: "0 auto" } },
+      // Horizontal grid
+      [0, 0.5, 1].map((f, i) => {
+        const y = padT + chartH * (1 - f);
+        const val = Math.round(minV + range * f);
+        return React.createElement("g", { key: i },
+          React.createElement("line", { x1: padL, x2: w - padR, y1: y, y2: y,
+            stroke: THEME.cardBorder, strokeWidth: 0.5 }),
+          React.createElement("text", { x: padL - 4, y: y + 3, textAnchor: "end",
+            fill: THEME.muted, fontSize: 8, fontFamily: "'JetBrains Mono', monospace" }, `${val}%`),
+        );
+      }),
+      // Area fill
+      React.createElement("path", { d: areaPath, fill: `${THEME.electric}12` }),
+      // Line
+      React.createElement("path", { d: linePath, fill: "none", stroke: THEME.electric, strokeWidth: 2,
+        strokeLinejoin: "round", strokeLinecap: "round" }),
+      // Data points
+      pts.map((p, i) => React.createElement("circle", {
+        key: i, cx: p.x, cy: p.y, r: i === pts.length - 1 ? 4 : 2.5,
+        fill: i === pts.length - 1 ? THEME.electric : `${THEME.electric}88`,
+        stroke: i === pts.length - 1 ? THEME.bg : "none", strokeWidth: 2,
+      })),
+      // Day labels
+      pts.map((p, i) => React.createElement("text", {
+        key: i, x: p.x, y: h - 4, textAnchor: "middle",
+        fill: THEME.muted, fontSize: 8, fontFamily: "'JetBrains Mono', monospace",
+      }, dayNames[p.day.getDay()])),
+      // Last point glow
+      React.createElement("circle", { cx: last.x, cy: last.y, r: 8,
+        fill: "none", stroke: THEME.electric, strokeWidth: 1, opacity: 0.3,
+        style: { animation: "pulse 2s infinite" } }),
+    ),
+  );
+}
+
+function BarChart({ data, compact, highlight = "Škoda" }) {
   const sorted = [...data].sort((a, b) => b.score - a.score);
   return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: compact ? 5 : 8 } },
     sorted.map(d => {
-      const isS = d.name === "Škoda";
+      const isS = d.name === highlight;
       return React.createElement("div", { key: d.name, style: { display: "flex", alignItems: "center", gap: 8 } },
         React.createElement("span", { style: {
           width: compact ? 54 : 68, fontSize: compact ? 12 : 14,
@@ -866,10 +1172,10 @@ function BarChart({ data, compact }) {
   );
 }
 
-function SentimentChart({ data, compact, t }) {
+function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
   return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: compact ? 5 : 7 } },
     data.map(d => {
-      const isS = d.name === "Škoda";
+      const isS = d.name === highlight;
       return React.createElement("div", { key: d.name, style: { display: "flex", alignItems: "center", gap: 8 } },
         React.createElement("span", { style: {
           width: compact ? 54 : 68, fontSize: compact ? 11 : 12,
@@ -1015,7 +1321,11 @@ function StatsBar({ mentionRate, avgPosition, queriesCount, posInCycle, cycleNum
 }
 
 // ── TV LAYOUT ──
-function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum, mode, setMode, market, setMarket, t, lang, setLang }) {
+function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }) {
+  const competitors = displayCompetitors;
+  const sentiment = displaySentiment;
+  const isModelMode = viewMode === "model";
+  const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
     display: "grid", gridTemplateColumns: "300px 1fr 400px",
@@ -1047,7 +1357,7 @@ function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, 
         React.createElement("div", null,
           React.createElement("div", { style: { fontSize: 18, fontWeight: 700, color: THEME.text } }, "AI Brand Visibility"),
           React.createElement("div", { style: { fontSize: 12, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace", opacity: 0.7 } }, 
-            `ŠKODA AUTO — Live Monitor · ${(MARKETS.find(m => m.key === market) || MARKETS[0]).label}`),
+            isModelMode ? `${MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].fullName : 'Škoda'} · ${(MARKETS.find(m => m.key === market) || MARKETS[0]).label}` : `ŠKODA AUTO — Live Monitor · ${(MARKETS.find(m => m.key === market) || MARKETS[0]).label}`),
         ),
       ),
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 16 } },
@@ -1070,6 +1380,54 @@ function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, 
 
     // Left panel
     React.createElement("div", { style: { padding: "16px 20px", borderRight: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
+
+      // BRAND / MODEL toggle
+      React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          display: "flex", gap: 3, padding: 3, borderRadius: 8,
+          background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
+        }},
+          ["brand", "model"].map(vm => React.createElement("button", {
+            key: vm, onClick: () => setViewMode && setViewMode(vm),
+            style: {
+              flex: 1, padding: "6px 0", borderRadius: 6, cursor: "pointer",
+              border: viewMode === vm ? `1px solid ${THEME.electric}44` : "1px solid transparent",
+              background: viewMode === vm ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : `${THEME.cardBg}88`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.3s ease",
+              opacity: viewMode === vm ? 1 : 0.7,
+            },
+          },
+            React.createElement("span", { style: {
+              fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+              color: viewMode === vm ? THEME.electric : THEME.textDim,
+            }}, vm === "brand" ? t.brandMode : t.modelMode),
+          )),
+        ),
+      ),
+
+      // Model selector (only in model mode)
+      isModelMode && React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          display: "flex", gap: 3, padding: 3, borderRadius: 8,
+          background: THEME.cardBg, border: `1px solid ${THEME.electric}22`,
+        }},
+          Object.keys(MODEL_CONFIG).map(mk => React.createElement("button", {
+            key: mk, onClick: () => setSelectedModel && setSelectedModel(mk),
+            style: {
+              flex: 1, padding: "5px 0", borderRadius: 6, cursor: "pointer",
+              border: selectedModel === mk ? `1px solid ${THEME.electric}44` : "1px solid transparent",
+              background: selectedModel === mk ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : "transparent",
+              transition: "all 0.3s ease",
+            },
+          },
+            React.createElement("span", { style: {
+              fontSize: 11, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace",
+              color: selectedModel === mk ? THEME.electric : THEME.muted,
+            }}, MODEL_CONFIG[mk].label),
+          )),
+        ),
+      ),
 
       // Market selector
       React.createElement("div", { style: { marginBottom: 8 } },
@@ -1133,15 +1491,8 @@ function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, 
       ),
 
       React.createElement(SectionTitle, null, t.shareOfVoice),
-      React.createElement("div", { style: { display: "flex", justifyContent: "center", marginBottom: 4 } },
-        React.createElement(ScoreRing, { value: overall, size: 140, stroke: 10 }),
-      ),
-      React.createElement("div", { style: { textAlign: "center", fontSize: 11, color: THEME.muted, marginBottom: 6, fontFamily: "'JetBrains Mono', monospace" } },
-        t.shareOfVoiceSub),
-      React.createElement("div", { style: { textAlign: "center", marginBottom: 20 } },
-        React.createElement(TrendIndicator, { value: trendVal }),
-        React.createElement("span", { style: { color: THEME.muted, fontSize: 12, marginLeft: 6 } }, t.vsLastWeek),
-      ),
+      React.createElement(TrendChart, { data: sovTrend, width: 260, height: 130, t, lang }),
+      React.createElement("div", { style: { height: 12 } }),
       React.createElement(SectionTitle, null, t.scorePlatform),
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, justifyItems: "center", marginBottom: 20 } },
         PLATFORMS.map(p => React.createElement(ScoreRing, {
@@ -1152,7 +1503,7 @@ function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, 
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
         React.createElement(MetricCard, { value: `${mentionRate}%`, label: "zmíněna v odpovědích" }),
         React.createElement(MetricCard, { value: `#${avgPosition}`, label: "průměrná pozice" }),
-        React.createElement(MetricCard, { value: `${posInCycle || "—"}/${allQueries.length}`, label: `${t.query} · ${t.cycle} ${cycleNum || 1}` }),
+        React.createElement(MetricCard, { value: `${posInCycle || "—"}/${totalQueries}`, label: `${t.query} · ${t.cycle} ${cycleNum || 1}` }),
         React.createElement(MetricCard, { value: "52%", label: t.posSentiment }),
       ),
     ),
@@ -1160,15 +1511,15 @@ function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, 
     // Center panel
     React.createElement("div", { style: { padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto" } },
       React.createElement(SectionTitle, null, t.sovCompetition),
-      React.createElement(BarChart, { data: competitors }),
+      React.createElement(BarChart, { data: competitors, highlight: highlightName }),
       React.createElement("div", { style: { marginTop: 20 } },
         React.createElement(SectionTitle, null, t.sentimentBrand),
-        React.createElement(SentimentChart, { data: sentiment, t }),
+        React.createElement(SentimentChart, { data: sentiment, t, highlight: highlightName }),
       ),
       React.createElement("div", { style: { marginTop: 20 } },
         React.createElement(SectionTitle, null, t.positionCategory),
         React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
-          POSITION_CATEGORIES.map((c, i) =>
+          displayCategories.map((c, i) =>
             React.createElement("div", { key: i, style: {
               display: "flex", justifyContent: "space-between", alignItems: "center",
               padding: "8px 10px", background: THEME.cardBg, borderRadius: 6,
@@ -1197,7 +1548,7 @@ function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, 
           fontSize: 14, color: THEME.textDim, lineHeight: 1.5,
         }},
           React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
-          t.insightText,
+          (isModelMode && MODEL_CONFIG[selectedModel] ? (lang === "en" ? MODEL_CONFIG[selectedModel].insightEn : MODEL_CONFIG[selectedModel].insightCs) : t.insightText),
         ),
       ),
     ),
@@ -1209,13 +1560,13 @@ function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, 
           React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 8 } },
             t.liveFeed + " ", React.createElement(Pulse, { size: 8 })),
           React.createElement("span", { style: { fontSize: 11, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace" } },
-            `${posInCycle || 0}/${allQueries.length}`),
+            `${posInCycle || 0}/${totalQueries}`),
         ),
       ),
       // Progress bar
       React.createElement("div", { style: { height: 3, background: THEME.cardBorder, borderRadius: 2, marginBottom: 10, overflow: "hidden" } },
         React.createElement("div", { style: {
-          height: "100%", width: `${((posInCycle || 0) / allQueries.length) * 100}%`,
+          height: "100%", width: `${((posInCycle || 0) / totalQueries) * 100}%`,
           background: `linear-gradient(90deg, ${THEME.emeraldLight}, ${THEME.electric})`,
           borderRadius: 2, transition: "width 0.8s ease",
         }}),
@@ -1226,7 +1577,11 @@ function TVLayout({ scores, overall, competitors, sentiment, feed, mentionRate, 
 }
 
 // ── VERTICAL LAYOUT ──
-function VerticalLayout({ scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, mobile, posInCycle, cycleNum, mode, setMode, market, setMarket, t, lang, setLang }) {
+function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile, mode, setMode }) {
+  const competitors = displayCompetitors;
+  const sentiment = displaySentiment;
+  const isModelMode = viewMode === "model";
+  const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
   const pad = mobile ? "14px 20px" : "12px 16px";
   const padSm = mobile ? "12px 20px" : "10px 16px";
   const ringSize = mobile ? 130 : 110;
@@ -1265,7 +1620,7 @@ function VerticalLayout({ scores, overall, competitors, sentiment, feed, mention
         React.createElement("div", null,
           React.createElement("div", { style: { fontSize: mobile ? 18 : 14, fontWeight: 700, color: THEME.text } }, "AI Visibility"),
           React.createElement("div", { style: { fontSize: mobile ? 11 : 9, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace", opacity: 0.7 } }, 
-            `ŠKODA X — ${(MARKETS.find(m => m.key === market) || MARKETS[0]).label}`),
+            isModelMode ? `${MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : 'Škoda'} · ${(MARKETS.find(m => m.key === market) || MARKETS[0]).label}` : `ŠKODA X — ${(MARKETS.find(m => m.key === market) || MARKETS[0]).label}`),
         ),
       ),
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: mobile ? 12 : 6 } },
@@ -1283,6 +1638,53 @@ function VerticalLayout({ scores, overall, competitors, sentiment, feed, mention
             transition: "all 0.3s ease",
           },
         }, lang === "cs" ? "EN" : "CZ"),
+      ),
+    ),
+
+    // BRAND / MODEL toggle
+    React.createElement("div", { style: { padding: "8px 20px 0", position: "relative", zIndex: 1 } },
+      React.createElement("div", { style: {
+        display: "flex", gap: 3, padding: 3, borderRadius: 8,
+        background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
+      }},
+        ["brand", "model"].map(vm => React.createElement("button", {
+          key: vm, onClick: () => setViewMode && setViewMode(vm),
+          style: {
+            flex: 1, padding: mobile ? "8px 0" : "6px 0", borderRadius: 6, cursor: "pointer",
+            border: viewMode === vm ? `1px solid ${THEME.electric}44` : "1px solid transparent",
+            background: viewMode === vm ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : `${THEME.cardBg}88`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.3s ease", opacity: viewMode === vm ? 1 : 0.7,
+          },
+        },
+          React.createElement("span", { style: {
+            fontSize: mobile ? 14 : 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+            color: viewMode === vm ? THEME.electric : THEME.textDim,
+          }}, vm === "brand" ? t.brandMode : t.modelMode),
+        )),
+      ),
+    ),
+
+    // Model selector (only in model mode)
+    isModelMode && React.createElement("div", { style: { padding: "6px 20px 0", position: "relative", zIndex: 1 } },
+      React.createElement("div", { style: {
+        display: "flex", gap: 3, padding: 3, borderRadius: 8,
+        background: THEME.cardBg, border: `1px solid ${THEME.electric}22`,
+      }},
+        Object.keys(MODEL_CONFIG).map(mk => React.createElement("button", {
+          key: mk, onClick: () => setSelectedModel && setSelectedModel(mk),
+          style: {
+            flex: 1, padding: mobile ? "7px 0" : "5px 0", borderRadius: 6, cursor: "pointer",
+            border: selectedModel === mk ? `1px solid ${THEME.electric}44` : "1px solid transparent",
+            background: selectedModel === mk ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : "transparent",
+            transition: "all 0.3s ease",
+          },
+        },
+          React.createElement("span", { style: {
+            fontSize: mobile ? 13 : 11, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace",
+            color: selectedModel === mk ? THEME.electric : THEME.muted,
+          }}, MODEL_CONFIG[mk].label),
+        )),
       ),
     ),
 
@@ -1339,18 +1741,18 @@ function VerticalLayout({ scores, overall, competitors, sentiment, feed, mention
       ),
     ),
 
-    // Score
+    // Score — Share of Voice trend
     React.createElement("div", { style: { padding: pad, textAlign: "center", position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
-      React.createElement(ScoreRing, { value: overall, size: ringSize, stroke: ringStroke }),
-      React.createElement("div", { style: { marginTop: 6 } },
-        React.createElement(TrendIndicator, { value: 3, compact: !mobile }),
-        React.createElement("span", { style: { color: THEME.muted, fontSize: mobile ? 13 : 9, marginLeft: 6 } }, t.vsLastWeek),
-      ),
+      React.createElement(SectionTitle, { compact: !mobile }, t.shareOfVoice),
+      React.createElement(TrendChart, {
+        data: sovTrend, width: mobile ? 320 : 240, height: mobile ? 140 : 100,
+        t, lang, compact: !mobile,
+      }),
     ),
 
     // Platforms
     React.createElement("div", { style: { padding: pad, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
-      React.createElement(SectionTitle, { compact: !mobile }, t.platforms),
+      React.createElement(SectionTitle, { compact: !mobile }, t.scorePlatform),
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: mobile ? 8 : 4, justifyItems: "center" } },
         PLATFORMS.map(p => React.createElement(ScoreRing, {
           key: p.name, value: scores[p.name] || 0, size: platRingSize, stroke: platStroke, label: p.name, color: p.color,
@@ -1363,28 +1765,28 @@ function VerticalLayout({ scores, overall, competitors, sentiment, feed, mention
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: mobile ? 10 : 6 } },
         React.createElement(MetricCard, { value: `${mentionRate}%`, label: t.mentionRate, compact: !mobile }),
         React.createElement(MetricCard, { value: `#${avgPosition}`, label: t.avgPosition, compact: !mobile }),
-        React.createElement(MetricCard, { value: `${posInCycle || "—"}/${allQueries.length}`, label: `Cyklus ${cycleNum || 1}`, compact: !mobile }),
-        React.createElement(MetricCard, { value: "52%", label: "Pozitivní sentiment", compact: !mobile }),
+        React.createElement(MetricCard, { value: `${posInCycle || "—"}/${totalQueries}`, label: `${t.query} · ${t.cycle} ${cycleNum || 1}`, compact: !mobile }),
+        React.createElement(MetricCard, { value: "52%", label: t.posSentiment, compact: !mobile }),
       ),
     ),
 
     // Competitors
     React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
       React.createElement(SectionTitle, { compact: !mobile }, t.sovCompetition),
-      React.createElement(BarChart, { data: competitors, compact: !mobile }),
+      React.createElement(BarChart, { data: competitors, compact: !mobile, highlight: highlightName }),
     ),
 
     // Sentiment per brand
     React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
       React.createElement(SectionTitle, { compact: !mobile }, t.sentimentBrand),
-      React.createElement(SentimentChart, { data: sentiment, compact: !mobile, t }),
+      React.createElement(SentimentChart, { data: sentiment, compact: !mobile, t, highlight: highlightName }),
     ),
 
     // Positions by category (mobile only — LED panel too narrow)
     mobile && React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
       React.createElement(SectionTitle, null, t.positionCategory),
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
-        POSITION_CATEGORIES.map((c, i) =>
+        displayCategories.map((c, i) =>
           React.createElement("div", { key: i, style: {
             display: "flex", justifyContent: "space-between", alignItems: "center",
             padding: "10px 12px", background: THEME.cardBg, borderRadius: 6,
@@ -1415,7 +1817,7 @@ function VerticalLayout({ scores, overall, competitors, sentiment, feed, mention
         fontSize: 15, color: THEME.textDim, lineHeight: 1.6,
       }},
         React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
-        t.insightText,
+        (isModelMode && MODEL_CONFIG[selectedModel] ? (lang === "en" ? MODEL_CONFIG[selectedModel].insightEn : MODEL_CONFIG[selectedModel].insightCs) : t.insightText),
       ),
     ),
 
@@ -1426,13 +1828,13 @@ function VerticalLayout({ scores, overall, competitors, sentiment, feed, mention
           React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6 } },
             t.liveFeed + " ", React.createElement(Pulse, { size: mobile ? 7 : 5 })),
           React.createElement("span", { style: { fontSize: mobile ? 12 : 10, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace" } },
-            `${posInCycle || 0}/${allQueries.length}`),
+            `${posInCycle || 0}/${totalQueries}`),
         ),
       ),
       // Progress bar
       React.createElement("div", { style: { height: mobile ? 4 : 3, background: THEME.cardBorder, borderRadius: 2, marginBottom: mobile ? 12 : 8, overflow: "hidden" } },
         React.createElement("div", { style: {
-          height: "100%", width: `${((posInCycle || 0) / allQueries.length) * 100}%`,
+          height: "100%", width: `${((posInCycle || 0) / totalQueries) * 100}%`,
           background: `linear-gradient(90deg, ${THEME.emeraldLight}, ${THEME.electric})`,
           borderRadius: 2, transition: "width 0.8s ease",
         }}),
@@ -1449,7 +1851,7 @@ function VerticalLayout({ scores, overall, competitors, sentiment, feed, mention
     }},
       React.createElement("span", { style: { fontSize: mobile ? 12 : 9, opacity: 0.7 } }, "ŠKODA X — AI Brand Intelligence"),
       mobile && React.createElement("span", { style: { fontSize: 11, opacity: 0.5 } },
-        lang === "en" ? `${allQueries.length} queries · ${PLATFORMS.length} AI` : `${allQueries.length} dotazů · ${PLATFORMS.length} AI`),
+        lang === "en" ? `${totalQueries} queries · ${PLATFORMS.length} AI` : `${totalQueries} dotazů · ${PLATFORMS.length} AI`),
     ),
   );
 }
@@ -1459,41 +1861,79 @@ function App() {
   const [mode, setMode] = useState("tv");
   const [lang, setLang] = useState("cs");
   const t = LANG[lang];
+  const [viewMode, setViewModeState] = useState("brand"); // "brand" | "model"
+  const [selectedModel, setSelectedModelState] = useState("enyaq");
+
   const [market, setMarketState] = useState("cz");
   const setMarket = (m) => {
     setMarketState(m);
-    setScores(generateScores());
-    setCompetitors(generateCompetitorData());
-    setSentiment(generateSentimentData());
-    setFeed(Array.from({ length: 10 }, () => generateFeedItem()));
+    regenAllData();
   };
+  const setViewMode = (vm) => {
+    setViewModeState(vm);
+    setTimeout(regenAllData, 0);
+  };
+  const setSelectedModel = (sm) => {
+    setSelectedModelState(sm);
+    modelQueryIndex = 0;
+    setTimeout(regenAllData, 0);
+  };
+
   const [scores, setScores] = useState(generateScores());
   const [competitors, setCompetitors] = useState(generateCompetitorData());
   const [sentiment, setSentiment] = useState(generateSentimentData());
+  const [sovTrend, setSovTrend] = useState(generateTrendData());
   const [feed, setFeed] = useState(() => Array.from({ length: 10 }, () => generateFeedItem()));
   const [tick, setTick] = useState(0);
-  const [processed, setProcessed] = useState(10); // started with 10
+  const [processed, setProcessed] = useState(10);
 
-  const overall = generateOverall(competitors);
+  function regenAllData() {
+    setScores(generateScores());
+    setCompetitors(generateCompetitorData());
+    setSentiment(generateSentimentData());
+    setSovTrend(generateTrendData());
+    setFeed(Array.from({ length: 10 }, () => generateFeedItem()));
+  }
+
+  // Compute display data based on viewMode
+  const isModelMode = viewMode === "model";
+  const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
+  const modelCfg = MODEL_CONFIG[selectedModel];
+  const displayCompetitors = isModelMode ? generateModelCompetitorData(selectedModel) : competitors;
+  const displaySentiment = isModelMode ? generateModelSentimentData(selectedModel) : sentiment;
+  const displayCategories = isModelMode ? (modelCfg ? modelCfg.categories : []) : POSITION_CATEGORIES;
+  const displayOverall = generateOverall(displayCompetitors, displayLabel);
+  const displayLabel = isModelMode ? (modelCfg ? modelCfg.label : "Škoda") : "Škoda";
+
   const mentionRate = rand(52, 65);
   const avgPosition = (rand(25, 35) / 10).toFixed(1);
   const trendVal = rand(-4, 4);
-  const cycleNum = Math.floor((processed - 1) / allQueries.length) + 1;
-  const posInCycle = ((processed - 1) % allQueries.length) + 1;
+  const cycleNum = isModelMode
+    ? Math.floor((processed - 1) / (modelCfg ? modelCfg.queries.length : 20)) + 1
+    : Math.floor((processed - 1) / totalQueries) + 1;
+  const posInCycle = isModelMode
+    ? ((processed - 1) % (modelCfg ? modelCfg.queries.length : 20)) + 1
+    : ((processed - 1) % totalQueries) + 1;
+  const totalQueries = isModelMode ? (modelCfg ? modelCfg.queries.length : 20) : totalQueries;
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTick(t => t + 1);
       setProcessed(p => p + 1);
-      setFeed(prev => [generateFeedItem(), ...prev.slice(0, 9)]);
+      setFeed(prev => {
+        const newItem = viewMode === "model" ? generateModelFeedItem(selectedModel) : generateFeedItem();
+        return [newItem, ...prev.slice(0, 9)];
+      });
       if (Math.random() > 0.5) {
         setScores(generateScores());
-        setCompetitors(generateCompetitorData());
-        setSentiment(generateSentimentData());
+        if (viewMode === "brand") {
+          setCompetitors(generateCompetitorData());
+          setSentiment(generateSentimentData());
+        }
       }
     }, UPDATE_INTERVAL);
     return () => clearInterval(interval);
-  }, []);
+  }, [viewMode, selectedModel]);
 
   // Detect mobile
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -1507,13 +1947,13 @@ function App() {
   const isFullscreen = window.location.hash === "#tv" || window.location.hash === "#vertical";
   if (isFullscreen) {
     const m = window.location.hash.replace("#", "");
-    if (m === "tv") return React.createElement(TVLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum, market, setMarket, t, lang, setLang });
-    return React.createElement(VerticalLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, mobile: true, posInCycle, cycleNum, market, setMarket, t, lang, setLang });
+    if (m === "tv") return React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang });
+    return React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true });
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(VerticalLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, mobile: true, posInCycle, cycleNum, market, setMarket, t, lang, setLang });
+    return React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true });
   }
 
   // Preview mode
@@ -1535,8 +1975,8 @@ function App() {
         zoom: mode === "tv" ? 0.85 : 1,
       }},
         mode === "tv"
-          ? React.createElement(TVLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, trendVal, posInCycle, cycleNum, mode, setMode, market, setMarket, t, lang, setLang })
-          : React.createElement(VerticalLayout, { scores, overall, competitors, sentiment, feed, mentionRate, avgPosition, posInCycle, cycleNum, mode, setMode, market, setMarket, t, lang, setLang }),
+          ? React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode })
+          : React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }),
       ),
       mode === "tv" && React.createElement("div", { style: {
         position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
@@ -1550,7 +1990,7 @@ function App() {
       fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.6,
     }},
       React.createElement("span", { style: { color: THEME.electric, opacity: 0.5 } }, "●"),
-      lang === "en" ? ` ${allQueries.length} queries · ${PLATFORMS.length} platforms · ${COMPETITORS.length} competitors` : ` ${allQueries.length} dotazů · ${PLATFORMS.length} platformy · ${COMPETITORS.length} konkurentů`,
+      lang === "en" ? ` ${totalQueries} queries · ${PLATFORMS.length} platforms · ${COMPETITORS.length} competitors` : ` ${totalQueries} dotazů · ${PLATFORMS.length} platformy · ${COMPETITORS.length} konkurentů`,
       React.createElement("br"),
       React.createElement("span", { style: { fontSize: 10, color: `${THEME.muted}88` } },
         `Škoda CI — Emerald (#0E3A2F) + Electric Green (#78FAAE) · refresh ${UPDATE_INTERVAL/1000}s`),
