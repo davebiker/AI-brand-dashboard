@@ -2068,7 +2068,7 @@ const LANG = {
     positionCategory: "Pozice dle kategorie",
     lastInsight: "Poslední insight",
     insightText: "Škoda se drží ve středu pole — silná v kombi segmentu a poměru cena/výkon, ale za Teslou a BMW v elektromobilitě a premium vnímání. Příležitost: mobilní aplikace a nabíjecí infrastruktura jsou slabiny kde můžeme rychle zlepšit pozici.",
-    liveFeed: "Live Feed",
+    liveFeed: "Dotazy zákazníků v AI",
     mentionRate: "Mention Rate",
     avgPosition: "Avg. pozice",
     query: "dotaz",
@@ -2122,7 +2122,7 @@ const LANG = {
     positionCategory: "Position by category",
     lastInsight: "Latest insight",
     insightText: "Škoda holds the middle ground — strong in the estate segment and value for money, but behind Tesla and BMW in electromobility and premium perception. Opportunity: mobile app and charging infrastructure are weaknesses where we can quickly improve our position.",
-    liveFeed: "Live Feed",
+    liveFeed: "Customer Questions in AI",
     mentionRate: "Mention Rate",
     avgPosition: "Avg. position",
     query: "query",
@@ -2176,7 +2176,7 @@ const LANG = {
     positionCategory: "Position nach Kategorie",
     lastInsight: "Aktueller Insight",
     insightText: "Škoda hält die Mitte — stark im Kombi-Segment und beim Preis-Leistungs-Verhältnis, aber hinter Tesla und BMW bei Elektromobilität und Premium-Wahrnehmung. Chance: Mobile App und Ladeinfrastruktur sind Schwächen, bei denen wir schnell Boden gutmachen können.",
-    liveFeed: "Live Feed",
+    liveFeed: "Kundenanfragen in KI",
     mentionRate: "Mention Rate",
     avgPosition: "Ø Position",
     query: "Anfrage",
@@ -2787,115 +2787,6 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
     // Right panel (controls)
     React.createElement("div", { style: { padding: "16px 20px", order: 3, borderLeft: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
 
-      // BRAND / MODEL toggle
-      React.createElement("div", { style: { marginBottom: 8 } },
-        React.createElement("div", { style: {
-          display: "flex", gap: 3, padding: 3, borderRadius: 8,
-          background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
-        }},
-          ["brand", "model"].map(vm => React.createElement("button", {
-            key: vm, onClick: () => setViewMode && setViewMode(vm),
-            style: {
-              flex: 1, padding: "6px 0", borderRadius: 6, cursor: "pointer",
-              border: viewMode === vm ? `1px solid ${THEME.electric}44` : "1px solid transparent",
-              background: viewMode === vm ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : `${THEME.cardBg}88`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all 0.3s ease",
-              opacity: viewMode === vm ? 1 : 0.7,
-            },
-          },
-            React.createElement("span", { style: {
-              fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
-              color: viewMode === vm ? THEME.electric : THEME.textDim,
-            }}, vm === "brand" ? t.brandMode : t.modelMode),
-          )),
-        ),
-      ),
-
-      // Model selector (only in model mode)
-      isModelMode && React.createElement("div", { style: { marginBottom: 8 } },
-        React.createElement("div", { style: {
-          display: "flex", gap: 3, padding: 3, borderRadius: 8,
-          background: THEME.cardBg, border: `1px solid ${THEME.electric}22`,
-        }},
-          Object.keys(MODEL_CONFIG).map(mk => React.createElement("button", {
-            key: mk, onClick: () => setSelectedModel && setSelectedModel(mk),
-            style: {
-              flex: 1, padding: "5px 0", borderRadius: 6, cursor: "pointer",
-              border: selectedModel === mk ? `1px solid ${THEME.electric}44` : "1px solid transparent",
-              background: selectedModel === mk ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : "transparent",
-              transition: "all 0.3s ease",
-            },
-          },
-            React.createElement("span", { style: {
-              fontSize: 11, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace",
-              color: selectedModel === mk ? THEME.electric : THEME.muted,
-            }}, MODEL_CONFIG[mk].label),
-          )),
-        ),
-      ),
-
-      // Market selector
-      React.createElement("div", { style: { marginBottom: 8 } },
-        React.createElement("div", { style: {
-          fontSize: 11, fontWeight: 700, color: THEME.electric, letterSpacing: 1.5, textTransform: "uppercase",
-          marginBottom: 5, fontFamily: "'JetBrains Mono', monospace",
-        }}, t.market),
-        React.createElement("div", { style: {
-          display: "flex", gap: 3, padding: 3, borderRadius: 8,
-          background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
-        }},
-          MARKETS.map(m => React.createElement("button", {
-            key: m.key, onClick: () => setMarket && setMarket(m.key),
-            style: {
-              flex: 1, padding: "6px 0", borderRadius: 6, cursor: "pointer",
-              border: market === m.key ? `1px solid ${THEME.electric}44` : "1px solid transparent",
-              background: market === m.key ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : `${THEME.cardBg}88`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all 0.3s ease",
-              opacity: market === m.key ? 1 : 0.7,
-              filter: "none",
-            },
-          },
-            React.createElement("span", { style: {
-              fontSize: 13, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
-              color: market === m.key ? THEME.electric : THEME.textDim,
-              letterSpacing: 0.5,
-            }}, m.label),
-          )),
-        ),
-      ),
-
-      // Mode switcher (only in preview, not fullscreen)
-      setMode && React.createElement(React.Fragment, null,
-        React.createElement("div", { style: {
-          display: "flex", gap: 3, marginBottom: 8, padding: 3, borderRadius: 8,
-          background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
-        }},
-          [
-            { key: "tv", label: "📺 TV (16:9)" },
-            { key: "vertical", label: "📱 Panel" },
-          ].map(m => React.createElement("button", {
-            key: m.key, onClick: () => setMode(m.key),
-            style: {
-              padding: "5px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-              fontSize: 11, fontWeight: 600, fontFamily: "'Outfit', sans-serif", flex: 1,
-              background: mode === m.key ? `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})` : "transparent",
-              color: mode === m.key ? THEME.electric : THEME.muted,
-              transition: "all 0.3s ease",
-            },
-          }, m.label)),
-        ),
-        React.createElement("div", { style: {
-          fontSize: 9, color: THEME.muted, textAlign: "center", marginBottom: 12,
-          fontFamily: "'JetBrains Mono', monospace",
-        }},
-          t.fullscreen + ": ",
-          React.createElement("span", { style: { color: THEME.electric } },
-            mode === "tv" ? "#tv" : "#vertical"),
-        ),
-      ),
-
       React.createElement(SectionTitle, null, t.shareOfVoice),
       React.createElement(TrendChart, { data: sovTrend, width: 260, height: 130, t, lang }),
       React.createElement("div", { style: { height: 12 } }),
@@ -2965,6 +2856,116 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
 
     // Left panel: feed
     React.createElement("div", { style: { padding: "16px 20px", order: 1, borderRight: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
+
+      // BRAND / MODEL toggle
+      React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          display: "flex", gap: 3, padding: 3, borderRadius: 8,
+          background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
+        }},
+          ["brand", "model"].map(vm => React.createElement("button", {
+            key: vm, onClick: () => setViewMode && setViewMode(vm),
+            style: {
+              flex: 1, padding: "6px 0", borderRadius: 6, cursor: "pointer",
+              border: viewMode === vm ? `1px solid ${THEME.electric}44` : "1px solid transparent",
+              background: viewMode === vm ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : `${THEME.cardBg}88`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.3s ease",
+              opacity: viewMode === vm ? 1 : 0.7,
+            },
+          },
+            React.createElement("span", { style: {
+              fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+              color: viewMode === vm ? THEME.electric : THEME.textDim,
+            }}, vm === "brand" ? t.brandMode : t.modelMode),
+          )),
+        ),
+      ),
+
+      // Model selector (only in model mode)
+      isModelMode && React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          display: "flex", gap: 3, padding: 3, borderRadius: 8,
+          background: THEME.cardBg, border: `1px solid ${THEME.electric}22`,
+        }},
+          Object.keys(MODEL_CONFIG).map(mk => React.createElement("button", {
+            key: mk, onClick: () => setSelectedModel && setSelectedModel(mk),
+            style: {
+              flex: 1, padding: "5px 0", borderRadius: 6, cursor: "pointer",
+              border: selectedModel === mk ? `1px solid ${THEME.electric}44` : "1px solid transparent",
+              background: selectedModel === mk ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : "transparent",
+              transition: "all 0.3s ease",
+            },
+          },
+            React.createElement("span", { style: {
+              fontSize: 11, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace",
+              color: selectedModel === mk ? THEME.electric : THEME.muted,
+            }}, MODEL_CONFIG[mk].label),
+          )),
+        ),
+      ),
+
+      // Market selector
+      React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          fontSize: 11, fontWeight: 700, color: THEME.electric, letterSpacing: 1.5, textTransform: "uppercase",
+          marginBottom: 5, fontFamily: "'JetBrains Mono', monospace",
+        }}, t.market),
+        React.createElement("div", { style: {
+          display: "flex", gap: 3, padding: 3, borderRadius: 8,
+          background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
+        }},
+          MARKETS.map(m => React.createElement("button", {
+            key: m.key, onClick: () => setMarket && setMarket(m.key),
+            style: {
+              flex: 1, padding: "6px 0", borderRadius: 6, cursor: "pointer",
+              border: market === m.key ? `1px solid ${THEME.electric}44` : "1px solid transparent",
+              background: market === m.key ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : `${THEME.cardBg}88`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.3s ease",
+              opacity: market === m.key ? 1 : 0.7,
+            },
+          },
+            React.createElement("span", { style: {
+              fontSize: 13, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+              color: market === m.key ? THEME.electric : THEME.textDim,
+              letterSpacing: 0.5,
+            }}, m.label),
+          )),
+        ),
+      ),
+
+      // Mode switcher (only in preview, not fullscreen)
+      setMode && React.createElement(React.Fragment, null,
+        React.createElement("div", { style: {
+          display: "flex", gap: 3, marginBottom: 8, padding: 3, borderRadius: 8,
+          background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
+        }},
+          [
+            { key: "tv", label: "📺 TV (16:9)" },
+            { key: "vertical", label: "📱 Panel" },
+          ].map(m => React.createElement("button", {
+            key: m.key, onClick: () => setMode(m.key),
+            style: {
+              padding: "5px 12px", borderRadius: 6, border: "none", cursor: "pointer",
+              fontSize: 11, fontWeight: 600, fontFamily: "'Outfit', sans-serif", flex: 1,
+              background: mode === m.key ? `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})` : "transparent",
+              color: mode === m.key ? THEME.electric : THEME.muted,
+              transition: "all 0.3s ease",
+            },
+          }, m.label)),
+        ),
+        React.createElement("div", { style: {
+          fontSize: 9, color: THEME.muted, textAlign: "center", marginBottom: 12,
+          fontFamily: "'JetBrains Mono', monospace",
+        }},
+          t.fullscreen + ": ",
+          React.createElement("span", { style: { color: THEME.electric } },
+            mode === "tv" ? "#tv" : "#vertical"),
+        ),
+      ),
+
+      // Live Feed
       React.createElement(SectionTitle, null,
         React.createElement("span", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" } },
           React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 8 } },
