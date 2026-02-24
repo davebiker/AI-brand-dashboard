@@ -2063,7 +2063,7 @@ const LANG = {
     shareOfVoiceSub: "podíl Škody v odpovědích AI",
     vsLastWeek: "vs minulý týden",
     scorePlatform: "Skóre dle platformy",
-    sovCompetition: "Share of Voice — konkurence",
+    sovCompetition: "Brand Visibility Score — konkurence",
     sentimentBrand: "Sentiment dle značky",
     positionCategory: "Pozice dle kategorie",
     lastInsight: "Poslední insight",
@@ -2099,6 +2099,15 @@ const LANG = {
     modResale: "Zůstatková hodnota",
     brandMode: "BRAND",
     modelMode: "MODEL",
+    channelPriority: "Doporučení na úpravy",
+    chWebsite: "Website",
+    chWikipedia: "Wikipedia",
+    chSocial: "Social Media",
+    chMedia: "Media",
+    chBlogs: "Blogs",
+    chPriorityHigh: "vysoká priorita",
+    chPriorityMed: "střední priorita",
+    chPriorityLow: "nízká priorita",
   },
   en: {
     keyMetrics: "Key Metrics",
@@ -2108,7 +2117,7 @@ const LANG = {
     shareOfVoiceSub: "Škoda's share in AI responses",
     vsLastWeek: "vs last week",
     scorePlatform: "Score by platform",
-    sovCompetition: "Share of Voice — competition",
+    sovCompetition: "Brand Visibility Score — competition",
     sentimentBrand: "Sentiment by brand",
     positionCategory: "Position by category",
     lastInsight: "Latest insight",
@@ -2144,6 +2153,15 @@ const LANG = {
     modResale: "Resale value",
     brandMode: "BRAND",
     modelMode: "MODEL",
+    channelPriority: "Optimization priorities",
+    chWebsite: "Website",
+    chWikipedia: "Wikipedia",
+    chSocial: "Social Media",
+    chMedia: "Media",
+    chBlogs: "Blogs",
+    chPriorityHigh: "high priority",
+    chPriorityMed: "medium priority",
+    chPriorityLow: "low priority",
   },
   de: {
     keyMetrics: "Wichtige Kennzahlen",
@@ -2153,7 +2171,7 @@ const LANG = {
     shareOfVoiceSub: "Škodas Anteil in KI-Antworten",
     vsLastWeek: "vs letzte Woche",
     scorePlatform: "Score nach Plattform",
-    sovCompetition: "Share of Voice — Wettbewerb",
+    sovCompetition: "Brand Visibility Score — Wettbewerb",
     sentimentBrand: "Sentiment nach Marke",
     positionCategory: "Position nach Kategorie",
     lastInsight: "Aktueller Insight",
@@ -2189,6 +2207,15 @@ const LANG = {
     modResale: "Restwert",
     brandMode: "MARKE",
     modelMode: "MODELL",
+    channelPriority: "Optimierungsprioritäten",
+    chWebsite: "Website",
+    chWikipedia: "Wikipedia",
+    chSocial: "Social Media",
+    chMedia: "Medien",
+    chBlogs: "Blogs",
+    chPriorityHigh: "hohe Priorität",
+    chPriorityMed: "mittlere Priorität",
+    chPriorityLow: "niedrige Priorität",
   },
 };
 
@@ -2579,6 +2606,80 @@ function Pulse({ size = 8 }) {
   }});
 }
 
+// Channel priority data — higher value = more optimization needed
+const CHANNEL_PRIORITIES_BRAND = [
+  { key: "chWebsite", value: 78 },
+  { key: "chWikipedia", value: 85 },
+  { key: "chSocial", value: 45 },
+  { key: "chMedia", value: 32 },
+  { key: "chBlogs", value: 62 },
+];
+
+const CHANNEL_PRIORITIES_MODEL = {
+  enyaq: [
+    { key: "chWebsite", value: 55 },
+    { key: "chWikipedia", value: 72 },
+    { key: "chSocial", value: 38 },
+    { key: "chMedia", value: 28 },
+    { key: "chBlogs", value: 48 },
+  ],
+  elroq: [
+    { key: "chWebsite", value: 82 },
+    { key: "chWikipedia", value: 91 },
+    { key: "chSocial", value: 68 },
+    { key: "chMedia", value: 55 },
+    { key: "chBlogs", value: 75 },
+  ],
+  epiq: [
+    { key: "chWebsite", value: 95 },
+    { key: "chWikipedia", value: 98 },
+    { key: "chSocial", value: 88 },
+    { key: "chMedia", value: 82 },
+    { key: "chBlogs", value: 92 },
+  ],
+};
+
+function ChannelPriority({ t, compact, isModelMode, selectedModel }) {
+  const data = isModelMode
+    ? (CHANNEL_PRIORITIES_MODEL[selectedModel] || CHANNEL_PRIORITIES_BRAND)
+    : CHANNEL_PRIORITIES_BRAND;
+  const sorted = [...data].sort((a, b) => b.value - a.value);
+
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: compact ? 6 : 8 } },
+    sorted.map(ch => {
+      const color = ch.value >= 75 ? THEME.red : ch.value >= 50 ? THEME.amber : THEME.electric;
+      const label = ch.value >= 75 ? t.chPriorityHigh : ch.value >= 50 ? t.chPriorityMed : t.chPriorityLow;
+      return React.createElement("div", { key: ch.key, style: { display: "flex", alignItems: "center", gap: 8 } },
+        React.createElement("span", { style: {
+          width: compact ? 70 : 85, fontSize: compact ? 11 : 12,
+          color: THEME.textDim, fontWeight: 500, textAlign: "right", flexShrink: 0,
+          fontFamily: "'JetBrains Mono', monospace",
+        }}, t[ch.key]),
+        React.createElement("div", { style: {
+          flex: 1, height: compact ? 16 : 20, background: THEME.cardBg,
+          borderRadius: 4, overflow: "hidden", position: "relative",
+          border: `1px solid ${THEME.cardBorder}`,
+        }},
+          React.createElement("div", { style: {
+            height: "100%", width: `${ch.value}%`,
+            background: `linear-gradient(90deg, ${color}44, ${color}aa)`,
+            borderRadius: 4, transition: "width 0.8s ease",
+          }}),
+          React.createElement("span", { style: {
+            position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)",
+            fontSize: compact ? 9 : 10, color: `${THEME.text}cc`,
+            fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
+          }}, label),
+        ),
+        React.createElement("span", { style: {
+          fontSize: compact ? 12 : 14, fontWeight: 700, color,
+          fontFamily: "'JetBrains Mono', monospace", width: 32, textAlign: "right",
+        }}, ch.value),
+      );
+    }),
+  );
+}
+
 function SectionTitle({ children, compact }) {
   return React.createElement("div", { style: {
     fontSize: compact ? 12 : 14, fontWeight: 700, color: THEME.textDim,
@@ -2631,7 +2732,7 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
   const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
-    display: "grid", gridTemplateColumns: "300px 1fr 400px",
+    display: "grid", gridTemplateColumns: "400px 1fr 300px",
     gridTemplateRows: "auto 1fr", fontFamily: "'Outfit', sans-serif",
   }},
     // BG texture
@@ -2683,8 +2784,8 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
       ),
     ),
 
-    // Left panel
-    React.createElement("div", { style: { padding: "16px 20px", borderRight: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
+    // Right panel (controls)
+    React.createElement("div", { style: { padding: "16px 20px", order: 3, borderLeft: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
 
       // BRAND / MODEL toggle
       React.createElement("div", { style: { marginBottom: 8 } },
@@ -2814,7 +2915,7 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
     ),
 
     // Center panel
-    React.createElement("div", { style: { padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto" } },
+    React.createElement("div", { style: { order: 2, padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto" } },
       React.createElement(SectionTitle, null, t.sovCompetition),
       React.createElement(BarChart, { data: competitors, highlight: highlightName }),
       React.createElement("div", { style: { marginTop: 20 } },
@@ -2846,6 +2947,10 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
         ),
       ),
       React.createElement("div", { style: { marginTop: 20 } },
+        React.createElement(SectionTitle, null, t.channelPriority),
+        React.createElement(ChannelPriority, { t, isModelMode, selectedModel }),
+      ),
+      React.createElement("div", { style: { marginTop: 20 } },
         React.createElement(SectionTitle, null, t.lastInsight),
         React.createElement("div", { style: {
           background: `linear-gradient(135deg, ${THEME.emerald}66, ${THEME.cardBg})`,
@@ -2858,8 +2963,8 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
       ),
     ),
 
-    // Right panel: feed
-    React.createElement("div", { style: { padding: "16px 20px", borderLeft: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
+    // Left panel: feed
+    React.createElement("div", { style: { padding: "16px 20px", order: 1, borderRight: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
       React.createElement(SectionTitle, null,
         React.createElement("span", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" } },
           React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 8 } },
@@ -3114,6 +3219,12 @@ function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayC
           )
         ),
       ),
+    ),
+
+    // Channel Priority (mobile only)
+    mobile && React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
+      React.createElement(SectionTitle, null, t.channelPriority),
+      React.createElement(ChannelPriority, { t, isModelMode, selectedModel }),
     ),
 
     // AI Insight (mobile only)
