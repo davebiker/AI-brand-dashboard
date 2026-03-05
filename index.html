@@ -4445,39 +4445,56 @@ function ChannelPriority({ t, compact, isModelMode, selectedModel }) {
     ? (CHANNEL_PRIORITIES_MODEL[selectedModel] || CHANNEL_PRIORITIES_BRAND)
     : CHANNEL_PRIORITIES_BRAND;
   const sorted = [...data].sort((a, b) => b.value - a.value);
+  const barH = compact ? 130 : 160;
 
-  return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: compact ? 6 : 8 } },
-    sorted.map(ch => {
-      const color = ch.value >= 75 ? THEME.red : ch.value >= 50 ? THEME.amber : THEME.electric;
-      const label = ch.value >= 75 ? t.chPriorityHigh : ch.value >= 50 ? t.chPriorityMed : t.chPriorityLow;
-      return React.createElement("div", { key: ch.key, style: { display: "flex", alignItems: "center", gap: 8 } },
-        React.createElement("span", { style: {
-          width: compact ? 70 : 85, fontSize: compact ? 11 : 12,
-          color: THEME.textDim, fontWeight: 500, textAlign: "right", flexShrink: 0,
-          fontFamily: "'JetBrains Mono', monospace",
-        }}, t[ch.key]),
-        React.createElement("div", { style: {
-          flex: 1, height: compact ? 16 : 20, background: THEME.cardBg,
-          borderRadius: 4, overflow: "hidden", position: "relative",
-          border: `1px solid ${THEME.cardBorder}`,
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
+    // Bars
+    React.createElement("div", { style: {
+      height: barH + 24, display: "flex", alignItems: "flex-end", gap: compact ? 6 : 8,
+      borderBottom: `1px solid ${THEME.cardBorder}`, paddingBottom: 6,
+    }},
+      sorted.map(ch => {
+        const color = ch.value >= 75 ? THEME.red : ch.value >= 50 ? THEME.amber : THEME.electric;
+        const h = Math.max(4, (ch.value / 100) * barH);
+        return React.createElement("div", { key: ch.key, style: {
+          flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
         }},
-          React.createElement("div", { style: {
-            height: "100%", width: `${ch.value}%`,
-            background: `linear-gradient(90deg, ${color}44, ${color}aa)`,
-            borderRadius: 4, transition: "width 0.8s ease",
-          }}),
           React.createElement("span", { style: {
-            position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)",
-            fontSize: compact ? 9 : 10, color: `${THEME.text}cc`,
-            fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
-          }}, label),
-        ),
-        React.createElement("span", { style: {
-          fontSize: compact ? 12 : 14, fontWeight: 700, color,
-          fontFamily: "'JetBrains Mono', monospace", width: 32, textAlign: "right",
-        }}, ch.value),
-      );
-    }),
+            fontSize: compact ? 11 : 13, fontWeight: 700, color,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}, ch.value),
+          React.createElement("div", { style: {
+            width: "100%", maxWidth: compact ? 40 : 52, height: h,
+            background: `linear-gradient(180deg, ${color}aa, ${color}33)`,
+            borderRadius: "4px 4px 0 0", transition: "height 1.2s ease",
+            border: `1px solid ${color}44`,
+          }}),
+        );
+      })
+    ),
+    // Labels
+    React.createElement("div", { style: { display: "flex", gap: compact ? 6 : 8, paddingTop: 6 } },
+      sorted.map(ch => {
+        const color = ch.value >= 75 ? THEME.red : ch.value >= 50 ? THEME.amber : THEME.electric;
+        return React.createElement("div", { key: ch.key, style: {
+          flex: 1, textAlign: "center", fontSize: compact ? 9 : 11,
+          color: THEME.textDim, fontWeight: 500,
+          fontFamily: "'JetBrains Mono', monospace",
+        }}, t[ch.key]);
+      })
+    ),
+    // Legend
+    React.createElement("div", { style: { display: "flex", gap: 12, justifyContent: "center", marginTop: 8, fontSize: compact ? 9 : 10 } },
+      React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 4 } },
+        React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: THEME.red, display: "inline-block" } }),
+        React.createElement("span", { style: { color: THEME.muted } }, t.chPriorityHigh)),
+      React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 4 } },
+        React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: THEME.amber, display: "inline-block" } }),
+        React.createElement("span", { style: { color: THEME.muted } }, t.chPriorityMed)),
+      React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 4 } },
+        React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: THEME.electric, display: "inline-block" } }),
+        React.createElement("span", { style: { color: THEME.muted } }, t.chPriorityLow)),
+    ),
   );
 }
 
