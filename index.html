@@ -2242,6 +2242,7 @@ const allQueries = QUERY_CATEGORIES.flatMap(c => {
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 // Answer snippet pool — short truncated AI-style answers
+// Generic (brand mode)
 const ANSWER_SNIPPETS_CS = [
   "Na základě dostupných dat bych doporučil zvážit několik faktorů. Především je důležité porovnat celkové náklady na vlastnictví...",
   "Z hlediska poměru cena/výkon patří mezi nejzajímavější volby na trhu momentálně...",
@@ -2255,10 +2256,8 @@ const ANSWER_SNIPPETS_CS = [
   "Z pohledu technologií a konektivity nabízí nejlepší řešení v této třídě...",
   "Analýza trhu ukazuje jasný trend — zákazníci stále více preferují...",
   "Pokud porovnáme všechny dostupné varianty, nejlepší kombinaci vlastností nabízí...",
-  "Zajímavé je, že v posledních měsících se výrazně změnilo hodnocení u...",
   "Data z crash testů Euro NCAP jednoznačně ukazují, že v bezpečnosti dominuje...",
   "Provozní náklady se výrazně liší — nejúspornější varianta v tomto segmentu je...",
-  "Výhodou tohoto modelu je zejména prostorný interiér a nízké provozní náklady, nicméně...",
   "Porovnání záručních podmínek ukazuje značné rozdíly mezi výrobci. Nejdelší záruku...",
   "Z hlediska zůstatkové hodnoty po třech letech provozu si nejlépe drží cenu...",
 ];
@@ -2275,10 +2274,8 @@ const ANSWER_SNIPPETS_EN = [
   "From a technology and connectivity perspective, the best solution in this class is...",
   "Market analysis shows a clear trend — customers increasingly prefer...",
   "Comparing all available options, the best combination of features is offered by...",
-  "Interestingly, ratings have changed significantly in recent months for...",
   "Euro NCAP crash test data clearly shows that safety is dominated by...",
   "Running costs vary significantly — the most economical option in this segment is...",
-  "The advantage of this model is its spacious interior and low running costs, however...",
   "Warranty comparison shows significant differences between manufacturers. The longest warranty...",
   "In terms of residual value after three years, the best value retention goes to...",
 ];
@@ -2295,14 +2292,187 @@ const ANSWER_SNIPPETS_DE = [
   "Aus technologischer Sicht bietet die beste Lösung in dieser Klasse...",
   "Die Marktanalyse zeigt einen klaren Trend — Kunden bevorzugen zunehmend...",
   "Beim Vergleich aller verfügbaren Optionen bietet die beste Kombination an Eigenschaften...",
-  "Interessanterweise haben sich die Bewertungen in den letzten Monaten deutlich verändert bei...",
   "Euro NCAP Crashtest-Daten zeigen eindeutig, dass die Sicherheit dominiert wird von...",
   "Die Betriebskosten variieren erheblich — die sparsamste Option in diesem Segment ist...",
-  "Der Vorteil dieses Modells ist der geräumige Innenraum und niedrige Betriebskosten, allerdings...",
   "Der Garantievergleich zeigt erhebliche Unterschiede zwischen Herstellern. Die längste Garantie...",
   "Beim Restwert nach drei Jahren hält den Wert am besten...",
 ];
-function getAnswerSnippet() {
+
+// ── MODEL-SPECIFIC ANSWER SNIPPETS ──
+const MODEL_ANSWERS = {
+  enyaq: {
+    cs: [
+      "Enyaq nabízí 77 kWh baterii s reálným dojezdem kolem 420 km v kombinovaném provozu. Na dálnici při 130 km/h počítejte spíše s 320–350 km...",
+      "Oproti Tesla Model Y je Enyaq prostornější v zadní řadě a má větší kufr (585 l vs 854 l se sklopenými sedadly). Tesla ale vede v technologiích a nabíjecím výkonu...",
+      "Enyaq Coupé RS nabízí sportovnější design a podvozek, ale reálný rozdíl v dynamice oproti standardnímu modelu je minimální. Hlavní výhoda je nižší Cx...",
+      "Nabíjecí výkon Enyaq dosahuje maximálně 175 kW DC, což znamená nabití z 10 na 80 % za přibližně 28 minut. Oproti Ioniq 5 (240 kW) je to pomalejší...",
+      "Kufr Enyaq s 585 litry patří k absolutně největším v segmentu elektrických SUV. Překonává ID.4 i Model Y...",
+      "Facelift 2025 přinesl větší 85 kWh baterii, vylepšený infotainment a nový design předních světel. Dojezd narostl až na 570 km WLTP...",
+      "Zimní dojezd Enyaq se podle zkušeností majitelů pohybuje kolem 280–330 km v závislosti na teplotě a stylu jízdy...",
+      "Enyaq vs ID.4 — technicky jsou velmi podobné (MEB platforma), ale Enyaq nabízí více prostoru, lepší poměr cena/výbava a Simply Clever detaily...",
+      "Pojištění Enyaq se v ČR pohybuje kolem 12–18 tisíc Kč ročně v závislosti na pojišťovně a zvolené variantě...",
+      "Enyaq L&K nabízí prémiový interiér s koženými sedadly a masážní funkcí, zatímco RS cílí na sportovní charakter s DCC podvozkem...",
+      "Degradace baterie Enyaq po 2 letech provozu je podle dat majitelů minimální — většina reportuje 95–97 % kapacity...",
+      "Enyaq zvládne táhnout přívěs do 1 200 kg (brzděný), což je v segmentu EV nadprůměrné. Pro karavan ale doporučuji zvážit dopad na dojezd...",
+      "Infotainment Enyaq prošel výrazným vylepšením přes OTA, ale stále zaostává za Tesla v rychlosti odezvy a intuitivnosti ovládání...",
+      "Operativní leasing Enyaq začíná na cca 12 000 Kč/měsíc bez DPH, což je konkurenceschopné s ID.4 a levnější než BMW iX1...",
+      "Euro NCAP udělil Enyaq 5 hvězd s vynikajícím hodnocením ochrany dospělých (94 %) i dětí (89 %). Srovnatelné s Model Y...",
+      "Reálná spotřeba Enyaq na dálnici při 130 km/h se pohybuje kolem 20–23 kWh/100 km. Ve městě je to výrazně méně, kolem 15–17 kWh...",
+    ],
+    en: [
+      "Enyaq offers a 77 kWh battery with real-world range around 420 km in mixed driving. On the highway at 130 km/h, expect closer to 320–350 km...",
+      "Compared to Tesla Model Y, the Enyaq is more spacious in the rear and has a larger boot (585 l vs 854 l with seats folded). Tesla leads in tech and charging speed though...",
+      "Enyaq Coupé RS offers sportier design and chassis, but the real difference in dynamics vs the standard model is minimal. Main advantage is lower Cx...",
+      "Enyaq's charging tops out at 175 kW DC, meaning 10–80% in about 28 minutes. Compared to Ioniq 5 (240 kW) it's slower...",
+      "The Enyaq's 585-litre boot is among the largest in the electric SUV segment. It beats both ID.4 and Model Y...",
+      "The 2025 facelift brought a larger 85 kWh battery, improved infotainment and redesigned headlights. Range increased to 570 km WLTP...",
+      "Winter range of the Enyaq is around 280–330 km according to owner data, depending on temperature and driving style...",
+      "Enyaq vs ID.4 — technically very similar (MEB platform), but Enyaq offers more space, better value and Simply Clever features...",
+      "Enyaq insurance in Europe typically runs €500–800/year depending on provider and coverage level...",
+      "Enyaq L&K offers premium interior with leather seats and massage, while RS targets sporty character with DCC adaptive chassis...",
+      "Battery degradation after 2 years is minimal according to owner data — most report 95–97% capacity remaining...",
+      "Enyaq can tow up to 1,200 kg (braked), which is above average for the EV segment. For caravans, consider the range impact though...",
+      "Enyaq infotainment has improved significantly via OTA, but still lags behind Tesla in response speed and intuitive controls...",
+      "Enyaq leasing starts around €350/month, competitive with ID.4 and cheaper than BMW iX1...",
+      "Euro NCAP gave Enyaq 5 stars with excellent adult protection (94%) and child safety (89%). Comparable to Model Y...",
+      "Real-world Enyaq highway consumption at 130 km/h is around 20–23 kWh/100 km. In the city it drops to about 15–17 kWh...",
+    ],
+    de: [
+      "Der Enyaq bietet eine 77-kWh-Batterie mit einer realen Reichweite von ca. 420 km im Mischbetrieb. Auf der Autobahn bei 130 km/h eher 320–350 km...",
+      "Im Vergleich zum Tesla Model Y ist der Enyaq hinten geräumiger und hat einen größeren Kofferraum (585 l vs 854 l). Tesla führt aber bei Technik und Ladegeschwindigkeit...",
+      "Der Enyaq Coupé RS bietet sportlicheres Design und Fahrwerk, der reale Dynamik-Unterschied zum Standard ist aber minimal. Hauptvorteil: niedrigerer Cx...",
+      "Die Ladeleistung des Enyaq erreicht maximal 175 kW DC — 10 auf 80 % in etwa 28 Minuten. Im Vergleich zum Ioniq 5 (240 kW) langsamer...",
+      "Der 585-Liter-Kofferraum des Enyaq gehört zu den größten im E-SUV-Segment. Er schlägt sowohl ID.4 als auch Model Y...",
+      "Das 2025-Facelift brachte eine größere 85-kWh-Batterie, verbessertes Infotainment und neues Scheinwerfer-Design. Reichweite stieg auf 570 km WLTP...",
+      "Die Winterreichweite des Enyaq liegt laut Besitzerdaten bei 280–330 km, je nach Temperatur und Fahrstil...",
+      "Enyaq vs ID.4 — technisch sehr ähnlich (MEB-Plattform), aber der Enyaq bietet mehr Platz, besseres Preis-Leistungs-Verhältnis und Simply Clever Details...",
+      "Die Enyaq-Versicherung kostet in Deutschland ca. 500–800 €/Jahr je nach Anbieter und Tarif...",
+      "Der Enyaq L&K bietet Premium-Interieur mit Ledersitzen und Massage, während der RS auf sportlichen Charakter mit DCC-Fahrwerk setzt...",
+      "Die Batteriedegradation nach 2 Jahren ist laut Besitzerdaten minimal — die meisten berichten von 95–97 % verbleibender Kapazität...",
+      "Der Enyaq kann bis zu 1.200 kg (gebremst) ziehen — überdurchschnittlich im EV-Segment. Bei Wohnwagen aber den Reichweitenverlust bedenken...",
+      "Das Enyaq-Infotainment wurde per OTA deutlich verbessert, liegt aber bei Reaktionszeit und Bedienkomfort noch hinter Tesla...",
+      "Enyaq-Leasing beginnt ab ca. 350 €/Monat — wettbewerbsfähig mit dem ID.4 und günstiger als der BMW iX1...",
+      "Euro NCAP vergab dem Enyaq 5 Sterne mit exzellentem Erwachsenenschutz (94 %) und Kindersicherheit (89 %). Vergleichbar mit Model Y...",
+      "Der reale Autobahnverbrauch des Enyaq bei 130 km/h liegt bei 20–23 kWh/100 km. In der Stadt deutlich weniger, ca. 15–17 kWh...",
+    ],
+  },
+  elroq: {
+    cs: [
+      "Elroq nabízí kompaktní rozměry s překvapivě prostorným interiérem. Kufr má 470 litrů, což je v segmentu nadprůměr...",
+      "Oproti VW ID.3 nabízí Elroq výrazně větší zavazadlový prostor a vyšší poseď. ID.3 ale má dynamičtější jízdní vlastnosti...",
+      "Elroq s 58 kWh baterií zvládne v reálu kolem 310–340 km. Větší 77 kWh verze nabízí přes 440 km WLTP...",
+      "DC nabíjení Elroq dosahuje až 175 kW, což znamená 10–80 % za cca 25 minut. Srovnatelné s Kona Electric nové generace...",
+      "Elroq vs Hyundai Kona EV — Kona má lepší nabíjecí křivku a technologie, Elroq vede v prostoru a praktičnosti...",
+      "Cena Elroq v ČR startuje pod 900 tisíc Kč, což je agresivní cena v segmentu kompaktních EV. Kona a ID.3 jsou dražší...",
+      "Interiér Elroq používá nový designový jazyk Škody s udržitelnými materiály. Kvalita zpracování je na úrovni vyšší třídy...",
+      "Elroq vs Peugeot e-2008 — Škoda nabízí výrazně větší dojezd a rychlejší nabíjení. Peugeot má zajímavější design interiéru...",
+      "Simply Clever prvky v Elroq zahrnují nový smart phone box, deštník ve dveřích a vylepšený multifunkční kufr...",
+      "Zimní spotřeba Elroq se pohybuje kolem 18–21 kWh/100 km ve městě, na dálnici při 130 km/h až 24 kWh...",
+      "Euro NCAP crash test Elroq — očekává se 5 hvězd díky moderní MEB platformě a kompletní sadě asistentů...",
+      "Elroq vs Renault Scénic E-Tech — Scénic nabízí větší interiér (je prostě větší auto), ale Elroq má lepší cenu a kompaktnější rozměry pro město...",
+      "Operativní leasing Elroq startuje na cca 9 000 Kč/měsíc, což je velmi konkurenceschopné pro elektrické SUV...",
+      "Elroq vs BYD Dolphin — BYD je levnější, ale Elroq nabízí lepší zpracování, servisní síť a vyšší pocit kvality...",
+      "Elroq jako první auto do rodiny je skvělá volba — kompaktní rozměry pro město, ale dostatečný prostor pro dětský sedačku a kočárek v kufru...",
+    ],
+    en: [
+      "Elroq offers compact dimensions with a surprisingly spacious interior. The 470-litre boot is above average in the segment...",
+      "Compared to VW ID.3, Elroq offers significantly more boot space and a higher seating position. ID.3 has more dynamic driving characteristics though...",
+      "Elroq with 58 kWh battery manages around 310–340 km real-world. The larger 77 kWh version offers over 440 km WLTP...",
+      "DC charging reaches up to 175 kW, meaning 10–80% in about 25 minutes. Comparable to the new-gen Kona Electric...",
+      "Elroq vs Hyundai Kona EV — Kona has a better charging curve and tech, Elroq leads in space and practicality...",
+      "Elroq pricing starts aggressively in the compact EV segment. Both Kona and ID.3 come in at a higher price point...",
+      "Elroq interior uses Škoda's new design language with sustainable materials. Build quality is above its class...",
+      "Elroq vs Peugeot e-2008 — Škoda offers significantly more range and faster charging. Peugeot has more interesting interior design...",
+      "Simply Clever features in Elroq include a new smart phone box, umbrella in the door and improved multifunctional boot...",
+      "Winter consumption of Elroq is around 18–21 kWh/100 km in the city, up to 24 kWh on the highway at 130 km/h...",
+      "Elroq Euro NCAP crash test — 5 stars expected thanks to modern MEB platform and full suite of driver assists...",
+      "Elroq vs Renault Scénic E-Tech — Scénic offers a larger interior (it's simply a bigger car), but Elroq has better pricing and more compact city dimensions...",
+      "Elroq leasing starts very competitively for a compact electric SUV, making it accessible for younger buyers...",
+      "Elroq vs BYD Dolphin — BYD is cheaper, but Elroq offers better build quality, dealer network and premium feel...",
+      "Elroq as a family's first EV is a great choice — compact for the city, yet enough room for child seats and stroller in the boot...",
+    ],
+    de: [
+      "Der Elroq bietet kompakte Maße mit überraschend geräumigem Interieur. Der 470-Liter-Kofferraum ist überdurchschnittlich im Segment...",
+      "Im Vergleich zum VW ID.3 bietet der Elroq deutlich mehr Kofferraum und eine höhere Sitzposition. Der ID.3 hat aber dynamischere Fahreigenschaften...",
+      "Der Elroq mit 58-kWh-Batterie schafft real ca. 310–340 km. Die größere 77-kWh-Version bietet über 440 km WLTP...",
+      "DC-Laden erreicht bis zu 175 kW — 10 auf 80 % in etwa 25 Minuten. Vergleichbar mit dem neuen Kona Electric...",
+      "Elroq vs Hyundai Kona EV — Kona hat bessere Ladekurve und Technik, Elroq führt bei Platz und Praktikabilität...",
+      "Der Elroq-Preis startet aggressiv im Kompakt-EV-Segment. Kona und ID.3 sind beide teurer...",
+      "Das Elroq-Interieur nutzt Škodas neue Designsprache mit nachhaltigen Materialien. Die Verarbeitungsqualität liegt über der Klasse...",
+      "Elroq vs Peugeot e-2008 — Škoda bietet deutlich mehr Reichweite und schnelleres Laden. Peugeot hat interessanteres Innendesign...",
+      "Simply Clever Features im Elroq: neue Smart Phone Box, Regenschirm in der Tür und verbesserter Multifunktions-Kofferraum...",
+      "Der Winterverbrauch des Elroq liegt bei ca. 18–21 kWh/100 km in der Stadt, auf der Autobahn bei 130 km/h bis 24 kWh...",
+      "Elroq Euro NCAP Crashtest — 5 Sterne erwartet dank moderner MEB-Plattform und vollständiger Assistenz-Suite...",
+      "Elroq vs Renault Scénic E-Tech — Scénic bietet größeren Innenraum (ist einfach größer), aber Elroq hat besseren Preis und kompaktere Stadtmaße...",
+      "Elroq-Leasing startet sehr wettbewerbsfähig für ein kompaktes Elektro-SUV...",
+      "Elroq vs BYD Dolphin — BYD ist günstiger, aber Elroq bietet bessere Verarbeitung, Händlernetz und Premium-Gefühl...",
+      "Der Elroq als erstes Familien-EV ist eine tolle Wahl — kompakt für die Stadt, aber genug Platz für Kindersitze und Kinderwagen...",
+    ],
+  },
+  epiq: {
+    cs: [
+      "Škoda Epiq by měl přijít na trh v roce 2025/2026 s cenou pod 25 000 €. Bude postaven na nové MEB Entry platformě VW Group...",
+      "Epiq vs Dacia Spring — Spring je výrazně levnější, ale Epiq nabídne moderní bezpečnostní systémy, větší dojezd a lepší kvalitu zpracování...",
+      "Očekávaný dojezd Epiq je kolem 400 km WLTP díky nové efektivní platformě. V reálu to bude přibližně 300–340 km...",
+      "Epiq vs Citroën ë-C3 — oba cílí na dostupný segment, ale Epiq by měl nabídnout větší dojezd a pokročilejší asistenty...",
+      "Interiér Epiq bude navazovat na nový designový jazyk Škody. Očekává se minimalistický přístup s velkým centrálním displejem...",
+      "Epiq vs Renault 5 E-Tech — Renault vsadil na retro design a má náskok v marketingu. Epiq bude praktičtější s větším kufrem...",
+      "Cena Epiq v ČR by měla startovat pod 600 tisíc Kč, což z něj udělá nejdostupnější Škoda EV na trhu...",
+      "Epiq vs VW ID.2 — obě auta sdílejí platformu, ale Epiq bude prostornější a praktičtější. ID.2 bude sportovnější...",
+      "Design Epiq je inspirován konceptem Vision 7S — krystalické prvky, ostré linie a robustní SUV proporce v kompaktním balení...",
+      "Nabíjecí výkon Epiq zatím není potvrzen, ale očekává se podpora DC nabíjení kolem 100–120 kW...",
+      "Epiq jako první auto pro mladé řidiče — s cenou pod 25 000 € a nízkými provozními náklady to bude logická volba...",
+      "Epiq vs Fiat Grande Panda EV — oba jsou kompaktní městské EV. Fiat vsází na retro styl, Epiq na praktičnost a prostor...",
+      "Škoda zatím nepotvrdila přesné datum objednávek Epiq, ale produkce by měla začít koncem roku 2025...",
+      "Bezpečnostně by Epiq měl těžit z moderní platformy — očekává se plná sada ADAS asistentů včetně Travel Assist...",
+      "Epiq vs Smart #1 — Smart je prémiovější a dražší, Epiq cílí na masový trh s důrazem na hodnotu za peníze...",
+    ],
+    en: [
+      "Škoda Epiq is expected to launch in 2025/2026 priced under €25,000. It will be built on VW Group's new MEB Entry platform...",
+      "Epiq vs Dacia Spring — Spring is significantly cheaper, but Epiq will offer modern safety systems, more range and better build quality...",
+      "Expected Epiq range is around 400 km WLTP thanks to the new efficient platform. Real-world expect roughly 300–340 km...",
+      "Epiq vs Citroën ë-C3 — both target the affordable segment, but Epiq should offer more range and advanced driver assists...",
+      "Epiq interior will follow Škoda's new design language. Expect a minimalist approach with a large central display...",
+      "Epiq vs Renault 5 E-Tech — Renault bet on retro design and has a marketing lead. Epiq will be more practical with a bigger boot...",
+      "Epiq pricing should start under €25,000, making it the most affordable Škoda EV on the market...",
+      "Epiq vs VW ID.2 — both share the platform, but Epiq will be more spacious and practical. ID.2 will be sportier...",
+      "Epiq design is inspired by the Vision 7S concept — crystalline elements, sharp lines and robust SUV proportions in a compact package...",
+      "Charging power isn't confirmed yet, but Epiq is expected to support DC charging around 100–120 kW...",
+      "Epiq as a first car for young drivers — with a sub-€25k price and low running costs, it's a logical choice...",
+      "Epiq vs Fiat Grande Panda EV — both are compact city EVs. Fiat bets on retro style, Epiq on practicality and space...",
+      "Škoda hasn't confirmed exact Epiq order dates yet, but production should begin late 2025...",
+      "Safety-wise, Epiq should benefit from the modern platform — expect a full ADAS suite including Travel Assist...",
+      "Epiq vs Smart #1 — Smart is more premium and pricier, Epiq targets the mass market with a focus on value...",
+    ],
+    de: [
+      "Der Škoda Epiq soll 2025/2026 unter 25.000 € auf den Markt kommen. Basis ist die neue MEB-Entry-Plattform des VW-Konzerns...",
+      "Epiq vs Dacia Spring — Spring ist deutlich günstiger, aber der Epiq bietet moderne Sicherheitssysteme, mehr Reichweite und bessere Verarbeitung...",
+      "Die erwartete Reichweite des Epiq liegt bei ca. 400 km WLTP dank der neuen Plattform. Real ca. 300–340 km...",
+      "Epiq vs Citroën ë-C3 — beide zielen auf das günstige Segment, aber der Epiq soll mehr Reichweite und Assistenzsysteme bieten...",
+      "Das Epiq-Interieur folgt Škodas neuer Designsprache — minimalistisch mit großem zentralem Display...",
+      "Epiq vs Renault 5 E-Tech — Renault setzt auf Retro-Design und hat einen Marketing-Vorsprung. Epiq wird praktischer mit größerem Kofferraum...",
+      "Der Epiq-Preis soll unter 25.000 € starten — damit wird er zum günstigsten Škoda-E-Auto...",
+      "Epiq vs VW ID.2 — beide teilen die Plattform, aber der Epiq wird geräumiger und praktischer. Der ID.2 sportlicher...",
+      "Das Epiq-Design ist vom Vision 7S Konzept inspiriert — kristalline Elemente, scharfe Linien und robuste SUV-Proportionen im Kompaktformat...",
+      "Die Ladeleistung ist noch nicht bestätigt, erwartet wird DC-Laden mit ca. 100–120 kW...",
+      "Epiq als erstes Auto für junge Fahrer — mit einem Preis unter 25.000 € und niedrigen Betriebskosten eine logische Wahl...",
+      "Epiq vs Fiat Grande Panda EV — beides kompakte Stadt-E-Autos. Fiat setzt auf Retro, Epiq auf Praktikabilität und Platz...",
+      "Škoda hat den genauen Bestellstart für den Epiq noch nicht bestätigt, Produktion soll Ende 2025 anlaufen...",
+      "Sicherheitstechnisch profitiert der Epiq von der modernen Plattform — volles ADAS-Paket inkl. Travel Assist erwartet...",
+      "Epiq vs Smart #1 — Smart ist Premium und teurer, Epiq zielt auf den Massenmarkt mit Fokus auf Preis-Leistung...",
+    ],
+  },
+};
+
+function getAnswerSnippet(modelKey) {
+  const pool = modelKey && MODEL_ANSWERS[modelKey];
+  if (pool) {
+    return {
+      answerCs: pool.cs[rand(0, pool.cs.length - 1)],
+      answerEn: pool.en[rand(0, pool.en.length - 1)],
+      answerDe: pool.de[rand(0, pool.de.length - 1)],
+    };
+  }
   return {
     answerCs: ANSWER_SNIPPETS_CS[rand(0, ANSWER_SNIPPETS_CS.length - 1)],
     answerEn: ANSWER_SNIPPETS_EN[rand(0, ANSWER_SNIPPETS_EN.length - 1)],
@@ -2395,7 +2565,7 @@ function generateModelFeedItem(modelKey) {
   const mentioned = Math.random() > 0.45;
   const position = mentioned ? rand(2, 6) : null;
   const sentiment = mentioned ? ["pozitivní", "pozitivní", "neutrální", "neutrální", "negativní"][rand(0, 4)] : null;
-  return { queryCs: qCs, queryEn: qEn, queryDe: qDe, categoryCs: cfg.fullName, categoryEn: cfg.fullName, categoryDe: cfg.fullName, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date(), index: modelQueryIndex, ...getAnswerSnippet() };
+  return { queryCs: qCs, queryEn: qEn, queryDe: qDe, categoryCs: cfg.fullName, categoryEn: cfg.fullName, categoryDe: cfg.fullName, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date(), index: modelQueryIndex, ...getAnswerSnippet(modelKey) };
 }
 
 function generateTrendData() {
