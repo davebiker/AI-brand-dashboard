@@ -3299,6 +3299,9 @@ const LANG = {
     vsLastWeek: "vs minulý týden",
     scorePlatform: "Skóre dle platformy",
     sovCompetition: "Brand Visibility Score — konkurence",
+    trend: "Trend",
+    week: "Týden",
+    allBrands: "Vše",
     sentimentBrand: "Sentiment dle značky",
     positionCategory: "Pozice dle kategorie",
     lastInsight: "Poslední insight",
@@ -3353,6 +3356,9 @@ const LANG = {
     vsLastWeek: "vs last week",
     scorePlatform: "Score by platform",
     sovCompetition: "Brand Visibility Score — competition",
+    trend: "Trend",
+    week: "Week",
+    allBrands: "All",
     sentimentBrand: "Sentiment by brand",
     positionCategory: "Position by category",
     lastInsight: "Latest insight",
@@ -3407,6 +3413,9 @@ const LANG = {
     vsLastWeek: "vs letzte Woche",
     scorePlatform: "Score nach Plattform",
     sovCompetition: "Brand Visibility Score — Wettbewerb",
+    trend: "Trend",
+    week: "Woche",
+    allBrands: "Alle",
     sentimentBrand: "Sentiment nach Marke",
     positionCategory: "Position nach Kategorie",
     lastInsight: "Aktueller Insight",
@@ -3461,6 +3470,9 @@ const LANG = {
     vsLastWeek: "vs पिछला सप्ताह",
     scorePlatform: "प्लेटफ़ॉर्म अनुसार स्कोर",
     sovCompetition: "Brand Visibility Score — प्रतिस्पर्धा",
+    trend: "ट्रेंड",
+    week: "सप्ताह",
+    allBrands: "सभी",
     sentimentBrand: "ब्रांड अनुसार सेंटिमेंट",
     positionCategory: "श्रेणी अनुसार स्थिति",
     lastInsight: "नवीनतम इनसाइट",
@@ -3515,6 +3527,9 @@ const LANG = {
     vsLastWeek: "vs forrige uke",
     scorePlatform: "Score per plattform",
     sovCompetition: "Brand Visibility Score — konkurranse",
+    trend: "Trend",
+    week: "Uke",
+    allBrands: "Alle",
     sentimentBrand: "Sentiment per merke",
     positionCategory: "Posisjon per kategori",
     lastInsight: "Siste innsikt",
@@ -3998,6 +4013,20 @@ function generateCompetitorData() {
   })).sort((a, b) => b.score - a.score);
 }
 
+function generateTrendHistory(competitorData) {
+  const weeks = 4;
+  return competitorData.map(d => {
+    const points = [];
+    for (let w = 0; w < weeks; w++) {
+      const base = d.score;
+      const drift = rand(-8, 8);
+      points.push(Math.max(1, Math.min(100, base + drift - (weeks - 1 - w) * rand(0, 3))));
+    }
+    points[weeks - 1] = d.score;
+    return { name: d.name, points };
+  });
+}
+
 function generateModelCompetitorData(modelKey) {
   const cfg = MODEL_CONFIG[modelKey];
   if (!cfg) return [];
@@ -4242,6 +4271,65 @@ function BarChart({ data, compact, highlight = "Škoda" }) {
         }}, d.name);
       })
     ),
+  );
+}
+
+const TREND_COLORS = ["#78FFD6", "#26C6F0", "#B4A0FF", "#FF6B4A", "#FFD93D", "#FF85A1", "#8BFFC8", "#C084FC", "#F97316"];
+
+function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda", t }) {
+  const weeks = 4;
+  const W = compact ? 280 : 360;
+  const H = compact ? 160 : 200;
+  const padL = 36, padR = 12, padT = 16, padB = 28;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const filtered = trendData.filter(d => visibleBrands.includes(d.name));
+  const allVals = filtered.flatMap(d => d.points);
+  const minV = Math.max(0, Math.min(...allVals) - 5);
+  const maxV = Math.min(100, Math.max(...allVals) + 5);
+  const range = maxV - minV || 1;
+  const xStep = chartW / (weeks - 1);
+
+  const yTicks = [minV, Math.round((minV + maxV) / 2), maxV];
+
+  return React.createElement("svg", { width: "100%", viewBox: `0 0 ${W} ${H}`, style: { display: "block" } },
+    // Y-axis grid + labels
+    yTicks.map(v => {
+      const y = padT + chartH - ((v - minV) / range) * chartH;
+      return React.createElement(React.Fragment, { key: v },
+        React.createElement("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: THEME.cardBorder, strokeWidth: 0.5 }),
+        React.createElement("text", { x: padL - 6, y: y + 3, textAnchor: "end", fill: THEME.textDim, fontSize: 9, fontFamily: "'JetBrains Mono', monospace" }, v),
+      );
+    }),
+    // X-axis week labels
+    Array.from({ length: weeks }, (_, i) =>
+      React.createElement("text", { key: i, x: padL + i * xStep, y: H - 4, textAnchor: "middle", fill: THEME.textDim, fontSize: 9, fontFamily: "'JetBrains Mono', monospace" },
+        `${t.week} ${i + 1}`
+      )
+    ),
+    // Lines
+    filtered.map((d, di) => {
+      const isH = d.name === highlight;
+      const color = isH ? THEME.electric : TREND_COLORS[di % TREND_COLORS.length];
+      const pathPts = d.points.map((v, i) => {
+        const x = padL + i * xStep;
+        const y = padT + chartH - ((v - minV) / range) * chartH;
+        return `${i === 0 ? "M" : "L"}${x},${y}`;
+      }).join(" ");
+      return React.createElement(React.Fragment, { key: d.name },
+        React.createElement("path", { d: pathPts, fill: "none", stroke: color, strokeWidth: isH ? 2.5 : 1.5, opacity: isH ? 1 : 0.7 }),
+        d.points.map((v, i) => {
+          const x = padL + i * xStep;
+          const y = padT + chartH - ((v - minV) / range) * chartH;
+          return React.createElement("circle", { key: i, cx: x, cy: y, r: isH ? 3.5 : 2.5, fill: color, opacity: isH ? 1 : 0.8 });
+        }),
+        // Value label on last point
+        React.createElement("text", {
+          x: padL + (weeks - 1) * xStep + 4, y: padT + chartH - ((d.points[weeks - 1] - minV) / range) * chartH + 3,
+          fill: color, fontSize: 9, fontWeight: isH ? 700 : 400, fontFamily: "'JetBrains Mono', monospace",
+        }, `${d.points[weeks - 1]}%`),
+      );
+    }),
   );
 }
 
@@ -4529,11 +4617,14 @@ function TrendIndicator({ value, compact }) {
 }
 
 // ── TV LAYOUT ──
-function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }) {
+function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }) {
   const competitors = displayCompetitors;
   const sentiment = displaySentiment;
   const isModelMode = viewMode === "model";
   const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
+  const [showTrend, setShowTrend] = useState(false);
+  const [trendBrands, setTrendBrands] = useState(() => displayCompetitors.map(d => d.name));
+  const toggleTrendBrand = (name) => setTrendBrands(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
     display: "grid", gridTemplateColumns: "2fr 3fr 1fr",
@@ -4610,8 +4701,53 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
 
     // Center panel
     React.createElement("div", { style: { order: 2, padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto" } },
-      React.createElement(SectionTitle, null, t.sovCompetition),
-      React.createElement(BarChart, { data: displayCompetitors, highlight: highlightName }),
+      React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
+        React.createElement(SectionTitle, null, t.sovCompetition),
+        React.createElement("button", {
+          onClick: () => setShowTrend(v => !v),
+          style: {
+            padding: "4px 12px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 600,
+            fontFamily: "'JetBrains Mono', monospace", border: `1px solid ${THEME.electric}44`,
+            background: showTrend ? THEME.electric : "transparent",
+            color: showTrend ? THEME.bg : THEME.electric,
+            transition: "all 0.3s ease",
+          },
+        }, t.trend),
+      ),
+      showTrend
+        ? React.createElement(React.Fragment, null,
+            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 } },
+              React.createElement("button", {
+                onClick: () => setTrendBrands(trendBrands.length === displayCompetitors.length ? [highlightName] : displayCompetitors.map(d => d.name)),
+                style: {
+                  padding: "2px 8px", borderRadius: 4, cursor: "pointer", fontSize: 9, fontWeight: 600,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  border: `1px solid ${THEME.electric}44`,
+                  background: trendBrands.length === displayCompetitors.length ? `${THEME.electric}22` : "transparent",
+                  color: THEME.electric, transition: "all 0.2s ease",
+                },
+              }, t.allBrands),
+              displayCompetitors.map((d, i) => {
+                const isH = d.name === highlightName;
+                const color = isH ? THEME.electric : TREND_COLORS[i % TREND_COLORS.length];
+                const active = trendBrands.includes(d.name);
+                return React.createElement("button", {
+                  key: d.name,
+                  onClick: () => toggleTrendBrand(d.name),
+                  style: {
+                    padding: "2px 8px", borderRadius: 4, cursor: "pointer", fontSize: 9,
+                    fontFamily: "'JetBrains Mono', monospace", fontWeight: active ? 600 : 400,
+                    border: `1px solid ${color}66`,
+                    background: active ? `${color}22` : "transparent",
+                    color: active ? color : THEME.textDim,
+                    transition: "all 0.2s ease",
+                  },
+                }, d.name);
+              }),
+            ),
+            React.createElement(TrendLineChart, { trendData: displayTrendHistory, visibleBrands: trendBrands, highlight: highlightName, t }),
+          )
+        : React.createElement(BarChart, { data: displayCompetitors, highlight: highlightName }),
       React.createElement("div", { style: { marginTop: 40 } },
         React.createElement(SectionTitle, null, t.sentimentBrand),
         React.createElement(SentimentChart, { data: displaySentiment, t, highlight: highlightName }),
@@ -4791,11 +4927,14 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
 }
 
 // ── VERTICAL LAYOUT ──
-function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile, mode, setMode }) {
+function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile, mode, setMode }) {
   const competitors = displayCompetitors;
   const sentiment = displaySentiment;
   const isModelMode = viewMode === "model";
   const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
+  const [showTrendV, setShowTrendV] = useState(false);
+  const [trendBrandsV, setTrendBrandsV] = useState(() => displayCompetitors.map(d => d.name));
+  const toggleTrendBrandV = (name) => setTrendBrandsV(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
   const pad = mobile ? "14px 20px" : "12px 16px";
   const padSm = mobile ? "12px 20px" : "10px 16px";
   const ringSize = mobile ? 130 : 110;
@@ -4988,8 +5127,53 @@ function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayC
 
     // Competitors
     React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
-      React.createElement(SectionTitle, { compact: !mobile }, t.sovCompetition),
-      React.createElement(BarChart, { data: displayCompetitors, compact: !mobile, highlight: highlightName }),
+      React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } },
+        React.createElement(SectionTitle, { compact: !mobile }, t.sovCompetition),
+        React.createElement("button", {
+          onClick: () => setShowTrendV(v => !v),
+          style: {
+            padding: "3px 10px", borderRadius: 6, cursor: "pointer", fontSize: 10, fontWeight: 600,
+            fontFamily: "'JetBrains Mono', monospace", border: `1px solid ${THEME.electric}44`,
+            background: showTrendV ? THEME.electric : "transparent",
+            color: showTrendV ? THEME.bg : THEME.electric,
+            transition: "all 0.3s ease",
+          },
+        }, t.trend),
+      ),
+      showTrendV
+        ? React.createElement(React.Fragment, null,
+            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 } },
+              React.createElement("button", {
+                onClick: () => setTrendBrandsV(trendBrandsV.length === displayCompetitors.length ? [highlightName] : displayCompetitors.map(d => d.name)),
+                style: {
+                  padding: "2px 7px", borderRadius: 4, cursor: "pointer", fontSize: 8, fontWeight: 600,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  border: `1px solid ${THEME.electric}44`,
+                  background: trendBrandsV.length === displayCompetitors.length ? `${THEME.electric}22` : "transparent",
+                  color: THEME.electric, transition: "all 0.2s ease",
+                },
+              }, t.allBrands),
+              displayCompetitors.map((d, i) => {
+                const isH = d.name === highlightName;
+                const color = isH ? THEME.electric : TREND_COLORS[i % TREND_COLORS.length];
+                const active = trendBrandsV.includes(d.name);
+                return React.createElement("button", {
+                  key: d.name,
+                  onClick: () => toggleTrendBrandV(d.name),
+                  style: {
+                    padding: "2px 7px", borderRadius: 4, cursor: "pointer", fontSize: 8,
+                    fontFamily: "'JetBrains Mono', monospace", fontWeight: active ? 600 : 400,
+                    border: `1px solid ${color}66`,
+                    background: active ? `${color}22` : "transparent",
+                    color: active ? color : THEME.textDim,
+                    transition: "all 0.2s ease",
+                  },
+                }, d.name);
+              }),
+            ),
+            React.createElement(TrendLineChart, { trendData: displayTrendHistory, visibleBrands: trendBrandsV, compact: !mobile, highlight: highlightName, t }),
+          )
+        : React.createElement(BarChart, { data: displayCompetitors, compact: !mobile, highlight: highlightName }),
     ),
 
     // Sentiment per brand
@@ -5106,8 +5290,10 @@ function App() {
 
   const [scores, setScores] = useState(generateScores());
   const [competitors, setCompetitors] = useState(generateCompetitorData());
+  const [trendHistory, setTrendHistory] = useState(() => generateTrendHistory(generateCompetitorData()));
   const [sentiment, setSentiment] = useState(generateSentimentData());
   const [modelCompetitors, setModelCompetitors] = useState(() => generateModelCompetitorData(selectedModel));
+  const [modelTrendHistory, setModelTrendHistory] = useState(() => generateTrendHistory(generateModelCompetitorData(selectedModel)));
   const [modelSentiment, setModelSentiment] = useState(() => generateModelSentimentData(selectedModel));
   const [mentionRate, setMentionRate] = useState(() => rand(52, 65));
   const [avgPosition, setAvgPosition] = useState(() => (rand(25, 35) / 10).toFixed(1));
@@ -5118,9 +5304,13 @@ function App() {
 
   function regenAllData() {
     setScores(generateScores());
-    setCompetitors(generateCompetitorData());
+    const newComp = generateCompetitorData();
+    setCompetitors(newComp);
+    setTrendHistory(generateTrendHistory(newComp));
     setSentiment(generateSentimentData());
-    setModelCompetitors(generateModelCompetitorData(selectedModel));
+    const newModelComp = generateModelCompetitorData(selectedModel);
+    setModelCompetitors(newModelComp);
+    setModelTrendHistory(generateTrendHistory(newModelComp));
     setModelSentiment(generateModelSentimentData(selectedModel));
     setMentionRate(rand(52, 65));
     setAvgPosition((rand(25, 35) / 10).toFixed(1));
@@ -5135,6 +5325,7 @@ function App() {
   const highlightName = isModelMode && modelCfg ? modelCfg.label : "Škoda";
   const displayCategories = isModelMode ? (modelCfg ? modelCfg.categories : []) : POSITION_CATEGORIES;
   const displayCompetitors = isModelMode ? modelCompetitors : competitors;
+  const displayTrendHistory = isModelMode ? modelTrendHistory : trendHistory;
   const displaySentiment = isModelMode ? modelSentiment : sentiment;
   const highlightSentiment = displaySentiment.find(d => d.name === displayLabel);
   const posSentimentValue = highlightSentiment ? `${highlightSentiment.pos}%` : "—";
@@ -5185,13 +5376,13 @@ function App() {
   const isFullscreen = hash === "#tv" || hash === "#vertical";
   if (isFullscreen) {
     const m = hash.replace("#", "");
-    if (m === "tv") return React.createElement(React.Fragment, null, React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
-    return React.createElement(React.Fragment, null, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    if (m === "tv") return React.createElement(React.Fragment, null, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
+    return React.createElement(React.Fragment, null, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(React.Fragment, null, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    return React.createElement(React.Fragment, null, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
   // Preview mode
@@ -5214,8 +5405,8 @@ function App() {
         transformOrigin: "top center",
       }},
         mode === "tv"
-          ? React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode })
-          : React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }),
+          ? React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode })
+          : React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }),
       ),
       mode === "tv" && React.createElement("div", { style: {
         position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
