@@ -4278,9 +4278,12 @@ const TREND_COLORS = ["#78FFD6", "#26C6F0", "#B4A0FF", "#FF6B4A", "#FFD93D", "#F
 
 function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda", t }) {
   const weeks = 4;
-  const W = compact ? 280 : 360;
-  const H = compact ? 160 : 200;
-  const padL = 36, padR = 12, padT = 16, padB = 28;
+  const W = compact ? 520 : 680;
+  const H = compact ? 280 : 340;
+  const fLabel = compact ? 13 : 15;
+  const fAxis = compact ? 12 : 14;
+  const fValue = compact ? 13 : 15;
+  const padL = compact ? 48 : 56, padR = compact ? 48 : 56, padT = 24, padB = compact ? 36 : 42;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
   const filtered = trendData.filter(d => visibleBrands.includes(d.name));
@@ -4297,13 +4300,13 @@ function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda
     yTicks.map(v => {
       const y = padT + chartH - ((v - minV) / range) * chartH;
       return React.createElement(React.Fragment, { key: v },
-        React.createElement("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: THEME.cardBorder, strokeWidth: 0.5 }),
-        React.createElement("text", { x: padL - 6, y: y + 3, textAnchor: "end", fill: THEME.textDim, fontSize: 9, fontFamily: "'JetBrains Mono', monospace" }, v),
+        React.createElement("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: THEME.cardBorder, strokeWidth: 1, strokeDasharray: "4 3" }),
+        React.createElement("text", { x: padL - 10, y: y + 4, textAnchor: "end", fill: THEME.textDim, fontSize: fAxis, fontFamily: "'JetBrains Mono', monospace" }, v),
       );
     }),
     // X-axis week labels
     Array.from({ length: weeks }, (_, i) =>
-      React.createElement("text", { key: i, x: padL + i * xStep, y: H - 4, textAnchor: "middle", fill: THEME.textDim, fontSize: 9, fontFamily: "'JetBrains Mono', monospace" },
+      React.createElement("text", { key: i, x: padL + i * xStep, y: H - 8, textAnchor: "middle", fill: THEME.textDim, fontSize: fLabel, fontFamily: "'JetBrains Mono', monospace" },
         `${t.week} ${i + 1}`
       )
     ),
@@ -4317,16 +4320,17 @@ function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda
         return `${i === 0 ? "M" : "L"}${x},${y}`;
       }).join(" ");
       return React.createElement(React.Fragment, { key: d.name },
-        React.createElement("path", { d: pathPts, fill: "none", stroke: color, strokeWidth: isH ? 2.5 : 1.5, opacity: isH ? 1 : 0.7 }),
+        React.createElement("path", { d: pathPts, fill: "none", stroke: color, strokeWidth: isH ? 3.5 : 2, opacity: isH ? 1 : 0.7, strokeLinejoin: "round", strokeLinecap: "round" }),
+        isH && React.createElement("path", { d: pathPts, fill: "none", stroke: color, strokeWidth: 8, opacity: 0.12, strokeLinejoin: "round", strokeLinecap: "round" }),
         d.points.map((v, i) => {
           const x = padL + i * xStep;
           const y = padT + chartH - ((v - minV) / range) * chartH;
-          return React.createElement("circle", { key: i, cx: x, cy: y, r: isH ? 3.5 : 2.5, fill: color, opacity: isH ? 1 : 0.8 });
+          return React.createElement("circle", { key: i, cx: x, cy: y, r: isH ? 5 : 3.5, fill: color, opacity: isH ? 1 : 0.8, stroke: isH ? THEME.bg : "none", strokeWidth: isH ? 2 : 0 });
         }),
         // Value label on last point
         React.createElement("text", {
-          x: padL + (weeks - 1) * xStep + 4, y: padT + chartH - ((d.points[weeks - 1] - minV) / range) * chartH + 3,
-          fill: color, fontSize: 9, fontWeight: isH ? 700 : 400, fontFamily: "'JetBrains Mono', monospace",
+          x: padL + (weeks - 1) * xStep + 8, y: padT + chartH - ((d.points[weeks - 1] - minV) / range) * chartH + 5,
+          fill: color, fontSize: fValue, fontWeight: isH ? 700 : 500, fontFamily: "'JetBrains Mono', monospace",
         }, `${d.points[weeks - 1]}%`),
       );
     }),
