@@ -3554,8 +3554,10 @@ function App() {
   const [selectedModel, setSelectedModelState] = useState("enyaq");
 
   const [market, setMarketState] = useState("cz");
+  const MARKET_LANG = { cz: "cs", de: "de", uk: "en", in: "en", no: "en" };
   const setMarket = (m) => {
     setMarketState(m);
+    setLang(MARKET_LANG[m] || "en");
     regenAllData();
   };
   const setViewMode = (vm) => {
