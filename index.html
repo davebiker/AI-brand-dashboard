@@ -4198,16 +4198,16 @@ function TrendChart({ data, width = 260, height = 120, t, lang, compact }) {
 
 function BarChart({ data, compact, highlight = "Škoda" }) {
   const sorted = [...data].sort((a, b) => b.score - a.score);
-  const maxScore = Math.max(...sorted.map(d => d.score), 1);
-  return React.createElement("div", { style: { display: "flex", flexDirection: "column", height: compact ? 180 : 220 } },
+  const barH = compact ? 140 : 170;
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
     // Bars area
     React.createElement("div", { style: {
-      flex: 1, display: "flex", alignItems: "flex-end", gap: compact ? 4 : 6,
+      height: barH + 24, display: "flex", alignItems: "flex-end", gap: compact ? 4 : 6,
       borderBottom: `1px solid ${THEME.cardBorder}`, paddingBottom: 6,
     }},
       sorted.map(d => {
         const isS = d.name === highlight;
-        const pct = Math.max(4, (d.score / maxScore) * 100);
+        const h = Math.max(4, (d.score / 100) * barH);
         return React.createElement("div", { key: d.name, style: {
           flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
         }},
@@ -4217,7 +4217,7 @@ function BarChart({ data, compact, highlight = "Škoda" }) {
             fontFamily: "'JetBrains Mono', monospace",
           }}, `${d.score}%`),
           React.createElement("div", { style: {
-            width: "100%", maxWidth: compact ? 36 : 48, height: `${pct}%`, minHeight: 4,
+            width: "100%", maxWidth: compact ? 36 : 48, height: h,
             background: isS
               ? `linear-gradient(180deg, ${THEME.electric}, ${THEME.emeraldLight})`
               : `linear-gradient(180deg, ${THEME.muted}77, ${THEME.muted}33)`,
