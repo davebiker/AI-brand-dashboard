@@ -4198,80 +4198,112 @@ function TrendChart({ data, width = 260, height = 120, t, lang, compact }) {
 
 function BarChart({ data, compact, highlight = "Škoda" }) {
   const sorted = [...data].sort((a, b) => b.score - a.score);
-  return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: compact ? 5 : 8 } },
-    sorted.map(d => {
-      const isS = d.name === highlight;
-      return React.createElement("div", { key: d.name, style: { display: "flex", alignItems: "center", gap: 8 } },
-        React.createElement("span", { style: {
-          width: compact ? 54 : 68, fontSize: compact ? 12 : 14,
-          color: isS ? THEME.electric : THEME.textDim,
-          fontWeight: isS ? 700 : 400, textAlign: "right", flexShrink: 0,
-          fontFamily: "'JetBrains Mono', monospace",
-        }}, d.name),
-        React.createElement("div", { style: {
-          flex: 1, height: compact ? 18 : 24, background: THEME.cardBorder,
-          borderRadius: 3, overflow: "hidden",
+  const maxScore = Math.max(...sorted.map(d => d.score), 1);
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column", height: compact ? 180 : 220 } },
+    // Bars area
+    React.createElement("div", { style: {
+      flex: 1, display: "flex", alignItems: "flex-end", gap: compact ? 4 : 6,
+      borderBottom: `1px solid ${THEME.cardBorder}`, paddingBottom: 6,
+    }},
+      sorted.map(d => {
+        const isS = d.name === highlight;
+        const pct = Math.max(4, (d.score / maxScore) * 100);
+        return React.createElement("div", { key: d.name, style: {
+          flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
         }},
+          React.createElement("span", { style: {
+            fontSize: compact ? 10 : 12, fontWeight: 600,
+            color: isS ? THEME.electric : THEME.text,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}, `${d.score}%`),
           React.createElement("div", { style: {
-            height: "100%", width: `${d.score}%`,
+            width: "100%", maxWidth: compact ? 36 : 48, height: `${pct}%`, minHeight: 4,
             background: isS
-              ? `linear-gradient(90deg, ${THEME.emeraldLight}, ${THEME.electric})`
-              : `linear-gradient(90deg, ${THEME.muted}44, ${THEME.muted}77)`,
-            borderRadius: 3, transition: "width 1.2s ease",
+              ? `linear-gradient(180deg, ${THEME.electric}, ${THEME.emeraldLight})`
+              : `linear-gradient(180deg, ${THEME.muted}77, ${THEME.muted}33)`,
+            borderRadius: "4px 4px 0 0", transition: "height 1.2s ease",
+            border: isS ? `1px solid ${THEME.electric}66` : "none",
+            boxShadow: isS ? `0 0 12px ${THEME.electric}30` : "none",
           }}),
-        ),
-        React.createElement("span", { style: {
-          width: compact ? 36 : 42, fontSize: compact ? 11 : 13, textAlign: "right",
-          color: isS ? THEME.electric : THEME.text,
-          fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, flexShrink: 0,
-        }}, `${d.score}%`),
-      );
-    })
+        );
+      })
+    ),
+    // Labels
+    React.createElement("div", { style: { display: "flex", gap: compact ? 4 : 6, paddingTop: 6 } },
+      sorted.map(d => {
+        const isS = d.name === highlight;
+        return React.createElement("div", { key: d.name, style: {
+          flex: 1, textAlign: "center", fontSize: compact ? 9 : 11,
+          color: isS ? THEME.electric : THEME.textDim,
+          fontWeight: isS ? 700 : 400,
+          fontFamily: "'JetBrains Mono', monospace",
+        }}, d.name);
+      })
+    ),
   );
 }
 
 function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
-  return React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: compact ? 5 : 7 } },
-    data.map(d => {
-      const isS = d.name === highlight;
-      return React.createElement("div", { key: d.name, style: { display: "flex", alignItems: "center", gap: 8 } },
-        React.createElement("span", { style: {
-          width: compact ? 54 : 68, fontSize: compact ? 11 : 12,
-          color: isS ? THEME.electric : THEME.textDim,
-          fontWeight: isS ? 700 : 400, textAlign: "right", flexShrink: 0,
-          fontFamily: "'JetBrains Mono', monospace",
-        }}, d.name),
-        React.createElement("div", { style: {
-          flex: 1, height: compact ? 16 : 20, display: "flex", borderRadius: 3, overflow: "hidden",
-          border: isS ? `1px solid ${THEME.electric}44` : "none",
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column", height: compact ? 180 : 220 } },
+    // Stacked bars area
+    React.createElement("div", { style: {
+      flex: 1, display: "flex", alignItems: "flex-end", gap: compact ? 4 : 6,
+      borderBottom: `1px solid ${THEME.cardBorder}`, paddingBottom: 6,
+    }},
+      data.map(d => {
+        const isS = d.name === highlight;
+        return React.createElement("div", { key: d.name, style: {
+          flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
         }},
+          React.createElement("span", { style: {
+            fontSize: compact ? 9 : 11, fontWeight: 600,
+            color: d.pos < 35 ? THEME.red : d.pos < 50 ? THEME.amber : THEME.electric,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}, `${d.pos}%`),
+          // Stacked vertical bar
           React.createElement("div", { style: {
-            width: `${d.pos}%`, height: "100%",
-            background: isS ? THEME.electric : `${THEME.electric}88`,
-            transition: "width 1.2s ease",
-          }}),
-          React.createElement("div", { style: {
-            width: `${d.neu}%`, height: "100%",
-            background: isS ? `${THEME.amber}cc` : `${THEME.amber}55`,
-            transition: "width 1.2s ease",
-          }}),
-          React.createElement("div", { style: {
-            width: `${d.neg}%`, height: "100%",
-            background: isS ? `${THEME.red}cc` : `${THEME.red}55`,
-            transition: "width 1.2s ease",
-          }}),
-        ),
-        React.createElement("span", { style: {
-          width: compact ? 32 : 36, fontSize: compact ? 10 : 11, textAlign: "right",
-          color: d.pos < 35 ? THEME.red : d.pos < 50 ? THEME.amber : THEME.electric,
-          fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, flexShrink: 0,
-        }}, `${d.pos}%`),
-      );
-    }),
+            width: "100%", maxWidth: compact ? 36 : 48, height: "85%",
+            display: "flex", flexDirection: "column",
+            borderRadius: "4px 4px 0 0", overflow: "hidden",
+            border: isS ? `1px solid ${THEME.electric}44` : "none",
+            boxShadow: isS ? `0 0 12px ${THEME.electric}30` : "none",
+            transition: "all 0.6s ease",
+          }},
+            React.createElement("div", { style: {
+              width: "100%", height: `${d.neg}%`,
+              background: isS ? `${THEME.red}cc` : `${THEME.red}55`,
+              transition: "height 1.2s ease",
+            }}),
+            React.createElement("div", { style: {
+              width: "100%", height: `${d.neu}%`,
+              background: isS ? `${THEME.amber}cc` : `${THEME.amber}55`,
+              transition: "height 1.2s ease",
+            }}),
+            React.createElement("div", { style: {
+              width: "100%", flex: 1,
+              background: isS ? THEME.electric : `${THEME.electric}88`,
+              transition: "height 1.2s ease",
+            }}),
+          ),
+        );
+      })
+    ),
+    // Labels
+    React.createElement("div", { style: { display: "flex", gap: compact ? 4 : 6, paddingTop: 6 } },
+      data.map(d => {
+        const isS = d.name === highlight;
+        return React.createElement("div", { key: d.name, style: {
+          flex: 1, textAlign: "center", fontSize: compact ? 9 : 11,
+          color: isS ? THEME.electric : THEME.textDim,
+          fontWeight: isS ? 700 : 400,
+          fontFamily: "'JetBrains Mono', monospace",
+        }}, d.name);
+      })
+    ),
     // Legend
-    React.createElement("div", { style: { display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 2, fontSize: compact ? 9 : 10 } },
+    React.createElement("div", { style: { display: "flex", gap: 12, justifyContent: "center", marginTop: 8, fontSize: compact ? 9 : 10 } },
       React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 4 } },
-        React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: THEME.electric, display: "inline-block" } }), 
+        React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: THEME.electric, display: "inline-block" } }),
         React.createElement("span", { style: { color: THEME.muted } }, t.positive)),
       React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 4 } },
         React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: `${THEME.amber}aa`, display: "inline-block" } }),
