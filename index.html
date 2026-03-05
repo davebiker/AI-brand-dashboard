@@ -4512,7 +4512,7 @@ function TrendIndicator({ value, compact }) {
 }
 
 // ── TV LAYOUT ──
-function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }) {
+function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }) {
   const competitors = displayCompetitors;
   const sentiment = displaySentiment;
   const isModelMode = viewMode === "model";
@@ -4774,7 +4774,7 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
 }
 
 // ── VERTICAL LAYOUT ──
-function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile, mode, setMode }) {
+function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile, mode, setMode }) {
   const competitors = displayCompetitors;
   const sentiment = displaySentiment;
   const isModelMode = viewMode === "model";
@@ -5094,6 +5094,10 @@ function App() {
   const [scores, setScores] = useState(generateScores());
   const [competitors, setCompetitors] = useState(generateCompetitorData());
   const [sentiment, setSentiment] = useState(generateSentimentData());
+  const [modelCompetitors, setModelCompetitors] = useState(() => generateModelCompetitorData(selectedModel));
+  const [modelSentiment, setModelSentiment] = useState(() => generateModelSentimentData(selectedModel));
+  const [mentionRate, setMentionRate] = useState(() => rand(52, 65));
+  const [avgPosition, setAvgPosition] = useState(() => (rand(25, 35) / 10).toFixed(1));
   const [sovTrend, setSovTrend] = useState(generateTrendData());
   const [feed, setFeed] = useState(() => Array.from({ length: 10 }, () => generateFeedItem()));
   const [tick, setTick] = useState(0);
@@ -5117,12 +5121,6 @@ function App() {
   const displayLabel = isModelMode ? (modelCfg ? modelCfg.label : "Škoda") : "Škoda";
   const highlightName = isModelMode && modelCfg ? modelCfg.label : "Škoda";
   const displayCategories = isModelMode ? (modelCfg ? modelCfg.categories : []) : POSITION_CATEGORIES;
-
-  // Model-mode competitor/sentiment data stored in state to avoid re-randomizing on every render
-  const [modelCompetitors, setModelCompetitors] = useState(() => generateModelCompetitorData(selectedModel));
-  const [modelSentiment, setModelSentiment] = useState(() => generateModelSentimentData(selectedModel));
-  const [mentionRate, setMentionRate] = useState(() => rand(52, 65));
-  const [avgPosition, setAvgPosition] = useState(() => (rand(25, 35) / 10).toFixed(1));
   const displayCompetitors = isModelMode ? modelCompetitors : competitors;
   const displaySentiment = isModelMode ? modelSentiment : sentiment;
   const highlightSentiment = displaySentiment.find(d => d.name === displayLabel);
@@ -5251,13 +5249,13 @@ function App() {
   const isFullscreen = hash === "#tv" || hash === "#vertical";
   if (isFullscreen) {
     const m = hash.replace("#", "");
-    if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
-    return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
+    return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
   // Preview mode
@@ -5280,8 +5278,8 @@ function App() {
         transformOrigin: "top center",
       }},
         mode === "tv"
-          ? React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode })
-          : React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }),
+          ? React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode })
+          : React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }),
       ),
       mode === "tv" && React.createElement("div", { style: {
         position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
