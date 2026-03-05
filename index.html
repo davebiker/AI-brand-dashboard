@@ -4214,7 +4214,7 @@ function BarChart({ data, compact, highlight = "Škoda" }) {
           flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
         }},
           React.createElement("span", { style: {
-            fontSize: compact ? 10 : 12, fontWeight: 600,
+            fontSize: compact ? 12 : 14, fontWeight: 600,
             color: isS ? THEME.electric : THEME.text,
             fontFamily: "'JetBrains Mono', monospace",
           }}, `${d.score}%`),
@@ -4264,7 +4264,7 @@ function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
           flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
         }},
           React.createElement("span", { style: {
-            fontSize: compact ? 9 : 11, fontWeight: 600,
+            fontSize: compact ? 11 : 13, fontWeight: 600,
             color: d.pos < 35 ? THEME.red : d.pos < 50 ? THEME.amber : THEME.electric,
             fontFamily: "'JetBrains Mono', monospace",
           }}, `${d.pos}%`),
@@ -4519,7 +4519,7 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
   const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
-    display: "grid", gridTemplateColumns: "minmax(320px, 600px) 1fr minmax(200px, 300px)",
+    display: "grid", gridTemplateColumns: "2fr 3fr 1fr",
     gridTemplateRows: "auto 1fr", fontFamily: "'Outfit', sans-serif",
   }},
     // BG texture
@@ -4595,7 +4595,7 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
     React.createElement("div", { style: { order: 2, padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto" } },
       React.createElement(SectionTitle, null, t.sovCompetition),
       React.createElement(BarChart, { data: displayCompetitors, highlight: highlightName }),
-      React.createElement("div", { style: { marginTop: 20 } },
+      React.createElement("div", { style: { marginTop: 40 } },
         React.createElement(SectionTitle, null, t.sentimentBrand),
         React.createElement(SentimentChart, { data: displaySentiment, t, highlight: highlightName }),
       ),
