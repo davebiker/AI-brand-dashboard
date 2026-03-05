@@ -2651,9 +2651,8 @@ function FeedItem({ item, compact, lang }) {
     }}, lang === "en" ? `"${displayQuery}"` : `„${displayQuery}"`),
     // Answer snippet
     React.createElement("div", { style: {
-      color: THEME.muted, fontSize: compact ? 10 : 11, lineHeight: 1.4,
-      marginBottom: 6, fontStyle: "italic", paddingLeft: 8,
-      borderLeft: `2px solid ${THEME.cardBorder}`,
+      color: THEME.electric, fontSize: compact ? 12 : 14, lineHeight: 1.4,
+      marginBottom: 6,
     }}, lang === "en" ? (item.answerEn || "") : lang === "de" ? (item.answerDe || "") : (item.answerCs || "")),
     // Bottom: platform + results
     React.createElement("div", { style: {
