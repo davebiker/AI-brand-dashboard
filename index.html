@@ -2241,6 +2241,75 @@ const allQueries = QUERY_CATEGORIES.flatMap(c => {
 });
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+// Answer snippet pool — short truncated AI-style answers
+const ANSWER_SNIPPETS_CS = [
+  "Na základě dostupných dat bych doporučil zvážit několik faktorů. Především je důležité porovnat celkové náklady na vlastnictví...",
+  "Z hlediska poměru cena/výkon patří mezi nejzajímavější volby na trhu momentálně...",
+  "Podle nejnovějších testů a recenzí se ukazuje, že klíčovým faktorem je...",
+  "Tady záleží na vašich prioritách. Pokud hledáte prostornost a praktičnost, pak...",
+  "Srovnání ukazuje zajímavé rozdíly. V kategorii bezpečnosti vede...",
+  "Podle statistik spolehlivosti a hodnocení majitelů je jednoznačně nejlepší volbou...",
+  "Je třeba vzít v úvahu několik aspektů — spotřebu, pojištění, servisní náklady a...",
+  "V tomto segmentu je konkurence velmi silná. Mezi top modely patří...",
+  "Reálné zkušenosti majitelů ukazují, že skutečný dojezd se pohybuje kolem...",
+  "Z pohledu technologií a konektivity nabízí nejlepší řešení v této třídě...",
+  "Analýza trhu ukazuje jasný trend — zákazníci stále více preferují...",
+  "Pokud porovnáme všechny dostupné varianty, nejlepší kombinaci vlastností nabízí...",
+  "Zajímavé je, že v posledních měsících se výrazně změnilo hodnocení u...",
+  "Data z crash testů Euro NCAP jednoznačně ukazují, že v bezpečnosti dominuje...",
+  "Provozní náklady se výrazně liší — nejúspornější varianta v tomto segmentu je...",
+  "Výhodou tohoto modelu je zejména prostorný interiér a nízké provozní náklady, nicméně...",
+  "Porovnání záručních podmínek ukazuje značné rozdíly mezi výrobci. Nejdelší záruku...",
+  "Z hlediska zůstatkové hodnoty po třech letech provozu si nejlépe drží cenu...",
+];
+const ANSWER_SNIPPETS_EN = [
+  "Based on available data, I'd recommend considering several factors. Most importantly, compare the total cost of ownership...",
+  "In terms of value for money, the most interesting choices on the market right now are...",
+  "According to the latest tests and reviews, the key factor here is...",
+  "It depends on your priorities. If you're looking for spaciousness and practicality, then...",
+  "The comparison reveals interesting differences. In the safety category, the leader is...",
+  "According to reliability statistics and owner ratings, the clear best choice is...",
+  "You need to consider several aspects — fuel consumption, insurance, service costs and...",
+  "Competition in this segment is very strong. Among the top models are...",
+  "Real-world owner experiences show that actual range is approximately...",
+  "From a technology and connectivity perspective, the best solution in this class is...",
+  "Market analysis shows a clear trend — customers increasingly prefer...",
+  "Comparing all available options, the best combination of features is offered by...",
+  "Interestingly, ratings have changed significantly in recent months for...",
+  "Euro NCAP crash test data clearly shows that safety is dominated by...",
+  "Running costs vary significantly — the most economical option in this segment is...",
+  "The advantage of this model is its spacious interior and low running costs, however...",
+  "Warranty comparison shows significant differences between manufacturers. The longest warranty...",
+  "In terms of residual value after three years, the best value retention goes to...",
+];
+const ANSWER_SNIPPETS_DE = [
+  "Basierend auf verfügbaren Daten würde ich empfehlen, mehrere Faktoren zu berücksichtigen. Am wichtigsten ist der Vergleich der Gesamtbetriebskosten...",
+  "Im Hinblick auf das Preis-Leistungs-Verhältnis sind die interessantesten Optionen derzeit...",
+  "Laut den neuesten Tests und Bewertungen ist der entscheidende Faktor hier...",
+  "Das hängt von Ihren Prioritäten ab. Wenn Sie Geräumigkeit und Praktikabilität suchen, dann...",
+  "Der Vergleich zeigt interessante Unterschiede. In der Sicherheitskategorie führt...",
+  "Laut Zuverlässigkeitsstatistiken und Besitzerbewertungen ist die beste Wahl eindeutig...",
+  "Man muss mehrere Aspekte berücksichtigen — Verbrauch, Versicherung, Wartungskosten und...",
+  "Der Wettbewerb in diesem Segment ist sehr stark. Zu den Top-Modellen gehören...",
+  "Erfahrungen von Besitzern zeigen, dass die tatsächliche Reichweite ungefähr...",
+  "Aus technologischer Sicht bietet die beste Lösung in dieser Klasse...",
+  "Die Marktanalyse zeigt einen klaren Trend — Kunden bevorzugen zunehmend...",
+  "Beim Vergleich aller verfügbaren Optionen bietet die beste Kombination an Eigenschaften...",
+  "Interessanterweise haben sich die Bewertungen in den letzten Monaten deutlich verändert bei...",
+  "Euro NCAP Crashtest-Daten zeigen eindeutig, dass die Sicherheit dominiert wird von...",
+  "Die Betriebskosten variieren erheblich — die sparsamste Option in diesem Segment ist...",
+  "Der Vorteil dieses Modells ist der geräumige Innenraum und niedrige Betriebskosten, allerdings...",
+  "Der Garantievergleich zeigt erhebliche Unterschiede zwischen Herstellern. Die längste Garantie...",
+  "Beim Restwert nach drei Jahren hält den Wert am besten...",
+];
+function getAnswerSnippet() {
+  return {
+    answerCs: ANSWER_SNIPPETS_CS[rand(0, ANSWER_SNIPPETS_CS.length - 1)],
+    answerEn: ANSWER_SNIPPETS_EN[rand(0, ANSWER_SNIPPETS_EN.length - 1)],
+    answerDe: ANSWER_SNIPPETS_DE[rand(0, ANSWER_SNIPPETS_DE.length - 1)],
+  };
+}
+
 function generateScores() {
   const s = {};
   PLATFORMS.forEach(p => { s[p.name] = rand(35, 65); });
@@ -2326,7 +2395,7 @@ function generateModelFeedItem(modelKey) {
   const mentioned = Math.random() > 0.45;
   const position = mentioned ? rand(2, 6) : null;
   const sentiment = mentioned ? ["pozitivní", "pozitivní", "neutrální", "neutrální", "negativní"][rand(0, 4)] : null;
-  return { queryCs: qCs, queryEn: qEn, queryDe: qDe, categoryCs: cfg.fullName, categoryEn: cfg.fullName, categoryDe: cfg.fullName, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date(), index: modelQueryIndex };
+  return { queryCs: qCs, queryEn: qEn, queryDe: qDe, categoryCs: cfg.fullName, categoryEn: cfg.fullName, categoryDe: cfg.fullName, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date(), index: modelQueryIndex, ...getAnswerSnippet() };
 }
 
 function generateTrendData() {
@@ -2355,7 +2424,7 @@ function generateFeedItem() {
   const mentioned = Math.random() > 0.4;
   const position = mentioned ? rand(2, 6) : null;
   const sentiment = mentioned ? ["pozitivní", "pozitivní", "neutrální", "neutrální", "negativní"][rand(0, 4)] : null;
-  return { queryCs: item.queryCs, queryEn: item.queryEn, queryDe: item.queryDe, categoryCs: item.categoryCs, categoryEn: item.categoryEn, categoryDe: item.categoryDe, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date(), index: queryIndex };
+  return { queryCs: item.queryCs, queryEn: item.queryEn, queryDe: item.queryDe, categoryCs: item.categoryCs, categoryEn: item.categoryEn, categoryDe: item.categoryDe, platform: platform.name, platformColor: platform.color, mentioned, position, sentiment, time: new Date(), index: queryIndex, ...getAnswerSnippet() };
 }
 
 // ── COMPONENTS ──
@@ -2578,8 +2647,14 @@ function FeedItem({ item, compact, lang }) {
     ),
     // Query
     React.createElement("div", { style: {
-      color: THEME.text, marginBottom: 4, lineHeight: 1.4, fontSize: compact ? 12 : 14,
+      color: THEME.text, marginBottom: 3, lineHeight: 1.4, fontSize: compact ? 12 : 14,
     }}, lang === "en" ? `"${displayQuery}"` : `„${displayQuery}"`),
+    // Answer snippet
+    React.createElement("div", { style: {
+      color: THEME.muted, fontSize: compact ? 10 : 11, lineHeight: 1.4,
+      marginBottom: 6, fontStyle: "italic", paddingLeft: 8,
+      borderLeft: `2px solid ${THEME.cardBorder}`,
+    }}, lang === "en" ? (item.answerEn || "") : lang === "de" ? (item.answerDe || "") : (item.answerCs || "")),
     // Bottom: platform + results
     React.createElement("div", { style: {
       display: "flex", gap: 8, fontSize: compact ? 11 : 13, alignItems: "center",
