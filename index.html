@@ -4278,62 +4278,80 @@ const TREND_COLORS = ["#78FFD6", "#26C6F0", "#B4A0FF", "#FF6B4A", "#FFD93D", "#F
 
 function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda", t }) {
   const weeks = 4;
-  const W = compact ? 520 : 680;
-  const H = compact ? 280 : 340;
-  const fLabel = compact ? 13 : 15;
-  const fAxis = compact ? 12 : 14;
-  const fValue = compact ? 13 : 15;
-  const padL = compact ? 48 : 56, padR = compact ? 48 : 56, padT = 24, padB = compact ? 36 : 42;
-  const chartW = W - padL - padR;
-  const chartH = H - padT - padB;
+  const barH = compact ? 140 : 170;
+  const totalH = barH + 24;
+  const ref = React.useRef(null);
+  const [cW, setCW] = React.useState(400);
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const ro = new ResizeObserver(entries => { for (const e of entries) setCW(e.contentRect.width); });
+    ro.observe(ref.current);
+    setCW(ref.current.offsetWidth);
+    return () => ro.disconnect();
+  }, []);
+
   const filtered = trendData.filter(d => visibleBrands.includes(d.name));
   const allVals = filtered.flatMap(d => d.points);
   const minV = Math.max(0, Math.min(...allVals) - 5);
   const maxV = Math.min(100, Math.max(...allVals) + 5);
   const range = maxV - minV || 1;
+
+  const fAxis = compact ? 9 : 11;
+  const fLabel = compact ? 9 : 11;
+  const fValue = compact ? 12 : 14;
+  const padL = compact ? 32 : 38;
+  const padR = compact ? 36 : 44;
+  const padT = 14;
+  const padB = compact ? 22 : 26;
+  const chartW = cW - padL - padR;
+  const chartH = totalH - padT - padB;
   const xStep = chartW / (weeks - 1);
-
   const yTicks = [minV, Math.round((minV + maxV) / 2), maxV];
+  const lineW = compact ? 2 : 2.5;
+  const lineWH = compact ? 3 : 3.5;
+  const dotR = compact ? 3 : 4;
+  const dotRH = compact ? 4.5 : 5.5;
 
-  return React.createElement("svg", { width: "100%", viewBox: `0 0 ${W} ${H}`, style: { display: "block" } },
-    // Y-axis grid + labels
-    yTicks.map(v => {
-      const y = padT + chartH - ((v - minV) / range) * chartH;
-      return React.createElement(React.Fragment, { key: v },
-        React.createElement("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: THEME.cardBorder, strokeWidth: 1, strokeDasharray: "4 3" }),
-        React.createElement("text", { x: padL - 10, y: y + 4, textAnchor: "end", fill: THEME.textDim, fontSize: fAxis, fontFamily: "'JetBrains Mono', monospace" }, v),
-      );
-    }),
-    // X-axis week labels
-    Array.from({ length: weeks }, (_, i) =>
-      React.createElement("text", { key: i, x: padL + i * xStep, y: H - 8, textAnchor: "middle", fill: THEME.textDim, fontSize: fLabel, fontFamily: "'JetBrains Mono', monospace" },
-        `${t.week} ${i + 1}`
-      )
-    ),
-    // Lines
-    filtered.map((d, di) => {
-      const isH = d.name === highlight;
-      const color = isH ? THEME.electric : TREND_COLORS[di % TREND_COLORS.length];
-      const pathPts = d.points.map((v, i) => {
-        const x = padL + i * xStep;
+  return React.createElement("div", { ref, style: { width: "100%" } },
+    React.createElement("svg", { width: cW, height: totalH, style: { display: "block" } },
+      // Y grid + labels
+      yTicks.map(v => {
         const y = padT + chartH - ((v - minV) / range) * chartH;
-        return `${i === 0 ? "M" : "L"}${x},${y}`;
-      }).join(" ");
-      return React.createElement(React.Fragment, { key: d.name },
-        React.createElement("path", { d: pathPts, fill: "none", stroke: color, strokeWidth: isH ? 3.5 : 2, opacity: isH ? 1 : 0.7, strokeLinejoin: "round", strokeLinecap: "round" }),
-        isH && React.createElement("path", { d: pathPts, fill: "none", stroke: color, strokeWidth: 8, opacity: 0.12, strokeLinejoin: "round", strokeLinecap: "round" }),
-        d.points.map((v, i) => {
-          const x = padL + i * xStep;
-          const y = padT + chartH - ((v - minV) / range) * chartH;
-          return React.createElement("circle", { key: i, cx: x, cy: y, r: isH ? 5 : 3.5, fill: color, opacity: isH ? 1 : 0.8, stroke: isH ? THEME.bg : "none", strokeWidth: isH ? 2 : 0 });
-        }),
-        // Value label on last point
-        React.createElement("text", {
-          x: padL + (weeks - 1) * xStep + 8, y: padT + chartH - ((d.points[weeks - 1] - minV) / range) * chartH + 5,
-          fill: color, fontSize: fValue, fontWeight: isH ? 700 : 500, fontFamily: "'JetBrains Mono', monospace",
-        }, `${d.points[weeks - 1]}%`),
-      );
-    }),
+        return React.createElement(React.Fragment, { key: v },
+          React.createElement("line", { x1: padL, y1: y, x2: cW - padR, y2: y, stroke: THEME.cardBorder, strokeWidth: 1 }),
+          React.createElement("text", { x: padL - 8, y: y + 4, textAnchor: "end", fill: THEME.textDim, fontSize: fAxis, fontFamily: "'JetBrains Mono', monospace" }, v),
+        );
+      }),
+      // X-axis bottom border
+      React.createElement("line", { x1: padL, y1: padT + chartH, x2: cW - padR, y2: padT + chartH, stroke: THEME.cardBorder, strokeWidth: 1 }),
+      // X labels
+      Array.from({ length: weeks }, (_, i) =>
+        React.createElement("text", { key: i, x: padL + i * xStep, y: totalH - 4, textAnchor: "middle", fill: THEME.textDim, fontSize: fLabel, fontFamily: "'JetBrains Mono', monospace" },
+          `${t.week} ${i + 1}`)
+      ),
+      // Lines + dots
+      filtered.map((d, di) => {
+        const isH = d.name === highlight;
+        const color = isH ? THEME.electric : TREND_COLORS[di % TREND_COLORS.length];
+        const pts = d.points.map((v, i) => ({
+          x: padL + i * xStep,
+          y: padT + chartH - ((v - minV) / range) * chartH,
+          v,
+        }));
+        const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+        return React.createElement(React.Fragment, { key: d.name },
+          isH && React.createElement("path", { d: pathD, fill: "none", stroke: color, strokeWidth: 10, opacity: 0.1, strokeLinejoin: "round", strokeLinecap: "round" }),
+          React.createElement("path", { d: pathD, fill: "none", stroke: color, strokeWidth: isH ? lineWH : lineW, opacity: isH ? 1 : 0.65, strokeLinejoin: "round", strokeLinecap: "round" }),
+          pts.map((p, i) =>
+            React.createElement("circle", { key: i, cx: p.x, cy: p.y, r: isH ? dotRH : dotR, fill: color, opacity: isH ? 1 : 0.75, stroke: isH ? THEME.bg : "none", strokeWidth: isH ? 1.5 : 0 })
+          ),
+          React.createElement("text", {
+            x: pts[weeks - 1].x + 6, y: pts[weeks - 1].y + (fValue / 3),
+            fill: color, fontSize: fValue, fontWeight: isH ? 700 : 600, fontFamily: "'JetBrains Mono', monospace",
+          }, `${d.points[weeks - 1]}%`),
+        );
+      }),
+    ),
   );
 }
 
@@ -4720,11 +4738,11 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
       ),
       showTrend
         ? React.createElement(React.Fragment, null,
-            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 } },
+            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 } },
               React.createElement("button", {
                 onClick: () => setTrendBrands(trendBrands.length === displayCompetitors.length ? [highlightName] : displayCompetitors.map(d => d.name)),
                 style: {
-                  padding: "2px 8px", borderRadius: 4, cursor: "pointer", fontSize: 9, fontWeight: 600,
+                  padding: "4px 10px", borderRadius: 5, cursor: "pointer", fontSize: 11, fontWeight: 600,
                   fontFamily: "'JetBrains Mono', monospace",
                   border: `1px solid ${THEME.electric}44`,
                   background: trendBrands.length === displayCompetitors.length ? `${THEME.electric}22` : "transparent",
@@ -4739,7 +4757,7 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
                   key: d.name,
                   onClick: () => toggleTrendBrand(d.name),
                   style: {
-                    padding: "2px 8px", borderRadius: 4, cursor: "pointer", fontSize: 9,
+                    padding: "4px 10px", borderRadius: 5, cursor: "pointer", fontSize: 11,
                     fontFamily: "'JetBrains Mono', monospace", fontWeight: active ? 600 : 400,
                     border: `1px solid ${color}66`,
                     background: active ? `${color}22` : "transparent",
@@ -5136,7 +5154,7 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
         React.createElement("button", {
           onClick: () => setShowTrendV(v => !v),
           style: {
-            padding: "3px 10px", borderRadius: 6, cursor: "pointer", fontSize: 10, fontWeight: 600,
+            padding: mobile ? "4px 12px" : "3px 10px", borderRadius: 6, cursor: "pointer", fontSize: mobile ? 11 : 10, fontWeight: 600,
             fontFamily: "'JetBrains Mono', monospace", border: `1px solid ${THEME.electric}44`,
             background: showTrendV ? THEME.electric : "transparent",
             color: showTrendV ? THEME.bg : THEME.electric,
@@ -5146,11 +5164,11 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
       ),
       showTrendV
         ? React.createElement(React.Fragment, null,
-            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 } },
+            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 } },
               React.createElement("button", {
                 onClick: () => setTrendBrandsV(trendBrandsV.length === displayCompetitors.length ? [highlightName] : displayCompetitors.map(d => d.name)),
                 style: {
-                  padding: "2px 7px", borderRadius: 4, cursor: "pointer", fontSize: 8, fontWeight: 600,
+                  padding: mobile ? "4px 10px" : "3px 8px", borderRadius: 5, cursor: "pointer", fontSize: mobile ? 11 : 9, fontWeight: 600,
                   fontFamily: "'JetBrains Mono', monospace",
                   border: `1px solid ${THEME.electric}44`,
                   background: trendBrandsV.length === displayCompetitors.length ? `${THEME.electric}22` : "transparent",
@@ -5165,7 +5183,7 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
                   key: d.name,
                   onClick: () => toggleTrendBrandV(d.name),
                   style: {
-                    padding: "2px 7px", borderRadius: 4, cursor: "pointer", fontSize: 8,
+                    padding: mobile ? "4px 10px" : "3px 8px", borderRadius: 5, cursor: "pointer", fontSize: mobile ? 11 : 9,
                     fontFamily: "'JetBrains Mono', monospace", fontWeight: active ? 600 : 400,
                     border: `1px solid ${color}66`,
                     background: active ? `${color}22` : "transparent",
