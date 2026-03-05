@@ -12,7 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; overflow-wrap: break-word; word-break: break-word; }
   html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   body { background: #030806; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -3755,6 +3755,7 @@ const MODEL_ANSWERS = {
       "Enyaq इंफोटेनमेंट OTA से काफ़ी सुधरा है, लेकिन Tesla की रिस्पॉन्स स्पीड से अभी पीछे है...",
       "Euro NCAP ने Enyaq को 5 स्टार दिए — वयस्क सुरक्षा (94%) और बाल सुरक्षा (89%) में उत्कृष्ट...",
       "हाइवे पर Enyaq की वास्तविक खपत 120 km/h पर लगभग 20–23 kWh/100 km है। शहर में 15–17 kWh...",
+      "Enyaq ऑपरेटिव लीज़िंग भारत में लगभग ₹45,000/माह से शुरू — ID.4 के बराबर और BMW iX1 से सस्ता...",
     ],
     no: [
       "Enyaq med 77 kWh batteri gir rundt 420 km reell rekkevidde i blandet kjøring. På motorvei ved 110 km/h, forvent 330–370 km...",
@@ -3772,6 +3773,7 @@ const MODEL_ANSWERS = {
       "Enyaq infotainment er betydelig forbedret via OTA, men ligger fortsatt bak Tesla i responstid og brukervennlighet...",
       "Euro NCAP ga Enyaq 5 stjerner med utmerket voksenbeskyttelse (94 %) og barnesikkerhet (89 %)...",
       "Enyaqs reelle motorveiforbruk ved 110 km/h er rundt 19–22 kWh/100 km. I byen betydelig lavere, ca. 14–16 kWh...",
+      "Enyaq-leasing i Norge starter fra ca. 5 500 NOK/måned — konkurransedyktig med ID.4 og rimeligere enn BMW iX1...",
     ],
   },
   elroq: {
@@ -4350,7 +4352,7 @@ function FeedItem({ item, compact, lang }) {
     // Query
     React.createElement("div", { style: {
       color: THEME.text, marginBottom: 3, lineHeight: 1.4, fontSize: compact ? 12 : 14,
-    }}, (lang === "en" || lang === "no") ? `"${displayQuery}"` : `„${displayQuery}"`),
+    }}, (lang === "en" || lang === "no" || lang === "hi") ? `"${displayQuery}"` : `„${displayQuery}"`),
     // Answer snippet
     React.createElement("div", { style: {
       color: THEME.electric, fontSize: compact ? 12 : 14, lineHeight: 1.4,
@@ -4378,7 +4380,7 @@ function FeedItem({ item, compact, lang }) {
 function LiveClock({ lang, fontSize = 13 }) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 37);
+    const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
   const d = new Date(now);
@@ -4509,20 +4511,6 @@ function TrendIndicator({ value, compact }) {
   }}, `${up ? "▲" : "▼"} ${Math.abs(value)}%`);
 }
 
-function StatsBar({ mentionRate, avgPosition, queriesCount, posInCycle, cycleNum, t }) {
-  return React.createElement("div", { style: { display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" } },
-    [
-      { v: `${mentionRate}%`, l: t.mentionRate },
-      { v: `#${avgPosition}`, l: t.avgPosition },
-      { v: `${posInCycle}/${queriesCount}`, l: `Cyklus ${cycleNum}` },
-      { v: `${PLATFORMS.length}`, l: t.platforms },
-    ].map((m, i) => React.createElement("div", { key: i, style: { textAlign: "center" } },
-      React.createElement("div", { style: { fontSize: 18, fontWeight: 700, color: THEME.text, fontFamily: "'JetBrains Mono', monospace" } }, m.v),
-      React.createElement("div", { style: { fontSize: 9, color: THEME.muted } }, m.l),
-    ))
-  );
-}
-
 // ── TV LAYOUT ──
 function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }) {
   const competitors = displayCompetitors;
@@ -4531,7 +4519,7 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
   const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
-    display: "grid", gridTemplateColumns: "600px 1fr 300px",
+    display: "grid", gridTemplateColumns: "minmax(320px, 600px) 1fr minmax(200px, 300px)",
     gridTemplateRows: "auto 1fr", fontFamily: "'Outfit', sans-serif",
   }},
     // BG texture
@@ -4596,20 +4584,20 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
       ),
       React.createElement(SectionTitle, null, t.keyMetrics),
       React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
-        React.createElement(MetricCard, { value: `${mentionRate}%`, label: "zmíněna v odpovědích" }),
-        React.createElement(MetricCard, { value: `#${avgPosition}`, label: "průměrná pozice" }),
+        React.createElement(MetricCard, { value: `${mentionRate}%`, label: t.mentionRate }),
+        React.createElement(MetricCard, { value: `#${avgPosition}`, label: t.avgPosition }),
         React.createElement(MetricCard, { value: `${posInCycle || "—"}/${totalQueries}`, label: `${t.query} · ${t.cycle} ${cycleNum || 1}` }),
-        React.createElement(MetricCard, { value: "52%", label: t.posSentiment }),
+        React.createElement(MetricCard, { value: posSentimentValue, label: t.posSentiment }),
       ),
     ),
 
     // Center panel
     React.createElement("div", { style: { order: 2, padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto" } },
       React.createElement(SectionTitle, null, t.sovCompetition),
-      React.createElement(BarChart, { data: competitors, highlight: highlightName }),
+      React.createElement(BarChart, { data: displayCompetitors, highlight: highlightName }),
       React.createElement("div", { style: { marginTop: 20 } },
         React.createElement(SectionTitle, null, t.sentimentBrand),
-        React.createElement(SentimentChart, { data: sentiment, t, highlight: highlightName }),
+        React.createElement(SentimentChart, { data: displaySentiment, t, highlight: highlightName }),
       ),
       React.createElement("div", { style: { marginTop: 20 } },
         React.createElement(SectionTitle, null, t.positionCategory),
@@ -4780,7 +4768,7 @@ function TVLayout({ scores, displayCompetitors, displaySentiment, displayCategor
           borderRadius: 2, transition: "width 0.8s ease",
         }}),
       ),
-      feed.map((item, i) => React.createElement(FeedItem, { key: i, item, lang })),
+      feed.map((item) => React.createElement(FeedItem, { key: `${item.index}-${item.time.getTime()}`, item, lang })),
     ),
   );
 }
@@ -4977,20 +4965,20 @@ function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayC
         React.createElement(MetricCard, { value: `${mentionRate}%`, label: t.mentionRate, compact: !mobile }),
         React.createElement(MetricCard, { value: `#${avgPosition}`, label: t.avgPosition, compact: !mobile }),
         React.createElement(MetricCard, { value: `${posInCycle || "—"}/${totalQueries}`, label: `${t.query} · ${t.cycle} ${cycleNum || 1}`, compact: !mobile }),
-        React.createElement(MetricCard, { value: "52%", label: t.posSentiment, compact: !mobile }),
+        React.createElement(MetricCard, { value: posSentimentValue, label: t.posSentiment, compact: !mobile }),
       ),
     ),
 
     // Competitors
     React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
       React.createElement(SectionTitle, { compact: !mobile }, t.sovCompetition),
-      React.createElement(BarChart, { data: competitors, compact: !mobile, highlight: highlightName }),
+      React.createElement(BarChart, { data: displayCompetitors, compact: !mobile, highlight: highlightName }),
     ),
 
     // Sentiment per brand
     React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, borderBottom: `1px solid ${THEME.cardBorder}`, flexShrink: 0 } },
       React.createElement(SectionTitle, { compact: !mobile }, t.sentimentBrand),
-      React.createElement(SentimentChart, { data: sentiment, compact: !mobile, t, highlight: highlightName }),
+      React.createElement(SentimentChart, { data: displaySentiment, compact: !mobile, t, highlight: highlightName }),
     ),
 
     // Positions by category (mobile only — LED panel too narrow)
@@ -5039,7 +5027,7 @@ function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayC
     ),
 
     // Feed
-    React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, flex: mobile ? undefined : 1, overflow: mobile ? "visible" : "hidden" } },
+    React.createElement("div", { style: { padding: padSm, position: "relative", zIndex: 1, flex: mobile ? undefined : 1, overflow: mobile ? "visible" : "auto" } },
       React.createElement(SectionTitle, { compact: !mobile },
         React.createElement("span", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" } },
           React.createElement("span", { style: { display: "flex", alignItems: "center", gap: 6 } },
@@ -5056,7 +5044,7 @@ function VerticalLayout({ scores, displayCompetitors, displaySentiment, displayC
           borderRadius: 2, transition: "width 0.8s ease",
         }}),
       ),
-      feed.slice(0, mobile ? 10 : feedCount).map((item, i) => React.createElement(FeedItem, { key: i, item, compact: !mobile, lang })),
+      feed.slice(0, mobile ? 10 : feedCount).map((item) => React.createElement(FeedItem, { key: `${item.index}-${item.time.getTime()}`, item, compact: !mobile, lang })),
     ),
 
     // Footer
@@ -5078,6 +5066,7 @@ function App() {
   const [mode, setMode] = useState("tv");
   const [lang, setLang] = useState("cs");
   const t = LANG[lang];
+  useEffect(() => { document.documentElement.lang = lang === "cs" ? "cs" : lang === "no" ? "nb" : lang; }, [lang]);
   const [blurActive, setBlurActive] = useState(true);
   const [blurFading, setBlurFading] = useState(false);
   const [pwd, setPwd] = useState("");
@@ -5114,23 +5103,30 @@ function App() {
     setScores(generateScores());
     setCompetitors(generateCompetitorData());
     setSentiment(generateSentimentData());
+    setModelCompetitors(generateModelCompetitorData(selectedModel));
+    setModelSentiment(generateModelSentimentData(selectedModel));
+    setMentionRate(rand(52, 65));
+    setAvgPosition((rand(25, 35) / 10).toFixed(1));
     setSovTrend(generateTrendData());
     setFeed(Array.from({ length: 10 }, () => generateFeedItem()));
   }
 
   // Compute display data based on viewMode
   const isModelMode = viewMode === "model";
-  const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
   const modelCfg = MODEL_CONFIG[selectedModel];
-  const displayCompetitors = isModelMode ? generateModelCompetitorData(selectedModel) : competitors;
-  const displaySentiment = isModelMode ? generateModelSentimentData(selectedModel) : sentiment;
-  const displayCategories = isModelMode ? (modelCfg ? modelCfg.categories : []) : POSITION_CATEGORIES;
-  const displayOverall = generateOverall(displayCompetitors, displayLabel);
   const displayLabel = isModelMode ? (modelCfg ? modelCfg.label : "Škoda") : "Škoda";
+  const highlightName = isModelMode && modelCfg ? modelCfg.label : "Škoda";
+  const displayCategories = isModelMode ? (modelCfg ? modelCfg.categories : []) : POSITION_CATEGORIES;
 
-  const mentionRate = rand(52, 65);
-  const avgPosition = (rand(25, 35) / 10).toFixed(1);
-  const trendVal = rand(-4, 4);
+  // Model-mode competitor/sentiment data stored in state to avoid re-randomizing on every render
+  const [modelCompetitors, setModelCompetitors] = useState(() => generateModelCompetitorData(selectedModel));
+  const [modelSentiment, setModelSentiment] = useState(() => generateModelSentimentData(selectedModel));
+  const [mentionRate, setMentionRate] = useState(() => rand(52, 65));
+  const [avgPosition, setAvgPosition] = useState(() => (rand(25, 35) / 10).toFixed(1));
+  const displayCompetitors = isModelMode ? modelCompetitors : competitors;
+  const displaySentiment = isModelMode ? modelSentiment : sentiment;
+  const highlightSentiment = displaySentiment.find(d => d.name === displayLabel);
+  const posSentimentValue = highlightSentiment ? `${highlightSentiment.pos}%` : "—";
   const totalQueries = isModelMode ? (modelCfg ? modelCfg.queries.length : 20) : allQueries.length;
   const cycleNum = Math.floor((processed - 1) / totalQueries) + 1;
   const posInCycle = ((processed - 1) % totalQueries) + 1;
@@ -5148,9 +5144,14 @@ function App() {
       });
       if (tickRef.current % 3 === 0) {
         setScores(generateScores());
+        setMentionRate(rand(52, 65));
+        setAvgPosition((rand(25, 35) / 10).toFixed(1));
         if (viewMode === "brand") {
           setCompetitors(generateCompetitorData());
           setSentiment(generateSentimentData());
+        } else {
+          setModelCompetitors(generateModelCompetitorData(selectedModel));
+          setModelSentiment(generateModelSentimentData(selectedModel));
         }
       }
     }, UPDATE_INTERVAL);
@@ -5159,10 +5160,13 @@ function App() {
 
   // Detect mobile
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
+    const onHash = () => setHash(window.location.hash);
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    window.addEventListener("hashchange", onHash);
+    return () => { window.removeEventListener("resize", onResize); window.removeEventListener("hashchange", onHash); };
   }, []);
 
   // Blur overlay dismiss
@@ -5176,7 +5180,7 @@ function App() {
       setPwdWrong(true);
       setTimeout(() => setPwdWrong(false), 600);
     }
-  }, [pwd, blurActive, blurFading]);
+  }, [pwd]);
 
   const BlurOverlay = blurActive ? React.createElement("div", {
     onClick: (e) => { if (e.target === e.currentTarget) e.preventDefault(); },
@@ -5244,9 +5248,9 @@ function App() {
   ) : null;
 
   // Fullscreen: show layout directly
-  const isFullscreen = window.location.hash === "#tv" || window.location.hash === "#vertical";
+  const isFullscreen = hash === "#tv" || hash === "#vertical";
   if (isFullscreen) {
-    const m = window.location.hash.replace("#", "");
+    const m = hash.replace("#", "");
     if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
     return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
@@ -5272,7 +5276,8 @@ function App() {
       React.createElement("div", { style: {
         borderRadius: mode === "tv" ? 6 : 10,
         overflow: "hidden",
-        zoom: mode === "tv" ? 0.85 : 1,
+        transform: mode === "tv" ? "scale(0.85)" : "none",
+        transformOrigin: "top center",
       }},
         mode === "tv"
           ? React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode })
