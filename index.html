@@ -3404,9 +3404,8 @@ function App() {
     onClick: (e) => { if (e.target === e.currentTarget) e.preventDefault(); },
     style: {
       position: "fixed", inset: 0, zIndex: 9999,
-      backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)",
-      maskImage: "linear-gradient(to bottom, transparent 10%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.7) 50%, black 70%)",
-      WebkitMaskImage: "linear-gradient(to bottom, transparent 10%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.7) 50%, black 70%)",
+      backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+      background: "rgba(3,8,6,0.55)",
       opacity: blurFading ? 0 : 1,
       transition: "opacity 0.8s ease",
     },
