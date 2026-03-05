@@ -4244,14 +4244,20 @@ function BarChart({ data, compact, highlight = "Škoda" }) {
 }
 
 function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
-  return React.createElement("div", { style: { display: "flex", flexDirection: "column", height: compact ? 180 : 220 } },
+  const barH = compact ? 140 : 170;
+  return React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
     // Stacked bars area
     React.createElement("div", { style: {
-      flex: 1, display: "flex", alignItems: "flex-end", gap: compact ? 4 : 6,
+      height: barH + 24, display: "flex", alignItems: "flex-end", gap: compact ? 4 : 6,
       borderBottom: `1px solid ${THEME.cardBorder}`, paddingBottom: 6,
     }},
       data.map(d => {
         const isS = d.name === highlight;
+        const total = d.pos + d.neu + d.neg;
+        const h = total > 0 ? Math.max(12, (total / 100) * barH) : 12;
+        const posPct = total > 0 ? (d.pos / total) * 100 : 33;
+        const neuPct = total > 0 ? (d.neu / total) * 100 : 33;
+        const negPct = total > 0 ? (d.neg / total) * 100 : 34;
         return React.createElement("div", { key: d.name, style: {
           flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
         }},
@@ -4262,7 +4268,7 @@ function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
           }}, `${d.pos}%`),
           // Stacked vertical bar
           React.createElement("div", { style: {
-            width: "100%", maxWidth: compact ? 36 : 48, height: "85%",
+            width: "100%", maxWidth: compact ? 36 : 48, height: h,
             display: "flex", flexDirection: "column",
             borderRadius: "4px 4px 0 0", overflow: "hidden",
             border: isS ? `1px solid ${THEME.electric}44` : "none",
@@ -4270,17 +4276,17 @@ function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
             transition: "all 0.6s ease",
           }},
             React.createElement("div", { style: {
-              width: "100%", height: `${d.neg}%`,
+              width: "100%", height: `${negPct}%`,
               background: isS ? `${THEME.red}cc` : `${THEME.red}55`,
               transition: "height 1.2s ease",
             }}),
             React.createElement("div", { style: {
-              width: "100%", height: `${d.neu}%`,
+              width: "100%", height: `${neuPct}%`,
               background: isS ? `${THEME.amber}cc` : `${THEME.amber}55`,
               transition: "height 1.2s ease",
             }}),
             React.createElement("div", { style: {
-              width: "100%", flex: 1,
+              width: "100%", height: `${posPct}%`,
               background: isS ? THEME.electric : `${THEME.electric}88`,
               transition: "height 1.2s ease",
             }}),
