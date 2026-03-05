@@ -5084,10 +5084,6 @@ function App() {
   const [lang, setLang] = useState("cs");
   const t = LANG[lang];
   useEffect(() => { document.documentElement.lang = lang === "cs" ? "cs" : lang === "no" ? "nb" : lang; }, [lang]);
-  const [blurActive, setBlurActive] = useState(true);
-  const [blurFading, setBlurFading] = useState(false);
-  const [pwd, setPwd] = useState("");
-  const [pwdWrong, setPwdWrong] = useState(false);
   const [viewMode, setViewModeState] = useState("brand"); // "brand" | "model"
   const [selectedModel, setSelectedModelState] = useState("enyaq");
 
@@ -5184,99 +5180,22 @@ function App() {
     return () => { window.removeEventListener("resize", onResize); window.removeEventListener("hashchange", onHash); };
   }, []);
 
-  // Blur overlay dismiss
-  const PASSWORD = "skodax";
-  const tryUnlock = useCallback((val) => {
-    const v = (val || pwd).trim().toLowerCase();
-    if (v === PASSWORD) {
-      setBlurFading(true);
-      setTimeout(() => { setBlurActive(false); setBlurFading(false); }, 800);
-    } else {
-      setPwdWrong(true);
-      setTimeout(() => setPwdWrong(false), 600);
-    }
-  }, [pwd]);
-
-  const BlurOverlay = blurActive ? React.createElement("div", {
-    onClick: (e) => { if (e.target === e.currentTarget) e.preventDefault(); },
-    style: {
-      position: "fixed", inset: 0, zIndex: 9999,
-      backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
-      background: "rgba(3,8,6,0.55)",
-      opacity: blurFading ? 0 : 1,
-      transition: "opacity 0.8s ease",
-    },
-  },
-    // CTA at bottom center
-    React.createElement("div", { style: {
-      position: "absolute", bottom: "12%", left: "50%", transform: "translateX(-50%)",
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
-    }},
-      React.createElement("div", { style: {
-        fontSize: 28, fontWeight: 700, color: THEME.electric, textAlign: "center",
-        fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
-        letterSpacing: 1,
-      }}, "AI Brand Visibility by Škoda X"),
-      React.createElement("div", { style: {
-        fontSize: 13, color: THEME.textDim, textAlign: "center",
-        fontFamily: "'JetBrains Mono', monospace", opacity: 0.8,
-      }}, lang === "de" ? "Passwort eingeben" : lang === "en" ? "Enter password" : lang === "hi" ? "पासवर्ड दर्ज करें" : lang === "no" ? "Skriv inn passord" : "Zadejte heslo"),
-      React.createElement("div", {
-        style: {
-          display: "flex", gap: 8, alignItems: "center",
-          animation: pwdWrong ? "shake 0.4s ease" : "none",
-        },
-      },
-        React.createElement("input", {
-          type: "password",
-          value: pwd,
-          onChange: (e) => setPwd(e.target.value),
-          onKeyDown: (e) => { if (e.key === "Enter") tryUnlock(); },
-          autoFocus: true,
-          placeholder: "••••••",
-          style: {
-            width: 180, padding: "10px 14px", borderRadius: 8,
-            border: `1px solid ${pwdWrong ? THEME.red : THEME.electric}66`,
-            background: `${THEME.cardBg}cc`,
-            color: THEME.text, fontSize: 15, fontFamily: "'JetBrains Mono', monospace",
-            outline: "none", textAlign: "center", letterSpacing: 3,
-            transition: "border-color 0.3s ease",
-          },
-        }),
-        React.createElement("button", {
-          onClick: () => tryUnlock(),
-          style: {
-            padding: "10px 18px", borderRadius: 8, cursor: "pointer",
-            background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
-            border: `1px solid ${THEME.electric}44`,
-            color: THEME.electric, fontSize: 13, fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace",
-            transition: "all 0.3s ease",
-          },
-        }, "→"),
-      ),
-      pwdWrong && React.createElement("div", { style: {
-        fontSize: 12, color: THEME.red, fontFamily: "'JetBrains Mono', monospace",
-        opacity: 0.9,
-      }}, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
-    ),
-  ) : null;
 
   // Fullscreen: show layout directly
   const isFullscreen = hash === "#tv" || hash === "#vertical";
   if (isFullscreen) {
     const m = hash.replace("#", "");
-    if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
-    return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    if (m === "tv") return React.createElement(React.Fragment, null, React.createElement(TVLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
+    return React.createElement(React.Fragment, null, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    return React.createElement(React.Fragment, null, React.createElement(VerticalLayout, { scores, displayCompetitors, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
   // Preview mode
-  return React.createElement(React.Fragment, null, BlurOverlay, React.createElement("div", { style: {
+  return React.createElement(React.Fragment, null, React.createElement("div", { style: {
     minHeight: "100vh", background: "#030806", display: "flex", flexDirection: "column",
     alignItems: "center", padding: "20px 10px", fontFamily: "'Outfit', sans-serif",
   }},
