@@ -4937,36 +4937,6 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
         ),
       ),
 
-      // Mode switcher (only in preview, not fullscreen)
-      setMode && React.createElement(React.Fragment, null,
-        React.createElement("div", { style: {
-          display: "flex", gap: 3, marginBottom: 8, padding: 3, borderRadius: 8,
-          background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
-        }},
-          [
-            { key: "tv", label: "📺 TV (16:9)" },
-            { key: "vertical", label: "📱 Panel" },
-          ].map(m => React.createElement("button", {
-            key: m.key, onClick: () => setMode(m.key),
-            style: {
-              padding: "5px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-              fontSize: 11, fontWeight: 600, fontFamily: "'Outfit', sans-serif", flex: 1,
-              background: mode === m.key ? `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})` : "transparent",
-              color: mode === m.key ? THEME.electric : THEME.muted,
-              transition: "all 0.3s ease",
-            },
-          }, m.label)),
-        ),
-        React.createElement("div", { style: {
-          fontSize: 9, color: THEME.muted, textAlign: "center", marginBottom: 12,
-          fontFamily: "'JetBrains Mono', monospace",
-        }},
-          t.fullscreen + ": ",
-          React.createElement("span", { style: { color: THEME.electric } },
-            mode === "tv" ? "#tv" : "#vertical"),
-        ),
-      ),
-
       // Live Feed
       React.createElement(SectionTitle, null,
         React.createElement("span", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" } },
@@ -5136,28 +5106,6 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
             letterSpacing: 0.5,
           }}, m.label),
         )),
-      ),
-    ),
-
-    // Mode switcher (only in preview, not fullscreen or mobile)
-    setMode && !mobile && React.createElement("div", { style: { padding: "8px 20px 0", position: "relative", zIndex: 1 } },
-      React.createElement("div", { style: {
-        display: "flex", gap: 3, padding: 3, borderRadius: 8,
-        background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
-      }},
-        [
-          { key: "tv", label: "📺 TV (16:9)" },
-          { key: "vertical", label: "📱 Panel" },
-        ].map(m => React.createElement("button", {
-          key: m.key, onClick: () => setMode(m.key),
-          style: {
-            padding: "5px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-            fontSize: 11, fontWeight: 600, fontFamily: "'Outfit', sans-serif", flex: 1,
-            background: mode === m.key ? `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})` : "transparent",
-            color: mode === m.key ? THEME.electric : THEME.muted,
-            transition: "all 0.3s ease",
-          },
-        }, m.label)),
       ),
     ),
 
