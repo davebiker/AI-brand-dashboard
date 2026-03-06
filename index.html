@@ -4679,7 +4679,7 @@ function TrendIndicator({ value, compact }) {
 }
 
 // ── TV LAYOUT ──
-function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }) {
+function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode, revealStep }) {
   const competitors = displayCompetitors;
   const sentiment = displaySentiment;
   const isModelMode = viewMode === "model";
@@ -4743,7 +4743,11 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
     ),
 
     // Right panel (controls)
-    React.createElement("div", { style: { padding: "16px 20px", order: 3, borderLeft: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
+    React.createElement("div", { style: { padding: "16px 20px", order: 3, borderLeft: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto",
+      opacity: revealStep >= 3 || revealStep === undefined ? 1 : 0,
+      transform: revealStep >= 3 || revealStep === undefined ? "translateY(0) scale(1)" : "translateY(24px) scale(0.96)",
+      transition: "opacity 0.6s ease, transform 0.6s ease",
+    } },
 
       React.createElement(SectionTitle, null, t.lastInsight),
       React.createElement("div", { style: {
@@ -4774,7 +4778,11 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
     ),
 
     // Center panel
-    React.createElement("div", { style: { order: 2, padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto" } },
+    React.createElement("div", { style: { order: 2, padding: "16px 20px", position: "relative", zIndex: 1, overflow: "auto",
+      opacity: revealStep >= 2 || revealStep === undefined ? 1 : 0,
+      transform: revealStep >= 2 || revealStep === undefined ? "translateY(0) scale(1)" : "translateY(24px) scale(0.96)",
+      transition: "opacity 0.6s ease, transform 0.6s ease",
+    } },
       React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
         React.createElement(SectionTitle, null, t.sovCompetition),
         React.createElement("button", {
@@ -4857,7 +4865,11 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
     ),
 
     // Left panel: feed
-    React.createElement("div", { style: { padding: "16px 20px", order: 1, borderRight: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
+    React.createElement("div", { style: { padding: "16px 20px", order: 1, borderRight: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto",
+      opacity: revealStep >= 1 || revealStep === undefined ? 1 : 0,
+      transform: revealStep >= 1 || revealStep === undefined ? "translateY(0) scale(1)" : "translateY(24px) scale(0.96)",
+      transition: "opacity 0.6s ease, transform 0.6s ease",
+    } },
 
       // BRAND / MODEL toggle
       React.createElement("div", { style: { marginBottom: 8 } },
@@ -4985,6 +4997,9 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
     paddingTop: mobile ? "env(safe-area-inset-top)" : undefined,
     paddingBottom: mobile ? "env(safe-area-inset-bottom)" : undefined,
     WebkitOverflowScrolling: "touch",
+    opacity: revealStep >= 1 || revealStep === undefined ? 1 : 0,
+    transform: revealStep >= 1 || revealStep === undefined ? "translateY(0) scale(1)" : "translateY(24px) scale(0.96)",
+    transition: "opacity 0.8s ease, transform 0.8s ease",
   }},
     React.createElement("div", { style: {
       position: "fixed", inset: 0, opacity: 0.04, pointerEvents: "none",
@@ -5279,13 +5294,17 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
 function App() {
   const [blurActive, setBlurActive] = useState(true);
   const [blurFading, setBlurFading] = useState(false);
+  const [revealStep, setRevealStep] = useState(0);
   const [pwd, setPwd] = useState("");
   const [pwdWrong, setPwdWrong] = useState(false);
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
       setBlurFading(true);
-      setTimeout(() => { setBlurActive(false); setBlurFading(false); }, 800);
+      setTimeout(() => { setBlurActive(false); setBlurFading(false); setRevealStep(1); }, 600);
+      setTimeout(() => setRevealStep(2), 900);
+      setTimeout(() => setRevealStep(3), 1200);
+      setTimeout(() => setRevealStep(4), 1500);
     } else {
       setPwdWrong(true);
       setTimeout(() => setPwdWrong(false), 600);
@@ -5489,7 +5508,7 @@ function App() {
   const isFullscreen = hash === "#tv" || hash === "#vertical";
   if (isFullscreen) {
     const m = hash.replace("#", "");
-    if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
+    if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, revealStep }));
     return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
@@ -5518,8 +5537,8 @@ function App() {
         transformOrigin: "top center",
       }},
         mode === "tv"
-          ? React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode })
-          : React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }),
+          ? React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode, revealStep })
+          : React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode, revealStep }),
       ),
       mode === "tv" && React.createElement("div", { style: {
         position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
