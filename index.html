@@ -18,60 +18,6 @@
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)} }
   @keyframes fadeSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes flyLeft {
-    0%   { left:-5%; top:20%; opacity:0 }
-    5%   { opacity:1 }
-    30%  { left:20%; top:35% }
-    60%  { left:38%; top:28% }
-    100% { left:calc(50% - 5px); top:calc(50% - 5px); opacity:1 }
-  }
-  @keyframes flyRight {
-    0%   { left:105%; top:75%; opacity:0 }
-    5%   { opacity:1 }
-    30%  { left:75%; top:60% }
-    60%  { left:58%; top:65% }
-    100% { left:calc(50% - 5px); top:calc(50% - 5px); opacity:1 }
-  }
-  @keyframes boom {
-    0%   { transform:scale(0); opacity:1 }
-    50%  { opacity:0.6 }
-    100% { transform:scale(8); opacity:0 }
-  }
-  @keyframes ring1 {
-    0%   { transform:translate(-50%,-50%) scale(0); opacity:1 }
-    100% { transform:translate(-50%,-50%) scale(1); opacity:0 }
-  }
-  @keyframes ring2 {
-    0%   { transform:translate(-50%,-50%) scale(0); opacity:0.6 }
-    100% { transform:translate(-50%,-50%) scale(1); opacity:0 }
-  }
-  @keyframes fadeUp {
-    0%   { opacity:0; transform:translateY(30px) scale(0.95) }
-    100% { opacity:1; transform:translateY(0) scale(1) }
-  }
-  .star-anim { position:absolute; width:10px; height:10px; border-radius:50%; background:radial-gradient(circle,#78FAAE,transparent 70%); box-shadow:0 0 12px 4px #78FAAE88,0 0 24px 8px #78FAAE44 }
-  .boom-dot { position:absolute; left:50%; top:50%; width:12px; height:12px; border-radius:50%; background:radial-gradient(circle,#fff,#78FAAE 60%,transparent 80%); transform-origin:center; animation:boom 1s ease-out 3.5s forwards; opacity:0 }
-  .boom-ring { position:absolute; left:50%; top:50%; border-radius:50%; border:2px solid #78FAAE; background:transparent }
-  .boom-ring1 { width:200px; height:200px; animation:ring1 0.8s ease-out 3.5s forwards; opacity:0 }
-  .boom-ring2 { width:360px; height:360px; animation:ring2 1s ease-out 3.65s forwards; opacity:0 }
-  @media(max-width:767px) {
-    @keyframes flyLeft {
-      0%   { left:20%; top:-5%; opacity:0 }
-      5%   { opacity:1 }
-      30%  { left:30%; top:20% }
-      60%  { left:42%; top:35% }
-      100% { left:calc(50% - 5px); top:calc(50% - 5px); opacity:1 }
-    }
-    @keyframes flyRight {
-      0%   { left:70%; top:105%; opacity:0 }
-      5%   { opacity:1 }
-      30%  { left:60%; top:75% }
-      60%  { left:52%; top:60% }
-      100% { left:calc(50% - 5px); top:calc(50% - 5px); opacity:1 }
-    }
-    .boom-ring1 { width:140px; height:140px }
-    .boom-ring2 { width:240px; height:240px }
-  }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #14352A; border-radius: 4px; }
@@ -5351,8 +5297,6 @@ function App() {
   const [revealStep, setRevealStep] = useState(0);
   const [pwd, setPwd] = useState("");
   const [pwdWrong, setPwdWrong] = useState(false);
-  const [showPwd, setShowPwd] = useState(window.innerWidth < 768);
-  useEffect(function() { if (window.innerWidth >= 768) { var t = setTimeout(function() { setShowPwd(true); }, 5000); return function() { clearTimeout(t); }; } }, []);
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
@@ -5504,84 +5448,71 @@ function App() {
 
 
   const BlurOverlay = blurActive ? React.createElement("div", {
-    onClick: function(e) { if (e.target === e.currentTarget) e.preventDefault(); },
+    onClick: (e) => { if (e.target === e.currentTarget) e.preventDefault(); },
     style: {
       position: "fixed", inset: 0, zIndex: 9999,
       backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
       background: "rgba(3,8,6,0.25)",
       opacity: blurFading ? 0 : 1,
       transition: "opacity 0.8s ease",
-      overflow: "hidden",
-    },
-  },
-    // Star animation (desktop only)
-    !isMobile && React.createElement("div", { className: "star-anim", style: { animation: "flyLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards" } }),
-    !isMobile && React.createElement("div", { className: "star-anim", style: { animation: "flyRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards" } }),
-    !isMobile && React.createElement("div", { className: "boom-dot" }),
-    !isMobile && React.createElement("div", { className: "boom-ring boom-ring1" }),
-    !isMobile && React.createElement("div", { className: "boom-ring boom-ring2" }),
-    // Content - revealed after animation
-    showPwd && React.createElement("div", { style: {
-      position: "absolute", inset: 0,
       display: "flex", flexDirection: "column", alignItems: "center",
       paddingTop: "15vh",
-      animation: "fadeUp 1s ease-out forwards",
-    } },
-      React.createElement("div", { style: {
-        fontSize: isMobile ? 20 : 32, fontWeight: 700, color: THEME.electric, textAlign: "center",
-        fontFamily: "'Outfit', sans-serif", textShadow: "0 0 40px " + THEME.electric + "60",
-        letterSpacing: isMobile ? 1.5 : 3, textTransform: "uppercase",
-        marginBottom: 12, padding: isMobile ? "0 20px" : 0,
-      } }, "Invisible to AI means invisible to buyers"),
-      React.createElement("div", { style: {
-        fontSize: 16, fontWeight: 600, color: THEME.electric, textAlign: "center",
-        fontFamily: "'JetBrains Mono', monospace",
-        letterSpacing: 2, marginBottom: 6, opacity: 0.8,
-      } }, "GEO by Škoda X"),
-      React.createElement("div", { style: {
-        fontSize: 14, fontWeight: 400, color: THEME.textDim, textAlign: "center",
-        fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32,
-        opacity: 0.7,
-      } }, "Generative Engine Optimization"),
-      React.createElement("div", {
-        style: {
-          display: "flex", gap: 8, alignItems: "center",
-          animation: pwdWrong ? "shake 0.4s ease" : "none",
-        },
+    },
+  },
+    React.createElement("div", { style: {
+      fontSize: 32, fontWeight: 700, color: THEME.electric, textAlign: "center",
+      fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
+      letterSpacing: 3, textTransform: "uppercase",
+      marginBottom: 12,
+    }}, "Invisible to AI means invisible to buyers"),
+    React.createElement("div", { style: {
+      fontSize: 16, fontWeight: 600, color: THEME.electric, textAlign: "center",
+      fontFamily: "'JetBrains Mono', monospace",
+      letterSpacing: 2, marginBottom: 6, opacity: 0.8,
+    }}, "GEO by Škoda X"),
+    React.createElement("div", { style: {
+      fontSize: 14, fontWeight: 400, color: THEME.textDim, textAlign: "center",
+      fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32,
+      opacity: 0.7,
+    }}, "Generative Engine Optimization"),
+    React.createElement("div", {
+      style: {
+        display: "flex", gap: 8, alignItems: "center",
+        animation: pwdWrong ? "shake 0.4s ease" : "none",
       },
-        React.createElement("input", {
-          type: "password",
-          value: pwd,
-          onChange: function(e) { setPwd(e.target.value); },
-          onKeyDown: function(e) { if (e.key === "Enter") tryUnlock(); },
-          autoFocus: true,
-          placeholder: "••••••••",
-          style: {
-            width: 200, padding: "12px 16px", borderRadius: 8,
-            border: "1px solid " + (pwdWrong ? THEME.red : THEME.electric) + "66",
-            background: THEME.cardBg + "cc",
-            color: THEME.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
-            outline: "none", textAlign: "center", letterSpacing: 3,
-            transition: "border-color 0.3s ease",
-          },
-        }),
-        React.createElement("button", {
-          onClick: function() { tryUnlock(); },
-          style: {
-            padding: "12px 20px", borderRadius: 8, cursor: "pointer",
-            background: "linear-gradient(135deg, " + THEME.emerald + ", " + THEME.emeraldLight + ")",
-            border: "1px solid " + THEME.electric + "44",
-            color: THEME.electric, fontSize: 14, fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace",
-            transition: "all 0.3s ease",
-          },
-        }, "→"),
-      ),
-      pwdWrong && React.createElement("div", { style: {
-        fontSize: 12, color: THEME.red, fontFamily: "'JetBrains Mono', monospace",
-        marginTop: 10, opacity: 0.9,
-      } }, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
+    },
+      React.createElement("input", {
+        type: "password",
+        value: pwd,
+        onChange: (e) => setPwd(e.target.value),
+        onKeyDown: (e) => { if (e.key === "Enter") tryUnlock(); },
+        autoFocus: true,
+        placeholder: "••••••••",
+        style: {
+          width: 200, padding: "12px 16px", borderRadius: 8,
+          border: `1px solid ${pwdWrong ? THEME.red : THEME.electric}66`,
+          background: `${THEME.cardBg}cc`,
+          color: THEME.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
+          outline: "none", textAlign: "center", letterSpacing: 3,
+          transition: "border-color 0.3s ease",
+        },
+      }),
+      React.createElement("button", {
+        onClick: () => tryUnlock(),
+        style: {
+          padding: "12px 20px", borderRadius: 8, cursor: "pointer",
+          background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
+          border: `1px solid ${THEME.electric}44`,
+          color: THEME.electric, fontSize: 14, fontWeight: 700,
+          fontFamily: "'JetBrains Mono', monospace",
+          transition: "all 0.3s ease",
+        },
+      }, "→"),
     ),
+    pwdWrong && React.createElement("div", { style: {
+      fontSize: 12, color: THEME.red, fontFamily: "'JetBrains Mono', monospace",
+      marginTop: 10, opacity: 0.9,
+    }}, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
   ) : null;
 
   // Fullscreen: show layout directly
