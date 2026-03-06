@@ -5301,10 +5301,10 @@ function App() {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
       setBlurFading(true);
-      setTimeout(() => { setBlurActive(false); setBlurFading(false); setRevealStep(1); }, 600);
-      setTimeout(() => setRevealStep(2), 900);
-      setTimeout(() => setRevealStep(3), 1200);
-      setTimeout(() => setRevealStep(4), 1500);
+      setTimeout(() => { setBlurActive(false); setBlurFading(false); setRevealStep(1); }, 800);
+      setTimeout(() => setRevealStep(2), 2800);
+      setTimeout(() => setRevealStep(3), 4800);
+      setTimeout(() => setRevealStep(4), 6800);
     } else {
       setPwdWrong(true);
       setTimeout(() => setPwdWrong(false), 600);
@@ -5462,8 +5462,13 @@ function App() {
     React.createElement("div", { style: {
       fontSize: 32, fontWeight: 700, color: THEME.electric, textAlign: "center",
       fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
-      letterSpacing: 1, marginBottom: 32,
+      letterSpacing: 1, marginBottom: 6,
     }}, "GEO by Škoda X"),
+    React.createElement("div", { style: {
+      fontSize: 14, fontWeight: 400, color: THEME.textDim, textAlign: "center",
+      fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32,
+      opacity: 0.7,
+    }}, "Generative Engine Optimization"),
     React.createElement("div", {
       style: {
         display: "flex", gap: 8, alignItems: "center",
