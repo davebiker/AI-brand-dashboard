@@ -7,9 +7,17 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#060D0A">
 <title>Škoda X — AI Brand Visibility Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script>
+window.onerror = function(msg, src, line, col, err) {
+  var d = document.createElement("div");
+  d.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#111;color:#0f0;padding:20px;z-index:99999;font:13px monospace;white-space:pre-wrap;overflow:auto";
+  d.textContent = "ERROR: " + msg + "\nSource: " + src + "\nLine: " + line + " Col: " + col + (err ? "\nStack: " + err.stack : "");
+  document.body.appendChild(d);
+};
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; overflow-wrap: break-word; word-break: break-word; }
@@ -5729,12 +5737,6 @@ try {
   document.body.style.fontFamily = "monospace";
   document.body.innerHTML = "<h2>RENDER ERROR</h2><pre>" + e.message + "\n\n" + e.stack + "</pre>";
 }
-window.onerror = function(msg, src, line, col, err) {
-  var d = document.createElement("div");
-  d.style.cssText = "position:fixed;top:0;left:0;right:0;background:#900;color:#fff;padding:16px;z-index:99999;font:14px monospace;white-space:pre-wrap";
-  d.textContent = "ERROR: " + msg + "\nLine: " + line + " Col: " + col + (err ? "\n" + err.stack : "");
-  document.body.appendChild(d);
-};
 </script>
 </body>
 </html>
