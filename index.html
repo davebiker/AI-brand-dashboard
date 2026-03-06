@@ -5351,8 +5351,8 @@ function App() {
   const [revealStep, setRevealStep] = useState(0);
   const [pwd, setPwd] = useState("");
   const [pwdWrong, setPwdWrong] = useState(false);
-  const [showPwd, setShowPwd] = useState(false);
-  useEffect(function() { var t = setTimeout(function() { setShowPwd(true); }, 5000); return function() { clearTimeout(t); }; }, []);
+  const [showPwd, setShowPwd] = useState(window.innerWidth < 768);
+  useEffect(function() { if (window.innerWidth >= 768) { var t = setTimeout(function() { setShowPwd(true); }, 5000); return function() { clearTimeout(t); }; } }, []);
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
@@ -5514,15 +5514,12 @@ function App() {
       overflow: "hidden",
     },
   },
-    // Star 1 - flies from left/top
-    React.createElement("div", { className: "star-anim", style: { animation: "flyLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards" } }),
-    // Star 2 - flies from right/bottom
-    React.createElement("div", { className: "star-anim", style: { animation: "flyRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards" } }),
-    // Collision flash
-    React.createElement("div", { className: "boom-dot" }),
-    // Shockwave rings
-    React.createElement("div", { className: "boom-ring boom-ring1" }),
-    React.createElement("div", { className: "boom-ring boom-ring2" }),
+    // Star animation (desktop only)
+    !isMobile && React.createElement("div", { className: "star-anim", style: { animation: "flyLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards" } }),
+    !isMobile && React.createElement("div", { className: "star-anim", style: { animation: "flyRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards" } }),
+    !isMobile && React.createElement("div", { className: "boom-dot" }),
+    !isMobile && React.createElement("div", { className: "boom-ring boom-ring1" }),
+    !isMobile && React.createElement("div", { className: "boom-ring boom-ring2" }),
     // Content - revealed after animation
     showPwd && React.createElement("div", { style: {
       position: "absolute", inset: 0,
