@@ -4745,6 +4745,16 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
     // Right panel (controls)
     React.createElement("div", { style: { padding: "16px 20px", order: 3, borderLeft: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1, overflow: "auto" } },
 
+      React.createElement(SectionTitle, null, t.lastInsight),
+      React.createElement("div", { style: {
+        background: `linear-gradient(135deg, ${THEME.emerald}66, ${THEME.cardBg})`,
+        border: `1px solid ${THEME.electric}22`, borderRadius: 8, padding: 12, marginBottom: 14,
+        fontSize: 13, color: THEME.textDim, lineHeight: 1.5,
+      }},
+        React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
+        (isModelMode && MODEL_CONFIG[selectedModel] ? (lang === "en" ? MODEL_CONFIG[selectedModel].insightEn : lang === "de" ? (MODEL_CONFIG[selectedModel].insightDe || MODEL_CONFIG[selectedModel].insightEn) : lang === "hi" ? (MODEL_CONFIG[selectedModel].insightHi || MODEL_CONFIG[selectedModel].insightEn) : lang === "no" ? (MODEL_CONFIG[selectedModel].insightNo || MODEL_CONFIG[selectedModel].insightEn) : MODEL_CONFIG[selectedModel].insightCs) : t.insightText),
+      ),
+
       React.createElement(SectionTitle, null, t.shareOfVoice),
       React.createElement(TrendChart, { data: sovTrend, width: 260, height: 130, t, lang }),
       React.createElement("div", { style: { height: 12 } }),
@@ -4843,17 +4853,6 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
       React.createElement("div", { style: { marginTop: 20 } },
         React.createElement(SectionTitle, null, t.channelPriority),
         React.createElement(ChannelPriority, { t, isModelMode, selectedModel }),
-      ),
-      React.createElement("div", { style: { marginTop: 20 } },
-        React.createElement(SectionTitle, null, t.lastInsight),
-        React.createElement("div", { style: {
-          background: `linear-gradient(135deg, ${THEME.emerald}66, ${THEME.cardBg})`,
-          border: `1px solid ${THEME.electric}22`, borderRadius: 8, padding: 12,
-          fontSize: 14, color: THEME.textDim, lineHeight: 1.5,
-        }},
-          React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
-          (isModelMode && MODEL_CONFIG[selectedModel] ? (lang === "en" ? MODEL_CONFIG[selectedModel].insightEn : lang === "de" ? (MODEL_CONFIG[selectedModel].insightDe || MODEL_CONFIG[selectedModel].insightEn) : lang === "hi" ? (MODEL_CONFIG[selectedModel].insightHi || MODEL_CONFIG[selectedModel].insightEn) : lang === "no" ? (MODEL_CONFIG[selectedModel].insightNo || MODEL_CONFIG[selectedModel].insightEn) : MODEL_CONFIG[selectedModel].insightCs) : t.insightText),
-        ),
       ),
     ),
 
