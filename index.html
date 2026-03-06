@@ -5322,9 +5322,9 @@ function App() {
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
+      setDashBlur(1);
       setBlurFading(true);
-      setTimeout(() => { setBlurActive(false); setBlurFading(false); setDashBlur(1); }, 800);
-      setTimeout(() => setDashBlur(2), 100);
+      setTimeout(() => { setBlurActive(false); setBlurFading(false); setDashBlur(2); }, 800);
     } else {
       setPwdWrong(true);
       setTimeout(() => setPwdWrong(false), 600);
