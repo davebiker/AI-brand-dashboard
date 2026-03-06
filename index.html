@@ -5279,11 +5279,18 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
 function App() {
   const [blurActive, setBlurActive] = useState(true);
   const [blurFading, setBlurFading] = useState(false);
-  const dismissBlur = useCallback(() => {
-    if (!blurActive || blurFading) return;
-    setBlurFading(true);
-    setTimeout(() => { setBlurActive(false); setBlurFading(false); }, 800);
-  }, [blurActive, blurFading]);
+  const [pwd, setPwd] = useState("");
+  const [pwdWrong, setPwdWrong] = useState(false);
+  const tryUnlock = useCallback((val) => {
+    const v = (val || pwd).trim().toLowerCase();
+    if (v === "skodax26") {
+      setBlurFading(true);
+      setTimeout(() => { setBlurActive(false); setBlurFading(false); }, 800);
+    } else {
+      setPwdWrong(true);
+      setTimeout(() => setPwdWrong(false), 600);
+    }
+  }, [pwd]);
   const [mode, setMode] = useState("tv");
   const [lang, setLang] = useState("cs");
   const t = LANG[lang];
@@ -5422,29 +5429,60 @@ function App() {
 
 
   const BlurOverlay = blurActive ? React.createElement("div", {
-    onClick: dismissBlur,
+    onClick: (e) => { if (e.target === e.currentTarget) e.preventDefault(); },
     style: {
-      position: "fixed", inset: 0, zIndex: 9999, cursor: "pointer",
+      position: "fixed", inset: 0, zIndex: 9999,
       backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
       background: "rgba(3,8,6,0.25)",
       opacity: blurFading ? 0 : 1,
       transition: "opacity 0.8s ease",
+      display: "flex", flexDirection: "column", alignItems: "center",
+      paddingTop: "15vh",
     },
   },
     React.createElement("div", { style: {
-      position: "absolute", bottom: "10%", left: "50%", transform: "translateX(-50%)",
-      display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-    }},
-      React.createElement("div", { style: {
-        fontSize: 26, fontWeight: 700, color: THEME.electric, textAlign: "center",
-        fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
-        letterSpacing: 1,
-      }}, "AI Brand Visibility by Škoda X"),
-      React.createElement("div", { style: {
-        fontSize: 12, color: THEME.textDim, textAlign: "center",
-        fontFamily: "'JetBrains Mono', monospace", opacity: 0.7,
-      }}, lang === "de" ? "Klicken zum Öffnen" : lang === "en" ? "Click to reveal" : lang === "hi" ? "खोलने के लिए क्लिक करें" : lang === "no" ? "Klikk for å åpne" : "Klikněte pro zobrazení"),
+      fontSize: 32, fontWeight: 700, color: THEME.electric, textAlign: "center",
+      fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
+      letterSpacing: 1, marginBottom: 32,
+    }}, "GEO by Škoda X"),
+    React.createElement("div", {
+      style: {
+        display: "flex", gap: 8, alignItems: "center",
+        animation: pwdWrong ? "shake 0.4s ease" : "none",
+      },
+    },
+      React.createElement("input", {
+        type: "password",
+        value: pwd,
+        onChange: (e) => setPwd(e.target.value),
+        onKeyDown: (e) => { if (e.key === "Enter") tryUnlock(); },
+        autoFocus: true,
+        placeholder: "••••••••",
+        style: {
+          width: 200, padding: "12px 16px", borderRadius: 8,
+          border: `1px solid ${pwdWrong ? THEME.red : THEME.electric}66`,
+          background: `${THEME.cardBg}cc`,
+          color: THEME.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
+          outline: "none", textAlign: "center", letterSpacing: 3,
+          transition: "border-color 0.3s ease",
+        },
+      }),
+      React.createElement("button", {
+        onClick: () => tryUnlock(),
+        style: {
+          padding: "12px 20px", borderRadius: 8, cursor: "pointer",
+          background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
+          border: `1px solid ${THEME.electric}44`,
+          color: THEME.electric, fontSize: 14, fontWeight: 700,
+          fontFamily: "'JetBrains Mono', monospace",
+          transition: "all 0.3s ease",
+        },
+      }, "→"),
     ),
+    pwdWrong && React.createElement("div", { style: {
+      fontSize: 12, color: THEME.red, fontFamily: "'JetBrains Mono', monospace",
+      marginTop: 10, opacity: 0.9,
+    }}, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
   ) : null;
 
   // Fullscreen: show layout directly
