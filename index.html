@@ -4297,8 +4297,8 @@ function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda
 
   const filtered = trendData.filter(d => visibleBrands.includes(d.name));
   const allVals = filtered.flatMap(d => d.points);
-  const minV = Math.max(0, Math.min(...allVals) - 5);
-  const maxV = Math.min(100, Math.max(...allVals) + 5);
+  const minV = allVals.length ? Math.max(0, Math.min(...allVals) - 5) : 0;
+  const maxV = allVals.length ? Math.min(100, Math.max(...allVals) + 5) : 100;
   const range = maxV - minV || 1;
 
   const fAxis = compact ? 9 : 11;
@@ -4335,9 +4335,10 @@ function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda
           `${t.week} ${i + 1}`)
       ),
       // Lines + dots
-      filtered.map((d, di) => {
+      filtered.map((d) => {
         const isH = d.name === highlight;
-        const color = isH ? THEME.electric : TREND_COLORS[di % TREND_COLORS.length];
+        const origIdx = trendData.findIndex(td => td.name === d.name);
+        const color = isH ? THEME.electric : TREND_COLORS[(origIdx >= 0 ? origIdx : 0) % TREND_COLORS.length];
         const pts = d.points.map((v, i) => ({
           x: padL + i * xStep,
           y: padT + chartH - ((v - minV) / range) * chartH,
@@ -4656,7 +4657,7 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
   const [showTrend, setShowTrend] = useState(false);
   const [trendBrands, setTrendBrands] = useState(() => [highlightName]);
   const prevHighlight = useRef(highlightName);
-  useEffect(() => { if (prevHighlight.current !== highlightName) { setTrendBrands([highlightName]); prevHighlight.current = highlightName; } }, [highlightName]);
+  useEffect(() => { if (prevHighlight.current !== highlightName) { setTrendBrands([highlightName]); setShowTrend(false); prevHighlight.current = highlightName; } }, [highlightName]);
   const toggleTrendBrand = (name) => setTrendBrands(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
@@ -4968,7 +4969,7 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
   const [showTrendV, setShowTrendV] = useState(false);
   const [trendBrandsV, setTrendBrandsV] = useState(() => [highlightName]);
   const prevHighlightV = useRef(highlightName);
-  useEffect(() => { if (prevHighlightV.current !== highlightName) { setTrendBrandsV([highlightName]); prevHighlightV.current = highlightName; } }, [highlightName]);
+  useEffect(() => { if (prevHighlightV.current !== highlightName) { setTrendBrandsV([highlightName]); setShowTrendV(false); prevHighlightV.current = highlightName; } }, [highlightName]);
   const toggleTrendBrandV = (name) => setTrendBrandsV(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
   const pad = mobile ? "14px 20px" : "12px 16px";
   const padSm = mobile ? "12px 20px" : "10px 16px";
@@ -5306,36 +5307,38 @@ function App() {
   const [viewMode, setViewModeState] = useState("brand"); // "brand" | "model"
   const [selectedModel, setSelectedModelState] = useState("enyaq");
 
+  const selectedModelRef = useRef(selectedModel);
+  selectedModelRef.current = selectedModel;
+  const viewModeRef = useRef(viewMode);
+  viewModeRef.current = viewMode;
+
   const [market, setMarketState] = useState("cz");
   const MARKET_LANG = { cz: "cs", de: "de", uk: "en", in: "hi", no: "no" };
   const setMarket = (m) => {
     setMarketState(m);
     setLang(MARKET_LANG[m] || "en");
-    regenAllData();
+    regenAllData(selectedModelRef.current);
   };
+
   const setViewMode = (vm) => {
     setViewModeState(vm);
-    regenAllData();
+    regenAllData(selectedModelRef.current);
   };
   const setSelectedModel = (sm) => {
     setSelectedModelState(sm);
+    selectedModelRef.current = sm;
     modelQueryIndex = 0;
-    const newModelComp = generateModelCompetitorData(sm);
-    setModelCompetitors(newModelComp);
-    setModelTrendHistory(generateTrendHistory(newModelComp));
-    setModelSentiment(generateModelSentimentData(sm));
-    setScores(generateScores());
-    setMentionRate(rand(52, 65));
-    setAvgPosition((rand(25, 35) / 10).toFixed(1));
-    setSovTrend(generateTrendData());
+    regenAllData(sm);
   };
 
+  const initComp = React.useMemo(() => generateCompetitorData(), []);
+  const initModelComp = React.useMemo(() => generateModelCompetitorData(selectedModel), []);
   const [scores, setScores] = useState(generateScores());
-  const [competitors, setCompetitors] = useState(generateCompetitorData());
-  const [trendHistory, setTrendHistory] = useState(() => generateTrendHistory(generateCompetitorData()));
+  const [competitors, setCompetitors] = useState(initComp);
+  const [trendHistory, setTrendHistory] = useState(() => generateTrendHistory(initComp));
   const [sentiment, setSentiment] = useState(generateSentimentData());
-  const [modelCompetitors, setModelCompetitors] = useState(() => generateModelCompetitorData(selectedModel));
-  const [modelTrendHistory, setModelTrendHistory] = useState(() => generateTrendHistory(generateModelCompetitorData(selectedModel)));
+  const [modelCompetitors, setModelCompetitors] = useState(initModelComp);
+  const [modelTrendHistory, setModelTrendHistory] = useState(() => generateTrendHistory(initModelComp));
   const [modelSentiment, setModelSentiment] = useState(() => generateModelSentimentData(selectedModel));
   const [mentionRate, setMentionRate] = useState(() => rand(52, 65));
   const [avgPosition, setAvgPosition] = useState(() => (rand(25, 35) / 10).toFixed(1));
@@ -5344,16 +5347,17 @@ function App() {
   const [tick, setTick] = useState(0);
   const [processed, setProcessed] = useState(10);
 
-  function regenAllData() {
+  function regenAllData(model) {
+    const m = model || selectedModelRef.current;
     setScores(generateScores());
     const newComp = generateCompetitorData();
     setCompetitors(newComp);
     setTrendHistory(generateTrendHistory(newComp));
     setSentiment(generateSentimentData());
-    const newModelComp = generateModelCompetitorData(selectedModel);
+    const newModelComp = generateModelCompetitorData(m);
     setModelCompetitors(newModelComp);
     setModelTrendHistory(generateTrendHistory(newModelComp));
-    setModelSentiment(generateModelSentimentData(selectedModel));
+    setModelSentiment(generateModelSentimentData(m));
     setMentionRate(rand(52, 65));
     setAvgPosition((rand(25, 35) / 10).toFixed(1));
     setSovTrend(generateTrendData());
@@ -5382,29 +5386,31 @@ function App() {
       tickRef.current += 1;
       setTick(tickRef.current);
       setProcessed(p => p + 1);
+      const vm = viewModeRef.current;
+      const sm = selectedModelRef.current;
       setFeed(prev => {
-        const newItem = viewMode === "model" ? generateModelFeedItem(selectedModel) : generateFeedItem();
+        const newItem = vm === "model" ? generateModelFeedItem(sm) : generateFeedItem();
         return [newItem, ...prev.slice(0, 9)];
       });
       if (tickRef.current % 3 === 0) {
         setScores(generateScores());
         setMentionRate(rand(52, 65));
         setAvgPosition((rand(25, 35) / 10).toFixed(1));
-        if (viewMode === "brand") {
+        if (vm === "brand") {
           const nc = generateCompetitorData();
           setCompetitors(nc);
           setTrendHistory(generateTrendHistory(nc));
           setSentiment(generateSentimentData());
         } else {
-          const nmc = generateModelCompetitorData(selectedModel);
+          const nmc = generateModelCompetitorData(sm);
           setModelCompetitors(nmc);
           setModelTrendHistory(generateTrendHistory(nmc));
-          setModelSentiment(generateModelSentimentData(selectedModel));
+          setModelSentiment(generateModelSentimentData(sm));
         }
       }
     }, UPDATE_INTERVAL);
     return () => clearInterval(interval);
-  }, [viewMode, selectedModel]);
+  }, []);
 
   // Detect mobile
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
