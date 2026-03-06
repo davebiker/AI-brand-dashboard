@@ -7,32 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#060D0A">
 <title>Škoda X — AI Brand Visibility Dashboard</title>
-<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<script>
-window.onerror = function(msg, src, line, col, err) {
-  var d = document.createElement("div");
-  d.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#111;color:#0f0;padding:20px;z-index:99999;font:13px monospace;white-space:pre-wrap;overflow:auto";
-  d.textContent = "ERROR: " + msg + "\nSource: " + src + "\nLine: " + line + " Col: " + col + (err ? "\nStack: " + err.stack : "");
-  document.body.appendChild(d);
-};
-window.addEventListener("DOMContentLoaded", function() {
-  try {
-    var babelScript = document.getElementById("appcode");
-    if (babelScript && window.Babel) {
-      var code = babelScript.textContent;
-      var result = Babel.transform(code, { presets: ["env", "react"] });
-      eval(result.code);
-    }
-  } catch(e) {
-    var d = document.createElement("div");
-    d.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#111;color:#ff0;padding:20px;z-index:99999;font:13px monospace;white-space:pre-wrap;overflow:auto";
-    d.textContent = "BABEL/RUNTIME ERROR:\n" + e.message + "\n\nSTACK:\n" + e.stack;
-    document.body.appendChild(d);
-  }
-});
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; overflow-wrap: break-word; word-break: break-word; }
@@ -41,76 +18,59 @@ window.addEventListener("DOMContentLoaded", function() {
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)} }
   @keyframes fadeSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-
-  /* Star collision animation - desktop */
-  @keyframes starLeft {
-    0%   { left: -5%; top: 15%; opacity: 0; }
-    5%   { opacity: 1; }
-    15%  { left: 12%; top: 35%; }
-    35%  { left: 28%; top: 20%; }
-    55%  { left: 40%; top: 42%; }
-    70%  { left: 46%; top: 38%; }
-    100% { left: 50%; top: 50%; opacity: 1; }
+  @keyframes flyLeft {
+    0%   { left:-5%; top:20%; opacity:0 }
+    5%   { opacity:1 }
+    30%  { left:20%; top:35% }
+    60%  { left:38%; top:28% }
+    100% { left:calc(50% - 5px); top:calc(50% - 5px); opacity:1 }
   }
-  @keyframes starRight {
-    0%   { right: -5%; top: 80%; opacity: 0; }
-    5%   { opacity: 1; }
-    15%  { right: 12%; top: 60%; }
-    35%  { right: 28%; top: 75%; }
-    55%  { right: 40%; top: 55%; }
-    70%  { right: 46%; top: 42%; }
-    100% { right: 50%; top: 50%; opacity: 1; }
+  @keyframes flyRight {
+    0%   { left:105%; top:75%; opacity:0 }
+    5%   { opacity:1 }
+    30%  { left:75%; top:60% }
+    60%  { left:58%; top:65% }
+    100% { left:calc(50% - 5px); top:calc(50% - 5px); opacity:1 }
   }
-  /* Star collision animation - mobile (more vertical, tighter paths) */
-  @media (max-width: 767px) {
-    @keyframes starLeft {
-      0%   { left: 10%; top: -5%; opacity: 0; }
-      5%   { opacity: 1; }
-      15%  { left: 25%; top: 15%; }
-      35%  { left: 35%; top: 25%; }
-      55%  { left: 45%; top: 38%; }
-      70%  { left: 48%; top: 42%; }
-      100% { left: 50%; top: 50%; opacity: 1; }
+  @keyframes boom {
+    0%   { transform:scale(0); opacity:1 }
+    50%  { opacity:0.6 }
+    100% { transform:scale(8); opacity:0 }
+  }
+  @keyframes ring1 {
+    0%   { transform:translate(-50%,-50%) scale(0); opacity:1 }
+    100% { transform:translate(-50%,-50%) scale(1); opacity:0 }
+  }
+  @keyframes ring2 {
+    0%   { transform:translate(-50%,-50%) scale(0); opacity:0.6 }
+    100% { transform:translate(-50%,-50%) scale(1); opacity:0 }
+  }
+  @keyframes fadeUp {
+    0%   { opacity:0; transform:translateY(30px) scale(0.95) }
+    100% { opacity:1; transform:translateY(0) scale(1) }
+  }
+  .star-anim { position:absolute; width:10px; height:10px; border-radius:50%; background:radial-gradient(circle,#78FAAE,transparent 70%); box-shadow:0 0 12px 4px #78FAAE88,0 0 24px 8px #78FAAE44 }
+  .boom-dot { position:absolute; left:50%; top:50%; width:12px; height:12px; border-radius:50%; background:radial-gradient(circle,#fff,#78FAAE 60%,transparent 80%); transform-origin:center; animation:boom 1s ease-out 3.5s forwards; opacity:0 }
+  .boom-ring { position:absolute; left:50%; top:50%; border-radius:50%; border:2px solid #78FAAE; background:transparent }
+  .boom-ring1 { width:200px; height:200px; animation:ring1 0.8s ease-out 3.5s forwards; opacity:0 }
+  .boom-ring2 { width:360px; height:360px; animation:ring2 1s ease-out 3.65s forwards; opacity:0 }
+  @media(max-width:767px) {
+    @keyframes flyLeft {
+      0%   { left:20%; top:-5%; opacity:0 }
+      5%   { opacity:1 }
+      30%  { left:30%; top:20% }
+      60%  { left:42%; top:35% }
+      100% { left:calc(50% - 5px); top:calc(50% - 5px); opacity:1 }
     }
-    @keyframes starRight {
-      0%   { right: 10%; top: 105%; opacity: 0; }
-      5%   { opacity: 1; }
-      15%  { right: 25%; top: 80%; }
-      35%  { right: 35%; top: 70%; }
-      55%  { right: 45%; top: 58%; }
-      70%  { right: 48%; top: 53%; }
-      100% { right: 50%; top: 50%; opacity: 1; }
+    @keyframes flyRight {
+      0%   { left:70%; top:105%; opacity:0 }
+      5%   { opacity:1 }
+      30%  { left:60%; top:75% }
+      60%  { left:52%; top:60% }
+      100% { left:calc(50% - 5px); top:calc(50% - 5px); opacity:1 }
     }
-  }
-  @keyframes starGlow {
-    0%, 100% { box-shadow: 0 0 8px 3px #00ff8855, 0 0 20px 6px #00ff8833; }
-    50% { box-shadow: 0 0 14px 5px #00ff88aa, 0 0 30px 10px #00ff8855; }
-  }
-  @keyframes shockwave {
-    0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; border-width: 3px; }
-    60%  { opacity: 0.7; border-width: 2px; }
-    100% { transform: translate(-50%,-50%) scale(1); opacity: 0; border-width: 0.5px; }
-  }
-  @keyframes shockwave2 {
-    0%   { transform: translate(-50%,-50%) scale(0); opacity: 0.8; }
-    100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
-  }
-  @keyframes burstFlash {
-    0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; }
-    40%  { opacity: 0.8; }
-    100% { transform: translate(-50%,-50%) scale(3); opacity: 0; }
-  }
-  @keyframes spark {
-    0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
-    100% { opacity: 0; }
-  }
-  @keyframes contentReveal {
-    0%   { opacity: 0; transform: translateY(20px) scale(0.95); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  @keyframes trailFade {
-    0%   { opacity: 0.6; transform: scale(1); }
-    100% { opacity: 0; transform: scale(0.3); }
+    .boom-ring1 { width:140px; height:140px }
+    .boom-ring2 { width:240px; height:240px }
   }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -120,7 +80,7 @@ window.addEventListener("DOMContentLoaded", function() {
 <body>
 <div id="root"></div>
 
-<script type="text/babel-raw" id="appcode">
+<script type="text/babel">
 const { useState, useEffect, useCallback, useRef } = React;
 
 // ============================================================
@@ -5391,12 +5351,8 @@ function App() {
   const [revealStep, setRevealStep] = useState(0);
   const [pwd, setPwd] = useState("");
   const [pwdWrong, setPwdWrong] = useState(false);
-  const [animPhase, setAnimPhase] = useState("flying"); // "flying" | "collision" | "done"
-  useEffect(() => {
-    const t1 = setTimeout(() => setAnimPhase("collision"), 3500);
-    const t2 = setTimeout(() => setAnimPhase("done"), 5000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+  const [showPwd, setShowPwd] = useState(false);
+  useEffect(function() { var t = setTimeout(function() { setShowPwd(true); }, 5000); return function() { clearTimeout(t); }; }, []);
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
@@ -5548,7 +5504,7 @@ function App() {
 
 
   const BlurOverlay = blurActive ? React.createElement("div", {
-    onClick: (e) => { if (e.target === e.currentTarget) e.preventDefault(); },
+    onClick: function(e) { if (e.target === e.currentTarget) e.preventDefault(); },
     style: {
       position: "fixed", inset: 0, zIndex: 9999,
       backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
@@ -5558,94 +5514,38 @@ function App() {
       overflow: "hidden",
     },
   },
-    // ── Flying stars ──
-    animPhase === "flying" && React.createElement("div", { key: "stars", style: { position: "absolute", inset: 0 } },
-      // Star LEFT
-      React.createElement("div", { style: {
-        position: "absolute", width: isMobile ? 8 : 10, height: isMobile ? 8 : 10, borderRadius: "50%",
-        background: "radial-gradient(circle, #00ff88 0%, #00ff8800 70%)",
-        boxShadow: isMobile ? "0 0 8px 3px #00ff8888, 0 0 20px 6px #00ff8844" : "0 0 12px 4px #00ff8888, 0 0 30px 8px #00ff8844, 0 0 60px 16px #00ff8822",
-        animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards, starGlow 0.8s ease-in-out infinite",
-        zIndex: 10,
-      }}),
-      // Trail left
-      React.createElement("div", { style: { position: "absolute", width: 6, height: 6, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.15s", opacity: 0.4, zIndex: 9 }}),
-      React.createElement("div", { style: { position: "absolute", width: 5, height: 5, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.3s", opacity: 0.3, zIndex: 9 }}),
-      React.createElement("div", { style: { position: "absolute", width: 4, height: 4, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.45s", opacity: 0.2, zIndex: 9 }}),
-      // Star RIGHT
-      React.createElement("div", { style: {
-        position: "absolute", width: isMobile ? 8 : 10, height: isMobile ? 8 : 10, borderRadius: "50%",
-        background: "radial-gradient(circle, #00ff88 0%, #00ff8800 70%)",
-        boxShadow: isMobile ? "0 0 8px 3px #00ff8888, 0 0 20px 6px #00ff8844" : "0 0 12px 4px #00ff8888, 0 0 30px 8px #00ff8844, 0 0 60px 16px #00ff8822",
-        animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards, starGlow 0.8s ease-in-out infinite",
-        zIndex: 10,
-      }}),
-      // Trail right
-      React.createElement("div", { style: { position: "absolute", width: 6, height: 6, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.15s", opacity: 0.4, zIndex: 9 }}),
-      React.createElement("div", { style: { position: "absolute", width: 5, height: 5, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.3s", opacity: 0.3, zIndex: 9 }}),
-      React.createElement("div", { style: { position: "absolute", width: 4, height: 4, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.45s", opacity: 0.2, zIndex: 9 }}),
-    ),
-
-    // ── Collision effects (responsive) ──
-    animPhase === "collision" && React.createElement("div", { key: "collision", style: { position: "absolute", inset: 0 } },
-      // Central flash
-      React.createElement("div", { style: {
-        position: "absolute", left: "50%", top: "50%", width: isMobile ? 30 : 40, height: isMobile ? 30 : 40, borderRadius: "50%",
-        background: "radial-gradient(circle, #ffffff 0%, #00ff88 40%, transparent 70%)",
-        animation: "burstFlash 1.2s ease-out forwards",
-        zIndex: 12,
-      }}),
-      // Shockwave ring 1
-      React.createElement("div", { style: {
-        position: "absolute", left: "50%", top: "50%", width: isMobile ? 180 : 300, height: isMobile ? 180 : 300, borderRadius: "50%",
-        border: "2px solid #00ff88", background: "transparent",
-        animation: "shockwave 1.0s ease-out forwards", zIndex: 11,
-      }}),
-      // Shockwave ring 2
-      React.createElement("div", { style: {
-        position: "absolute", left: "50%", top: "50%", width: isMobile ? 280 : 500, height: isMobile ? 280 : 500, borderRadius: "50%",
-        border: "1px solid #00ff8866", background: "transparent",
-        animation: "shockwave2 1.3s ease-out 0.15s forwards", opacity: 0, zIndex: 11,
-      }}),
-      // Sparks (scaled for mobile: 50px/35px/60px vs desktop 80px/69px/120px)
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% + 50px)" : "calc(50% + 80px)", top: "50%", width: 4, height: 4, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% + 43px)" : "calc(50% + 69px)", top: isMobile ? "calc(50% + 25px)" : "calc(50% + 40px)", width: 3, height: 3, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.05s forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% + 25px)" : "calc(50% + 40px)", top: isMobile ? "calc(50% + 43px)" : "calc(50% + 69px)", width: 4, height: 4, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.1s forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: "50%", top: isMobile ? "calc(50% + 60px)" : "calc(50% + 120px)", width: 3, height: 3, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.15s forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% - 25px)" : "calc(50% - 40px)", top: isMobile ? "calc(50% + 43px)" : "calc(50% + 69px)", width: 4, height: 4, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% - 43px)" : "calc(50% - 69px)", top: isMobile ? "calc(50% + 25px)" : "calc(50% + 40px)", width: 3, height: 3, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.05s forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% - 50px)" : "calc(50% - 80px)", top: "50%", width: 4, height: 4, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.1s forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% - 43px)" : "calc(50% - 69px)", top: isMobile ? "calc(50% - 25px)" : "calc(50% - 40px)", width: 3, height: 3, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.15s forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% - 25px)" : "calc(50% - 40px)", top: isMobile ? "calc(50% - 43px)" : "calc(50% - 69px)", width: 4, height: 4, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: "50%", top: isMobile ? "calc(50% - 60px)" : "calc(50% - 120px)", width: 3, height: 3, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.05s forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% + 25px)" : "calc(50% + 40px)", top: isMobile ? "calc(50% - 43px)" : "calc(50% - 69px)", width: 4, height: 4, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.1s forwards", zIndex: 12 }}),
-      React.createElement("div", { style: { position: "absolute", left: isMobile ? "calc(50% + 43px)" : "calc(50% + 69px)", top: isMobile ? "calc(50% - 25px)" : "calc(50% - 40px)", width: 3, height: 3, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.15s forwards", zIndex: 12 }}),
-    ),
-
-    // ── Content: tagline + password (appears after collision) ──
-    React.createElement("div", { style: {
+    // Star 1 - flies from left/top
+    React.createElement("div", { className: "star-anim", style: { animation: "flyLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards" } }),
+    // Star 2 - flies from right/bottom
+    React.createElement("div", { className: "star-anim", style: { animation: "flyRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards" } }),
+    // Collision flash
+    React.createElement("div", { className: "boom-dot" }),
+    // Shockwave rings
+    React.createElement("div", { className: "boom-ring boom-ring1" }),
+    React.createElement("div", { className: "boom-ring boom-ring2" }),
+    // Content - revealed after animation
+    showPwd && React.createElement("div", { style: {
       position: "absolute", inset: 0,
       display: "flex", flexDirection: "column", alignItems: "center",
       paddingTop: "15vh",
-      opacity: animPhase === "done" ? 1 : 0,
-      animation: animPhase === "done" ? "contentReveal 1.0s ease-out forwards" : "none",
-    }},
+      animation: "fadeUp 1s ease-out forwards",
+    } },
       React.createElement("div", { style: {
         fontSize: isMobile ? 20 : 32, fontWeight: 700, color: THEME.electric, textAlign: "center",
-        fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
+        fontFamily: "'Outfit', sans-serif", textShadow: "0 0 40px " + THEME.electric + "60",
         letterSpacing: isMobile ? 1.5 : 3, textTransform: "uppercase",
         marginBottom: 12, padding: isMobile ? "0 20px" : 0,
-      }}, "Invisible to AI means invisible to buyers"),
+      } }, "Invisible to AI means invisible to buyers"),
       React.createElement("div", { style: {
         fontSize: 16, fontWeight: 600, color: THEME.electric, textAlign: "center",
         fontFamily: "'JetBrains Mono', monospace",
         letterSpacing: 2, marginBottom: 6, opacity: 0.8,
-      }}, "GEO by Škoda X"),
+      } }, "GEO by Škoda X"),
       React.createElement("div", { style: {
         fontSize: 14, fontWeight: 400, color: THEME.textDim, textAlign: "center",
         fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32,
         opacity: 0.7,
-      }}, "Generative Engine Optimization"),
+      } }, "Generative Engine Optimization"),
       React.createElement("div", {
         style: {
           display: "flex", gap: 8, alignItems: "center",
@@ -5655,25 +5555,25 @@ function App() {
         React.createElement("input", {
           type: "password",
           value: pwd,
-          onChange: (e) => setPwd(e.target.value),
-          onKeyDown: (e) => { if (e.key === "Enter") tryUnlock(); },
-          autoFocus: animPhase === "done",
+          onChange: function(e) { setPwd(e.target.value); },
+          onKeyDown: function(e) { if (e.key === "Enter") tryUnlock(); },
+          autoFocus: true,
           placeholder: "••••••••",
           style: {
             width: 200, padding: "12px 16px", borderRadius: 8,
-            border: `1px solid ${pwdWrong ? THEME.red : THEME.electric}66`,
-            background: `${THEME.cardBg}cc`,
+            border: "1px solid " + (pwdWrong ? THEME.red : THEME.electric) + "66",
+            background: THEME.cardBg + "cc",
             color: THEME.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
             outline: "none", textAlign: "center", letterSpacing: 3,
             transition: "border-color 0.3s ease",
           },
         }),
         React.createElement("button", {
-          onClick: () => tryUnlock(),
+          onClick: function() { tryUnlock(); },
           style: {
             padding: "12px 20px", borderRadius: 8, cursor: "pointer",
-            background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
-            border: `1px solid ${THEME.electric}44`,
+            background: "linear-gradient(135deg, " + THEME.emerald + ", " + THEME.emeraldLight + ")",
+            border: "1px solid " + THEME.electric + "44",
             color: THEME.electric, fontSize: 14, fontWeight: 700,
             fontFamily: "'JetBrains Mono', monospace",
             transition: "all 0.3s ease",
@@ -5683,7 +5583,7 @@ function App() {
       pwdWrong && React.createElement("div", { style: {
         fontSize: 12, color: THEME.red, fontFamily: "'JetBrains Mono', monospace",
         marginTop: 10, opacity: 0.9,
-      }}, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
+      } }, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
     ),
   ) : null;
 
@@ -5743,15 +5643,7 @@ function App() {
   ));
 }
 
-try {
-  ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
-} catch(e) {
-  document.body.style.color = "#ff0";
-  document.body.style.padding = "40px";
-  document.body.style.fontSize = "16px";
-  document.body.style.fontFamily = "monospace";
-  document.body.innerHTML = "<h2>RENDER ERROR</h2><pre>" + e.message + "\n\n" + e.stack + "</pre>";
-}
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
 </script>
 </body>
 </html>
