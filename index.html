@@ -18,6 +18,56 @@
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)} }
   @keyframes fadeSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Star collision animation */
+  @keyframes starLeft {
+    0%   { left: -5%; top: 15%; opacity: 0; }
+    5%   { opacity: 1; }
+    15%  { left: 12%; top: 35%; }
+    35%  { left: 28%; top: 20%; }
+    55%  { left: 40%; top: 42%; }
+    70%  { left: 46%; top: 38%; }
+    100% { left: 50%; top: 50%; opacity: 1; }
+  }
+  @keyframes starRight {
+    0%   { right: -5%; top: 80%; opacity: 0; }
+    5%   { opacity: 1; }
+    15%  { right: 12%; top: 60%; }
+    35%  { right: 28%; top: 75%; }
+    55%  { right: 40%; top: 55%; }
+    70%  { right: 46%; top: 42%; }
+    100% { right: 50%; top: 50%; opacity: 1; }
+  }
+  @keyframes starGlow {
+    0%, 100% { box-shadow: 0 0 8px 3px #00ff8855, 0 0 20px 6px #00ff8833; }
+    50% { box-shadow: 0 0 14px 5px #00ff88aa, 0 0 30px 10px #00ff8855; }
+  }
+  @keyframes shockwave {
+    0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; border-width: 3px; }
+    60%  { opacity: 0.7; border-width: 2px; }
+    100% { transform: translate(-50%,-50%) scale(1); opacity: 0; border-width: 0.5px; }
+  }
+  @keyframes shockwave2 {
+    0%   { transform: translate(-50%,-50%) scale(0); opacity: 0.8; }
+    100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+  }
+  @keyframes burstFlash {
+    0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; }
+    40%  { opacity: 0.8; }
+    100% { transform: translate(-50%,-50%) scale(3); opacity: 0; }
+  }
+  @keyframes spark {
+    0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes contentReveal {
+    0%   { opacity: 0; transform: translateY(20px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes trailFade {
+    0%   { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.3); }
+  }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #14352A; border-radius: 4px; }
@@ -5297,6 +5347,12 @@ function App() {
   const [revealStep, setRevealStep] = useState(0);
   const [pwd, setPwd] = useState("");
   const [pwdWrong, setPwdWrong] = useState(false);
+  const [animPhase, setAnimPhase] = useState("flying"); // "flying" | "collision" | "done"
+  useEffect(() => {
+    const t1 = setTimeout(() => setAnimPhase("collision"), 3500);
+    const t2 = setTimeout(() => setAnimPhase("done"), 5000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
@@ -5447,6 +5503,9 @@ function App() {
   }, []);
 
 
+  // Spark positions for collision burst (pre-computed angles)
+  const sparkAngles = useMemo(() => [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330], []);
+
   const BlurOverlay = blurActive ? React.createElement("div", {
     onClick: (e) => { if (e.target === e.currentTarget) e.preventDefault(); },
     style: {
@@ -5455,64 +5514,154 @@ function App() {
       background: "rgba(3,8,6,0.25)",
       opacity: blurFading ? 0 : 1,
       transition: "opacity 0.8s ease",
-      display: "flex", flexDirection: "column", alignItems: "center",
-      paddingTop: "15vh",
+      overflow: "hidden",
     },
   },
-    React.createElement("div", { style: {
-      fontSize: 32, fontWeight: 700, color: THEME.electric, textAlign: "center",
-      fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
-      letterSpacing: 3, textTransform: "uppercase",
-      marginBottom: 12,
-    }}, "Invisible to AI means invisible to buyers"),
-    React.createElement("div", { style: {
-      fontSize: 16, fontWeight: 600, color: THEME.electric, textAlign: "center",
-      fontFamily: "'JetBrains Mono', monospace",
-      letterSpacing: 2, marginBottom: 6, opacity: 0.8,
-    }}, "GEO by Škoda X"),
-    React.createElement("div", { style: {
-      fontSize: 14, fontWeight: 400, color: THEME.textDim, textAlign: "center",
-      fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32,
-      opacity: 0.7,
-    }}, "Generative Engine Optimization"),
-    React.createElement("div", {
-      style: {
-        display: "flex", gap: 8, alignItems: "center",
-        animation: pwdWrong ? "shake 0.4s ease" : "none",
-      },
-    },
-      React.createElement("input", {
-        type: "password",
-        value: pwd,
-        onChange: (e) => setPwd(e.target.value),
-        onKeyDown: (e) => { if (e.key === "Enter") tryUnlock(); },
-        autoFocus: true,
-        placeholder: "••••••••",
-        style: {
-          width: 200, padding: "12px 16px", borderRadius: 8,
-          border: `1px solid ${pwdWrong ? THEME.red : THEME.electric}66`,
-          background: `${THEME.cardBg}cc`,
-          color: THEME.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
-          outline: "none", textAlign: "center", letterSpacing: 3,
-          transition: "border-color 0.3s ease",
-        },
-      }),
-      React.createElement("button", {
-        onClick: () => tryUnlock(),
-        style: {
-          padding: "12px 20px", borderRadius: 8, cursor: "pointer",
-          background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
-          border: `1px solid ${THEME.electric}44`,
-          color: THEME.electric, fontSize: 14, fontWeight: 700,
-          fontFamily: "'JetBrains Mono', monospace",
-          transition: "all 0.3s ease",
-        },
-      }, "→"),
+    // ── Flying star LEFT ──
+    animPhase === "flying" && React.createElement("div", { style: {
+      position: "absolute", width: 10, height: 10, borderRadius: "50%",
+      background: "radial-gradient(circle, #00ff88 0%, #00ff8800 70%)",
+      boxShadow: `0 0 12px 4px #00ff8888, 0 0 30px 8px #00ff8844, 0 0 60px 16px #00ff8822`,
+      animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards, starGlow 0.8s ease-in-out infinite",
+      zIndex: 10,
+    }}),
+    // Trail particles for left star
+    animPhase === "flying" && [0.15, 0.3, 0.45].map((delay, i) =>
+      React.createElement("div", { key: "tl" + i, style: {
+        position: "absolute", width: 6 - i, height: 6 - i, borderRadius: "50%",
+        background: `radial-gradient(circle, #00ff8866 0%, transparent 70%)`,
+        animation: `starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards`,
+        animationDelay: delay + "s",
+        opacity: 0.4 - i * 0.1, zIndex: 9,
+      }})
     ),
-    pwdWrong && React.createElement("div", { style: {
-      fontSize: 12, color: THEME.red, fontFamily: "'JetBrains Mono', monospace",
-      marginTop: 10, opacity: 0.9,
-    }}, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
+    // ── Flying star RIGHT ──
+    animPhase === "flying" && React.createElement("div", { style: {
+      position: "absolute", width: 10, height: 10, borderRadius: "50%",
+      background: "radial-gradient(circle, #00ff88 0%, #00ff8800 70%)",
+      boxShadow: `0 0 12px 4px #00ff8888, 0 0 30px 8px #00ff8844, 0 0 60px 16px #00ff8822`,
+      animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards, starGlow 0.8s ease-in-out infinite",
+      zIndex: 10,
+    }}),
+    // Trail particles for right star
+    animPhase === "flying" && [0.15, 0.3, 0.45].map((delay, i) =>
+      React.createElement("div", { key: "tr" + i, style: {
+        position: "absolute", width: 6 - i, height: 6 - i, borderRadius: "50%",
+        background: `radial-gradient(circle, #00ff8866 0%, transparent 70%)`,
+        animation: `starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards`,
+        animationDelay: delay + "s",
+        opacity: 0.4 - i * 0.1, zIndex: 9,
+      }})
+    ),
+
+    // ── Collision effects ──
+    animPhase === "collision" && React.createElement(React.Fragment, null,
+      // Central flash
+      React.createElement("div", { style: {
+        position: "absolute", left: "50%", top: "50%", width: 40, height: 40, borderRadius: "50%",
+        background: "radial-gradient(circle, #ffffff 0%, #00ff88 40%, transparent 70%)",
+        animation: "burstFlash 1.2s ease-out forwards",
+        zIndex: 12,
+      }}),
+      // Shockwave ring 1
+      React.createElement("div", { style: {
+        position: "absolute", left: "50%", top: "50%", width: 300, height: 300, borderRadius: "50%",
+        border: "2px solid #00ff88",
+        background: "transparent",
+        animation: "shockwave 1.0s ease-out forwards",
+        zIndex: 11,
+      }}),
+      // Shockwave ring 2 (delayed, larger)
+      React.createElement("div", { style: {
+        position: "absolute", left: "50%", top: "50%", width: 500, height: 500, borderRadius: "50%",
+        border: "1px solid #00ff8866",
+        background: "transparent",
+        animation: "shockwave2 1.3s ease-out 0.15s forwards",
+        opacity: 0,
+        zIndex: 11,
+      }}),
+      // Sparks
+      sparkAngles.map((angle, i) => {
+        const rad = (angle * Math.PI) / 180;
+        const dist = 80 + (i % 3) * 40;
+        const dx = Math.cos(rad) * dist;
+        const dy = Math.sin(rad) * dist;
+        return React.createElement("div", { key: "sp" + i, style: {
+          position: "absolute",
+          left: "calc(50% + " + dx + "px)",
+          top: "calc(50% + " + dy + "px)",
+          width: 4 - (i % 2), height: 4 - (i % 2), borderRadius: "50%",
+          background: i % 3 === 0 ? "#ffffff" : "#00ff88",
+          boxShadow: `0 0 6px 2px #00ff8888`,
+          animation: `spark 0.8s ease-out ${0.05 * (i % 4)}s forwards`,
+          zIndex: 12,
+        }});
+      })
+    ),
+
+    // ── Content: tagline + password (appears after collision) ──
+    React.createElement("div", { style: {
+      position: "absolute", inset: 0,
+      display: "flex", flexDirection: "column", alignItems: "center",
+      paddingTop: "15vh",
+      opacity: animPhase === "done" ? 1 : 0,
+      animation: animPhase === "done" ? "contentReveal 1.0s ease-out forwards" : "none",
+    }},
+      React.createElement("div", { style: {
+        fontSize: 32, fontWeight: 700, color: THEME.electric, textAlign: "center",
+        fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
+        letterSpacing: 3, textTransform: "uppercase",
+        marginBottom: 12,
+      }}, "Invisible to AI means invisible to buyers"),
+      React.createElement("div", { style: {
+        fontSize: 16, fontWeight: 600, color: THEME.electric, textAlign: "center",
+        fontFamily: "'JetBrains Mono', monospace",
+        letterSpacing: 2, marginBottom: 6, opacity: 0.8,
+      }}, "GEO by Škoda X"),
+      React.createElement("div", { style: {
+        fontSize: 14, fontWeight: 400, color: THEME.textDim, textAlign: "center",
+        fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32,
+        opacity: 0.7,
+      }}, "Generative Engine Optimization"),
+      React.createElement("div", {
+        style: {
+          display: "flex", gap: 8, alignItems: "center",
+          animation: pwdWrong ? "shake 0.4s ease" : "none",
+        },
+      },
+        React.createElement("input", {
+          type: "password",
+          value: pwd,
+          onChange: (e) => setPwd(e.target.value),
+          onKeyDown: (e) => { if (e.key === "Enter") tryUnlock(); },
+          autoFocus: animPhase === "done",
+          placeholder: "••••••••",
+          style: {
+            width: 200, padding: "12px 16px", borderRadius: 8,
+            border: `1px solid ${pwdWrong ? THEME.red : THEME.electric}66`,
+            background: `${THEME.cardBg}cc`,
+            color: THEME.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
+            outline: "none", textAlign: "center", letterSpacing: 3,
+            transition: "border-color 0.3s ease",
+          },
+        }),
+        React.createElement("button", {
+          onClick: () => tryUnlock(),
+          style: {
+            padding: "12px 20px", borderRadius: 8, cursor: "pointer",
+            background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
+            border: `1px solid ${THEME.electric}44`,
+            color: THEME.electric, fontSize: 14, fontWeight: 700,
+            fontFamily: "'JetBrains Mono', monospace",
+            transition: "all 0.3s ease",
+          },
+        }, "→"),
+      ),
+      pwdWrong && React.createElement("div", { style: {
+        fontSize: 12, color: THEME.red, fontFamily: "'JetBrains Mono', monospace",
+        marginTop: 10, opacity: 0.9,
+      }}, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
+    ),
   ) : null;
 
   // Fullscreen: show layout directly
