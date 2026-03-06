@@ -17,6 +17,21 @@ window.onerror = function(msg, src, line, col, err) {
   d.textContent = "ERROR: " + msg + "\nSource: " + src + "\nLine: " + line + " Col: " + col + (err ? "\nStack: " + err.stack : "");
   document.body.appendChild(d);
 };
+window.addEventListener("DOMContentLoaded", function() {
+  try {
+    var babelScript = document.getElementById("appcode");
+    if (babelScript && window.Babel) {
+      var code = babelScript.textContent;
+      var result = Babel.transform(code, { presets: ["env", "react"] });
+      eval(result.code);
+    }
+  } catch(e) {
+    var d = document.createElement("div");
+    d.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#111;color:#ff0;padding:20px;z-index:99999;font:13px monospace;white-space:pre-wrap;overflow:auto";
+    d.textContent = "BABEL/RUNTIME ERROR:\n" + e.message + "\n\nSTACK:\n" + e.stack;
+    document.body.appendChild(d);
+  }
+});
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -105,7 +120,7 @@ window.onerror = function(msg, src, line, col, err) {
 <body>
 <div id="root"></div>
 
-<script type="text/babel">
+<script type="text/babel-raw" id="appcode">
 const { useState, useEffect, useCallback, useRef } = React;
 
 // ============================================================
