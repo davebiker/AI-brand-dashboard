@@ -29,26 +29,10 @@
 <script>
 var dbg=document.getElementById("dbg");
 function log(m){dbg.textContent+=m+"\n";}
-log("1. Page loaded, width="+window.innerWidth);
-log("2. React: "+(typeof React));
-log("3. ReactDOM: "+(typeof ReactDOM));
-log("4. Babel: "+(typeof Babel));
-window.onerror=function(msg,src,line,col,err){
-  log("ERROR: "+msg);
-  log("Source: "+(src||"").substring(0,80));
-  log("Line:"+line+" Col:"+col);
-  if(err&&err.stack)log("Stack: "+err.stack.substring(0,500));
-};
-if(typeof Babel!=="undefined"){
-  log("5. Babel version: "+Babel.version);
-  try{
-    var sc=document.querySelector('script[type=\"text/babel\"]');
-    log("6. Script found: "+(sc?"yes, "+sc.textContent.length+" chars":"NO"));
-  }catch(e){log("6. Error: "+e.message);}
-}
+log("Width="+window.innerWidth+" UA="+navigator.userAgent.substring(0,80));
 </script>
 
-<script type="text/babel">
+<script type="text/babel-source" id="appsrc">
 const { useState, useEffect, useCallback, useRef } = React;
 
 // ============================================================
@@ -5594,6 +5578,27 @@ function App() {
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+<script>
+log("Babel loaded, transpiling...");
+try {
+  var src = document.getElementById("appsrc").textContent;
+  log("Source: " + src.length + " chars");
+  var t0 = Date.now();
+  var out = Babel.transform(src, {presets:["env","react"]});
+  log("Transpiled OK in " + (Date.now()-t0) + "ms, output: " + out.code.length + " chars");
+  try {
+    eval(out.code);
+    log("Eval OK - app running");
+    document.getElementById("dbg").style.display = "none";
+  } catch(e2) {
+    log("RUNTIME ERROR: " + e2.message);
+    log("Stack: " + (e2.stack||"").substring(0,800));
+  }
+} catch(e) {
+  log("TRANSPILE ERROR: " + e.message);
+  log("Stack: " + (e.stack||"").substring(0,800));
+}
 </script>
 </body>
 </html>
