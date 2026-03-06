@@ -4749,7 +4749,7 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
       React.createElement("div", { style: {
         background: `linear-gradient(135deg, ${THEME.emerald}66, ${THEME.cardBg})`,
         border: `1px solid ${THEME.electric}22`, borderRadius: 8, padding: 14, marginBottom: 14,
-        fontSize: 23, color: THEME.textDim, lineHeight: 1.6,
+        fontSize: 14, color: THEME.textDim, lineHeight: 1.6,
       }},
         React.createElement("span", { style: { color: THEME.electric, fontWeight: 700 } }, "AI Insight: "),
         (isModelMode && MODEL_CONFIG[selectedModel] ? (lang === "en" ? MODEL_CONFIG[selectedModel].insightEn : lang === "de" ? (MODEL_CONFIG[selectedModel].insightDe || MODEL_CONFIG[selectedModel].insightEn) : lang === "hi" ? (MODEL_CONFIG[selectedModel].insightHi || MODEL_CONFIG[selectedModel].insightEn) : lang === "no" ? (MODEL_CONFIG[selectedModel].insightNo || MODEL_CONFIG[selectedModel].insightEn) : MODEL_CONFIG[selectedModel].insightCs) : t.insightText),
