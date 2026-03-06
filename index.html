@@ -4363,6 +4363,7 @@ function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda
 
 function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
   const barH = compact ? 140 : 170;
+  const [hovered, setHovered] = useState(null);
   return React.createElement("div", { style: { display: "flex", flexDirection: "column" } },
     // Stacked bars area
     React.createElement("div", { style: {
@@ -4376,9 +4377,10 @@ function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
         const posPct = total > 0 ? (d.pos / total) * 100 : 33;
         const neuPct = total > 0 ? (d.neu / total) * 100 : 33;
         const negPct = total > 0 ? (d.neg / total) * 100 : 34;
+        const isHov = hovered === d.name;
         return React.createElement("div", { key: d.name, style: {
-          flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-        }},
+          flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, position: "relative", cursor: "pointer",
+        }, onMouseEnter: () => setHovered(d.name), onMouseLeave: () => setHovered(null) },
           React.createElement("span", { style: {
             fontSize: compact ? 11 : 13, fontWeight: 600,
             color: d.pos < 35 ? THEME.red : d.pos < 50 ? THEME.amber : THEME.electric,
@@ -4390,8 +4392,9 @@ function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
             display: "flex", flexDirection: "column",
             borderRadius: "4px 4px 0 0", overflow: "hidden",
             border: isS ? `1px solid ${THEME.electric}44` : "none",
-            boxShadow: isS ? `0 0 12px ${THEME.electric}30` : "none",
-            transition: "all 0.6s ease",
+            boxShadow: isHov ? `0 0 16px ${THEME.electric}50` : isS ? `0 0 12px ${THEME.electric}30` : "none",
+            transition: "all 0.3s ease",
+            opacity: hovered && !isHov ? 0.5 : 1,
           }},
             React.createElement("div", { style: {
               width: "100%", height: `${negPct}%`,
@@ -4408,6 +4411,33 @@ function SentimentChart({ data, compact, t, highlight = "Škoda" }) {
               background: isS ? THEME.electric : `${THEME.electric}88`,
               transition: "height 1.2s ease",
             }}),
+          ),
+          // Tooltip
+          isHov && React.createElement("div", { style: {
+            position: "absolute", bottom: h + 32, left: "50%", transform: "translateX(-50%)",
+            background: THEME.cardBg, border: `1px solid ${THEME.electric}44`,
+            borderRadius: 8, padding: compact ? "6px 10px" : "8px 12px",
+            whiteSpace: "nowrap", zIndex: 20, pointerEvents: "none",
+            boxShadow: `0 4px 20px ${THEME.bg}cc`,
+          }},
+            React.createElement("div", { style: { fontSize: compact ? 10 : 12, fontWeight: 700, color: THEME.text, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4, textAlign: "center" } }, d.name),
+            React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 3 } },
+              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontSize: compact ? 9 : 11, fontFamily: "'JetBrains Mono', monospace" } },
+                React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: THEME.electric, display: "inline-block", flexShrink: 0 } }),
+                React.createElement("span", { style: { color: THEME.muted } }, t.positive),
+                React.createElement("span", { style: { color: THEME.electric, fontWeight: 700, marginLeft: "auto" } }, `${d.pos}%`),
+              ),
+              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontSize: compact ? 9 : 11, fontFamily: "'JetBrains Mono', monospace" } },
+                React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: `${THEME.amber}aa`, display: "inline-block", flexShrink: 0 } }),
+                React.createElement("span", { style: { color: THEME.muted } }, t.neutral),
+                React.createElement("span", { style: { color: THEME.amber, fontWeight: 700, marginLeft: "auto" } }, `${d.neu}%`),
+              ),
+              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, fontSize: compact ? 9 : 11, fontFamily: "'JetBrains Mono', monospace" } },
+                React.createElement("span", { style: { width: 8, height: 8, borderRadius: 2, background: `${THEME.red}aa`, display: "inline-block", flexShrink: 0 } }),
+                React.createElement("span", { style: { color: THEME.muted } }, t.negative),
+                React.createElement("span", { style: { color: THEME.red, fontWeight: 700, marginLeft: "auto" } }, `${d.neg}%`),
+              ),
+            ),
           ),
         );
       })
