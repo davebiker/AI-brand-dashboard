@@ -5277,6 +5277,13 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
 
 // ── MAIN APP ──
 function App() {
+  const [blurActive, setBlurActive] = useState(true);
+  const [blurFading, setBlurFading] = useState(false);
+  const dismissBlur = useCallback(() => {
+    if (!blurActive || blurFading) return;
+    setBlurFading(true);
+    setTimeout(() => { setBlurActive(false); setBlurFading(false); }, 800);
+  }, [blurActive, blurFading]);
   const [mode, setMode] = useState("tv");
   const [lang, setLang] = useState("cs");
   const t = LANG[lang];
@@ -5414,21 +5421,47 @@ function App() {
   }, []);
 
 
+  const BlurOverlay = blurActive ? React.createElement("div", {
+    onClick: dismissBlur,
+    style: {
+      position: "fixed", inset: 0, zIndex: 9999, cursor: "pointer",
+      backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+      background: "rgba(3,8,6,0.25)",
+      opacity: blurFading ? 0 : 1,
+      transition: "opacity 0.8s ease",
+    },
+  },
+    React.createElement("div", { style: {
+      position: "absolute", bottom: "10%", left: "50%", transform: "translateX(-50%)",
+      display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+    }},
+      React.createElement("div", { style: {
+        fontSize: 26, fontWeight: 700, color: THEME.electric, textAlign: "center",
+        fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
+        letterSpacing: 1,
+      }}, "AI Brand Visibility by Škoda X"),
+      React.createElement("div", { style: {
+        fontSize: 12, color: THEME.textDim, textAlign: "center",
+        fontFamily: "'JetBrains Mono', monospace", opacity: 0.7,
+      }}, lang === "de" ? "Klicken zum Öffnen" : lang === "en" ? "Click to reveal" : lang === "hi" ? "खोलने के लिए क्लिक करें" : lang === "no" ? "Klikk for å åpne" : "Klikněte pro zobrazení"),
+    ),
+  ) : null;
+
   // Fullscreen: show layout directly
   const isFullscreen = hash === "#tv" || hash === "#vertical";
   if (isFullscreen) {
     const m = hash.replace("#", "");
-    if (m === "tv") return React.createElement(React.Fragment, null, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
-    return React.createElement(React.Fragment, null, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
+    return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(React.Fragment, null, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    return React.createElement(React.Fragment, null, BlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
   }
 
   // Preview mode
-  return React.createElement(React.Fragment, null, React.createElement("div", { style: {
+  return React.createElement(React.Fragment, null, BlurOverlay, React.createElement("div", { style: {
     minHeight: "100vh", background: "#030806", display: "flex", flexDirection: "column",
     alignItems: "center", padding: "20px 10px", fontFamily: "'Outfit', sans-serif",
   }},
