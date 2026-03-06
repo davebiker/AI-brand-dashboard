@@ -5503,9 +5503,6 @@ function App() {
   }, []);
 
 
-  // Spark positions for collision burst (pre-computed angles)
-  const sparkAngles = useMemo(() => [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330], []);
-
   const BlurOverlay = blurActive ? React.createElement("div", {
     onClick: (e) => { if (e.target === e.currentTarget) e.preventDefault(); },
     style: {
@@ -5517,45 +5514,36 @@ function App() {
       overflow: "hidden",
     },
   },
-    // ── Flying star LEFT ──
-    animPhase === "flying" && React.createElement("div", { style: {
-      position: "absolute", width: 10, height: 10, borderRadius: "50%",
-      background: "radial-gradient(circle, #00ff88 0%, #00ff8800 70%)",
-      boxShadow: `0 0 12px 4px #00ff8888, 0 0 30px 8px #00ff8844, 0 0 60px 16px #00ff8822`,
-      animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards, starGlow 0.8s ease-in-out infinite",
-      zIndex: 10,
-    }}),
-    // Trail particles for left star
-    animPhase === "flying" && [0.15, 0.3, 0.45].map((delay, i) =>
-      React.createElement("div", { key: "tl" + i, style: {
-        position: "absolute", width: 6 - i, height: 6 - i, borderRadius: "50%",
-        background: `radial-gradient(circle, #00ff8866 0%, transparent 70%)`,
-        animation: `starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards`,
-        animationDelay: delay + "s",
-        opacity: 0.4 - i * 0.1, zIndex: 9,
-      }})
-    ),
-    // ── Flying star RIGHT ──
-    animPhase === "flying" && React.createElement("div", { style: {
-      position: "absolute", width: 10, height: 10, borderRadius: "50%",
-      background: "radial-gradient(circle, #00ff88 0%, #00ff8800 70%)",
-      boxShadow: `0 0 12px 4px #00ff8888, 0 0 30px 8px #00ff8844, 0 0 60px 16px #00ff8822`,
-      animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards, starGlow 0.8s ease-in-out infinite",
-      zIndex: 10,
-    }}),
-    // Trail particles for right star
-    animPhase === "flying" && [0.15, 0.3, 0.45].map((delay, i) =>
-      React.createElement("div", { key: "tr" + i, style: {
-        position: "absolute", width: 6 - i, height: 6 - i, borderRadius: "50%",
-        background: `radial-gradient(circle, #00ff8866 0%, transparent 70%)`,
-        animation: `starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards`,
-        animationDelay: delay + "s",
-        opacity: 0.4 - i * 0.1, zIndex: 9,
-      }})
+    // ── Flying stars ──
+    animPhase === "flying" && React.createElement("div", { key: "stars", style: { position: "absolute", inset: 0 } },
+      // Star LEFT
+      React.createElement("div", { style: {
+        position: "absolute", width: 10, height: 10, borderRadius: "50%",
+        background: "radial-gradient(circle, #00ff88 0%, #00ff8800 70%)",
+        boxShadow: "0 0 12px 4px #00ff8888, 0 0 30px 8px #00ff8844, 0 0 60px 16px #00ff8822",
+        animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards, starGlow 0.8s ease-in-out infinite",
+        zIndex: 10,
+      }}),
+      // Trail left
+      React.createElement("div", { style: { position: "absolute", width: 6, height: 6, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.15s", opacity: 0.4, zIndex: 9 }}),
+      React.createElement("div", { style: { position: "absolute", width: 5, height: 5, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.3s", opacity: 0.3, zIndex: 9 }}),
+      React.createElement("div", { style: { position: "absolute", width: 4, height: 4, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starLeft 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.45s", opacity: 0.2, zIndex: 9 }}),
+      // Star RIGHT
+      React.createElement("div", { style: {
+        position: "absolute", width: 10, height: 10, borderRadius: "50%",
+        background: "radial-gradient(circle, #00ff88 0%, #00ff8800 70%)",
+        boxShadow: "0 0 12px 4px #00ff8888, 0 0 30px 8px #00ff8844, 0 0 60px 16px #00ff8822",
+        animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards, starGlow 0.8s ease-in-out infinite",
+        zIndex: 10,
+      }}),
+      // Trail right
+      React.createElement("div", { style: { position: "absolute", width: 6, height: 6, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.15s", opacity: 0.4, zIndex: 9 }}),
+      React.createElement("div", { style: { position: "absolute", width: 5, height: 5, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.3s", opacity: 0.3, zIndex: 9 }}),
+      React.createElement("div", { style: { position: "absolute", width: 4, height: 4, borderRadius: "50%", background: "radial-gradient(circle, #00ff8866 0%, transparent 70%)", animation: "starRight 3.5s cubic-bezier(0.25,0.1,0.25,1) forwards", animationDelay: "0.45s", opacity: 0.2, zIndex: 9 }}),
     ),
 
     // ── Collision effects ──
-    animPhase === "collision" && React.createElement(React.Fragment, null,
+    animPhase === "collision" && React.createElement("div", { key: "collision", style: { position: "absolute", inset: 0 } },
       // Central flash
       React.createElement("div", { style: {
         position: "absolute", left: "50%", top: "50%", width: 40, height: 40, borderRadius: "50%",
@@ -5566,37 +5554,28 @@ function App() {
       // Shockwave ring 1
       React.createElement("div", { style: {
         position: "absolute", left: "50%", top: "50%", width: 300, height: 300, borderRadius: "50%",
-        border: "2px solid #00ff88",
-        background: "transparent",
-        animation: "shockwave 1.0s ease-out forwards",
-        zIndex: 11,
+        border: "2px solid #00ff88", background: "transparent",
+        animation: "shockwave 1.0s ease-out forwards", zIndex: 11,
       }}),
-      // Shockwave ring 2 (delayed, larger)
+      // Shockwave ring 2
       React.createElement("div", { style: {
         position: "absolute", left: "50%", top: "50%", width: 500, height: 500, borderRadius: "50%",
-        border: "1px solid #00ff8866",
-        background: "transparent",
-        animation: "shockwave2 1.3s ease-out 0.15s forwards",
-        opacity: 0,
-        zIndex: 11,
+        border: "1px solid #00ff8866", background: "transparent",
+        animation: "shockwave2 1.3s ease-out 0.15s forwards", opacity: 0, zIndex: 11,
       }}),
-      // Sparks
-      sparkAngles.map((angle, i) => {
-        const rad = (angle * Math.PI) / 180;
-        const dist = 80 + (i % 3) * 40;
-        const dx = Math.cos(rad) * dist;
-        const dy = Math.sin(rad) * dist;
-        return React.createElement("div", { key: "sp" + i, style: {
-          position: "absolute",
-          left: "calc(50% + " + dx + "px)",
-          top: "calc(50% + " + dy + "px)",
-          width: 4 - (i % 2), height: 4 - (i % 2), borderRadius: "50%",
-          background: i % 3 === 0 ? "#ffffff" : "#00ff88",
-          boxShadow: `0 0 6px 2px #00ff8888`,
-          animation: `spark 0.8s ease-out ${0.05 * (i % 4)}s forwards`,
-          zIndex: 12,
-        }});
-      })
+      // Sparks - inline for each angle
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% + 80px)", top: "50%", width: 4, height: 4, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% + 69px)", top: "calc(50% + 40px)", width: 3, height: 3, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.05s forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% + 40px)", top: "calc(50% + 69px)", width: 4, height: 4, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.1s forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "50%", top: "calc(50% + 120px)", width: 3, height: 3, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.15s forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% - 40px)", top: "calc(50% + 69px)", width: 4, height: 4, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% - 69px)", top: "calc(50% + 40px)", width: 3, height: 3, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.05s forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% - 80px)", top: "50%", width: 4, height: 4, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.1s forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% - 69px)", top: "calc(50% - 40px)", width: 3, height: 3, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.15s forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% - 40px)", top: "calc(50% - 69px)", width: 4, height: 4, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "50%", top: "calc(50% - 120px)", width: 3, height: 3, borderRadius: "50%", background: "#fff", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.05s forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% + 40px)", top: "calc(50% - 69px)", width: 4, height: 4, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.1s forwards", zIndex: 12 }}),
+      React.createElement("div", { style: { position: "absolute", left: "calc(50% + 69px)", top: "calc(50% - 40px)", width: 3, height: 3, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 6px 2px #00ff8888", animation: "spark 0.8s ease-out 0.15s forwards", zIndex: 12 }}),
     ),
 
     // ── Content: tagline + password (appears after collision) ──
