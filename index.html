@@ -4014,12 +4014,12 @@ function generateCompetitorData() {
 }
 
 function generateTrendHistory(competitorData) {
-  const weeks = 4;
+  const weeks = 6;
   return competitorData.map(d => {
     const points = [];
     for (let w = 0; w < weeks; w++) {
       const base = d.score;
-      const drift = rand(-8, 8);
+      const drift = rand(-10, 10);
       points.push(Math.max(1, Math.min(100, base + drift - (weeks - 1 - w) * rand(0, 3))));
     }
     points[weeks - 1] = d.score;
@@ -4277,9 +4277,9 @@ function BarChart({ data, compact, highlight = "Škoda" }) {
 const TREND_COLORS = ["#78FFD6", "#26C6F0", "#B4A0FF", "#FF6B4A", "#FFD93D", "#FF85A1", "#8BFFC8", "#C084FC", "#F97316"];
 
 function TrendLineChart({ trendData, visibleBrands, compact, highlight = "Škoda", t }) {
-  const weeks = 4;
-  const barH = compact ? 140 : 170;
-  const totalH = barH + 24;
+  const weeks = 6;
+  const barH = compact ? 280 : 340;
+  const totalH = barH + 32;
   const ref = React.useRef(null);
   const [cW, setCW] = React.useState(400);
   React.useEffect(() => {
