@@ -5283,7 +5283,7 @@ function App() {
   const [pwdWrong, setPwdWrong] = useState(false);
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
-    if (v === "skodax26") {
+    if (v === "skodax") {
       setBlurFading(true);
       setTimeout(() => { setBlurActive(false); setBlurFading(false); }, 800);
     } else {
