@@ -5720,7 +5720,21 @@ function App() {
   ));
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+try {
+  ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+} catch(e) {
+  document.body.style.color = "#ff0";
+  document.body.style.padding = "40px";
+  document.body.style.fontSize = "16px";
+  document.body.style.fontFamily = "monospace";
+  document.body.innerHTML = "<h2>RENDER ERROR</h2><pre>" + e.message + "\n\n" + e.stack + "</pre>";
+}
+window.onerror = function(msg, src, line, col, err) {
+  var d = document.createElement("div");
+  d.style.cssText = "position:fixed;top:0;left:0;right:0;background:#900;color:#fff;padding:16px;z-index:99999;font:14px monospace;white-space:pre-wrap";
+  d.textContent = "ERROR: " + msg + "\nLine: " + line + " Col: " + col + (err ? "\n" + err.stack : "");
+  document.body.appendChild(d);
+};
 </script>
 </body>
 </html>
