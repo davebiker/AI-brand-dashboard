@@ -5422,7 +5422,6 @@ function App() {
         return [newItem, ...prev.slice(0, 9)];
       });
       if (tickRef.current % 3 === 0) {
-        setScores(generateScores());
         setMentionRate(rand(52, 65));
         setAvgPosition((rand(25, 35) / 10).toFixed(1));
         if (vm === "brand") {
@@ -5439,6 +5438,20 @@ function App() {
       }
     }, UPDATE_INTERVAL);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const scoreInterval = setInterval(() => {
+      setScores(prev => {
+        const next = {};
+        PLATFORMS.forEach(p => {
+          const v = prev[p.name] || 50;
+          next[p.name] = Math.max(1, Math.min(100, v + rand(-3, 3)));
+        });
+        return next;
+      });
+    }, 60000);
+    return () => clearInterval(scoreInterval);
   }, []);
 
   // Detect mobile
