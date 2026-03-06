@@ -4655,6 +4655,8 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
   const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
   const [showTrend, setShowTrend] = useState(false);
   const [trendBrands, setTrendBrands] = useState(() => [highlightName]);
+  const prevHighlight = useRef(highlightName);
+  useEffect(() => { if (prevHighlight.current !== highlightName) { setTrendBrands([highlightName]); prevHighlight.current = highlightName; } }, [highlightName]);
   const toggleTrendBrand = (name) => setTrendBrands(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
   return React.createElement("div", { style: {
     width: "100vw", height: "100vh", background: THEME.bg, position: "relative", overflow: "hidden",
@@ -4965,6 +4967,8 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
   const highlightName = isModelMode && MODEL_CONFIG[selectedModel] ? MODEL_CONFIG[selectedModel].label : "Škoda";
   const [showTrendV, setShowTrendV] = useState(false);
   const [trendBrandsV, setTrendBrandsV] = useState(() => [highlightName]);
+  const prevHighlightV = useRef(highlightName);
+  useEffect(() => { if (prevHighlightV.current !== highlightName) { setTrendBrandsV([highlightName]); prevHighlightV.current = highlightName; } }, [highlightName]);
   const toggleTrendBrandV = (name) => setTrendBrandsV(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
   const pad = mobile ? "14px 20px" : "12px 16px";
   const padSm = mobile ? "12px 20px" : "10px 16px";
@@ -5311,12 +5315,19 @@ function App() {
   };
   const setViewMode = (vm) => {
     setViewModeState(vm);
-    setTimeout(regenAllData, 0);
+    regenAllData();
   };
   const setSelectedModel = (sm) => {
     setSelectedModelState(sm);
     modelQueryIndex = 0;
-    setTimeout(regenAllData, 0);
+    const newModelComp = generateModelCompetitorData(sm);
+    setModelCompetitors(newModelComp);
+    setModelTrendHistory(generateTrendHistory(newModelComp));
+    setModelSentiment(generateModelSentimentData(sm));
+    setScores(generateScores());
+    setMentionRate(rand(52, 65));
+    setAvgPosition((rand(25, 35) / 10).toFixed(1));
+    setSovTrend(generateTrendData());
   };
 
   const [scores, setScores] = useState(generateScores());
@@ -5380,10 +5391,14 @@ function App() {
         setMentionRate(rand(52, 65));
         setAvgPosition((rand(25, 35) / 10).toFixed(1));
         if (viewMode === "brand") {
-          setCompetitors(generateCompetitorData());
+          const nc = generateCompetitorData();
+          setCompetitors(nc);
+          setTrendHistory(generateTrendHistory(nc));
           setSentiment(generateSentimentData());
         } else {
-          setModelCompetitors(generateModelCompetitorData(selectedModel));
+          const nmc = generateModelCompetitorData(selectedModel);
+          setModelCompetitors(nmc);
+          setModelTrendHistory(generateTrendHistory(nmc));
           setModelSentiment(generateModelSentimentData(selectedModel));
         }
       }
