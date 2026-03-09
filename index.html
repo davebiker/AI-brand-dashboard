@@ -4994,7 +4994,7 @@ function TVLayout({ scores, displayCompetitors, displayTrendHistory, displaySent
 }
 
 // ── VERTICAL LAYOUT ──
-function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile, mode, setMode }) {
+function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile, mode, setMode, onSetup }) {
   const competitors = displayCompetitors;
   const sentiment = displaySentiment;
   const isModelMode = viewMode === "model";
@@ -5299,14 +5299,27 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
 
     // Footer
     React.createElement("div", { style: {
-      padding: mobile ? "12px 20px" : "8px 16px", borderTop: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1,
-      background: `${THEME.emerald}88`, color: THEME.electric,
+      padding: mobile ? "14px 20px" : "10px 16px", borderTop: `1px solid ${THEME.cardBorder}`, position: "relative", zIndex: 1,
+      background: `linear-gradient(180deg, ${THEME.emerald}66, ${THEME.emerald}cc)`, color: THEME.electric,
       fontFamily: "'JetBrains Mono', monospace", flexShrink: 0,
-      display: "flex", justifyContent: "space-between", alignItems: "center",
+      display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8,
     }},
-      React.createElement("span", { style: { fontSize: mobile ? 12 : 9, opacity: 0.7 } }, "ŠKODA X — AI Brand Intelligence"),
-      mobile && React.createElement("span", { style: { fontSize: 11, opacity: 0.5 } },
-        lang === "en" ? `${totalQueries} queries · ${PLATFORMS.length} AI` : lang === "de" ? `${totalQueries} Anfragen · ${PLATFORMS.length} KI` : lang === "hi" ? `${totalQueries} प्रश्न · ${PLATFORMS.length} AI` : lang === "no" ? `${totalQueries} spørsmål · ${PLATFORMS.length} KI` : `${totalQueries} dotazů · ${PLATFORMS.length} AI`),
+      React.createElement("span", { style: { fontSize: mobile ? 13 : 11, fontWeight: 600, opacity: 0.85, letterSpacing: 1 } }, "ŠKODA X — AI Brand Intelligence"),
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+        React.createElement("span", { style: { fontSize: mobile ? 12 : 10, opacity: 0.5, fontWeight: 400 } },
+          lang === "en" ? `${totalQueries} queries · ${PLATFORMS.length} AI` : lang === "de" ? `${totalQueries} Anfragen · ${PLATFORMS.length} KI` : lang === "hi" ? `${totalQueries} प्रश्न · ${PLATFORMS.length} AI` : lang === "no" ? `${totalQueries} spørsmål · ${PLATFORMS.length} KI` : `${totalQueries} dotazů · ${PLATFORMS.length} AI`),
+        React.createElement("button", {
+          onClick: () => typeof onSetup === "function" && onSetup(),
+          style: {
+            padding: mobile ? "6px 14px" : "4px 10px", borderRadius: 6, cursor: "pointer",
+            border: `1px solid ${THEME.electric}44`,
+            background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}18)`,
+            color: THEME.electric, fontSize: mobile ? 12 : 10, fontWeight: 700,
+            fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
+            transition: "all 0.3s ease", display: "flex", alignItems: "center", gap: 5,
+          },
+        }, "⚙ Setup"),
+      ),
     ),
   );
 }
@@ -5320,6 +5333,7 @@ function App() {
   const [pwd, setPwd] = useState("");
   const [pwdWrong, setPwdWrong] = useState(false);
   const [showPwd, setShowPwd] = useState(true);
+  const [showSetup, setShowSetup] = useState(false);
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
@@ -5578,6 +5592,83 @@ function App() {
 
   const BlurOverlay = blurActive ? (isMobile ? MobileOverlay : DesktopOverlay) : null;
 
+  // Setup modal
+  const SetupModal = showSetup ? React.createElement("div", {
+    onClick: (e) => { if (e.target === e.currentTarget) setShowSetup(false); },
+    style: {
+      position: "fixed", inset: 0, zIndex: 10000,
+      backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+      background: "rgba(3,8,6,0.6)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      animation: "fadeSlide 0.3s ease-out",
+    },
+  },
+    React.createElement("div", { style: {
+      background: THEME.cardBg, border: `1px solid ${THEME.cardBorder}`,
+      borderRadius: 16, padding: 28, width: "min(420px, 90vw)", maxHeight: "80vh", overflowY: "auto",
+      boxShadow: `0 0 60px ${THEME.emerald}30, 0 20px 40px rgba(0,0,0,0.5)`,
+    }},
+      // Header
+      React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 } },
+        React.createElement("span", { style: { fontSize: 18, fontWeight: 700, color: THEME.electric, fontFamily: "'Outfit', sans-serif", letterSpacing: 1 } }, "⚙ Setup"),
+        React.createElement("button", { onClick: () => setShowSetup(false), style: {
+          background: "none", border: "none", color: THEME.muted, fontSize: 22, cursor: "pointer", padding: "4px 8px", lineHeight: 1,
+        }}, "✕"),
+      ),
+      // View Mode
+      React.createElement("div", { style: { marginBottom: 20 } },
+        React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: THEME.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "'JetBrains Mono', monospace" } }, "View Mode"),
+        React.createElement("div", { style: { display: "flex", gap: 6 } },
+          [{ key: "brand", label: "Brand" }, { key: "model", label: "Model" }].map(v => React.createElement("button", {
+            key: v.key, onClick: () => setViewMode(v.key),
+            style: {
+              flex: 1, padding: "10px 0", borderRadius: 8, cursor: "pointer",
+              border: viewMode === v.key ? `1px solid ${THEME.electric}44` : `1px solid ${THEME.cardBorder}`,
+              background: viewMode === v.key ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : THEME.cardBg,
+              color: viewMode === v.key ? THEME.electric : THEME.muted,
+              fontSize: 13, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", transition: "all 0.3s ease",
+            },
+          }, v.label)),
+        ),
+      ),
+      // Model (only when model mode)
+      viewMode === "model" && React.createElement("div", { style: { marginBottom: 20 } },
+        React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: THEME.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "'JetBrains Mono', monospace" } }, "Model"),
+        React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } },
+          Object.keys(MODEL_CONFIG).map(mk => React.createElement("button", {
+            key: mk, onClick: () => setSelectedModel(mk),
+            style: {
+              flex: 1, minWidth: 70, padding: "10px 0", borderRadius: 8, cursor: "pointer",
+              border: selectedModel === mk ? `1px solid ${THEME.electric}44` : `1px solid ${THEME.cardBorder}`,
+              background: selectedModel === mk ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : THEME.cardBg,
+              color: selectedModel === mk ? THEME.electric : THEME.muted,
+              fontSize: 13, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", transition: "all 0.3s ease",
+            },
+          }, MODEL_CONFIG[mk].label)),
+        ),
+      ),
+      // Market
+      React.createElement("div", { style: { marginBottom: 20 } },
+        React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: THEME.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "'JetBrains Mono', monospace" } }, t.market),
+        React.createElement("div", { style: { display: "flex", gap: 6 } },
+          MARKETS.map(m => React.createElement("button", {
+            key: m.key, onClick: () => setMarket(m.key),
+            style: {
+              flex: 1, padding: "10px 0", borderRadius: 8, cursor: "pointer",
+              border: market === m.key ? `1px solid ${THEME.electric}44` : `1px solid ${THEME.cardBorder}`,
+              background: market === m.key ? `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}22)` : THEME.cardBg,
+              color: market === m.key ? THEME.electric : THEME.muted,
+              fontSize: 14, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", transition: "all 0.3s ease",
+            },
+          }, m.label)),
+        ),
+      ),
+      // Info
+      React.createElement("div", { style: { fontSize: 11, color: THEME.muted, fontFamily: "'JetBrains Mono', monospace", textAlign: "center", opacity: 0.6, marginTop: 8 } },
+        `${PLATFORMS.length} platforms · ${COMPETITORS.length} competitors · ${totalQueries} queries`),
+    ),
+  ) : null;
+
   // Dashboard blur overlay — appears after password, fades over 3s
   const DashBlurOverlay = dashBlur >= 1 && dashBlur < 3 ? React.createElement("div", {
     style: {
@@ -5595,17 +5686,17 @@ function App() {
   const isFullscreen = hash === "#tv" || hash === "#vertical";
   if (isFullscreen) {
     const m = hash.replace("#", "");
-    if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, DashBlurOverlay, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
-    return React.createElement(React.Fragment, null, BlurOverlay, DashBlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    if (m === "tv") return React.createElement(React.Fragment, null, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
+    return React.createElement(React.Fragment, null, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true, onSetup: () => setShowSetup(true) }));
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(React.Fragment, null, BlurOverlay, DashBlurOverlay, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true }));
+    return React.createElement(React.Fragment, null, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true, onSetup: () => setShowSetup(true) }));
   }
 
   // Preview mode
-  return React.createElement(React.Fragment, null, BlurOverlay, DashBlurOverlay, React.createElement("div", { style: {
+  return React.createElement(React.Fragment, null, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement("div", { style: {
     minHeight: "100vh", background: "#030806", display: "flex", flexDirection: "column",
     alignItems: "center", padding: "20px 10px", fontFamily: "'Outfit', sans-serif",
   }},
@@ -5625,7 +5716,7 @@ function App() {
       }},
         mode === "tv"
           ? React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode })
-          : React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode }),
+          : React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mode, setMode, onSetup: () => setShowSetup(true) }),
       ),
       mode === "tv" && React.createElement("div", { style: {
         position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
