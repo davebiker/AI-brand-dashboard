@@ -106,15 +106,16 @@ function TopNav({ isMobile }) {
     ),
     !isMobile && React.createElement("div", { style: { display: "flex", gap: 8 } },
       [
-        { href: "index.html", label: "\u25c6 Intro" },
-        { href: "flow.html", label: "\u25c9 Flow" },
-        { href: "setup.html", label: "\u2699 Setup" },
-        { href: "dashboard.html", label: "\u25a0 Dashboard" },
-        { href: "geo-process.html", label: "\u25b8 Next Steps" },
+        { href: "index.html", label: "\u25c6 Intro", active: true },
+        { href: "flow.html", label: "\u25c9 Flow", active: false },
+        { href: "setup.html", label: "\u2699 Setup", active: false },
+        { href: "dashboard.html", label: "\u25a0 Dashboard", active: false },
+        { href: "geo-process.html", label: "\u25b8 Next Steps", active: false },
       ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
         padding: "6px 14px", borderRadius: 6, textDecoration: "none",
-        border: `1px solid ${T.cardBorder}`, background: `${T.cardBg}88`,
-        color: T.muted, fontSize: 11, fontWeight: 700,
+        border: `1px solid ${l.active ? T.electric + "55" : T.cardBorder}`,
+        background: l.active ? `${T.electric}18` : `${T.cardBg}88`,
+        color: l.active ? T.electric : T.muted, fontSize: 11, fontWeight: 700,
         fontFamily: "'JetBrains Mono', monospace", transition: "all 0.2s ease",
       }}, l.label))
     ),

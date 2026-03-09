@@ -219,15 +219,16 @@ function App() {
     // Nav links — top right
     React.createElement("div", { style: { position: "fixed", top: 20, right: 24, zIndex: 60, display: "flex", gap: 8 } },
       [
-        { href: "index.html", label: "\u25c6 Intro" },
-        { href: "flow.html", label: "\u25c9 Flow" },
-        { href: "setup.html", label: "\u2699 Setup" },
-        { href: "dashboard.html", label: "\u25a0 Dashboard" },
-        { href: "geo-process.html", label: "\u25b8 Next Steps" },
+        { href: "index.html", label: "\u25c6 Intro", active: false },
+        { href: "flow.html", label: "\u25c9 Flow", active: true },
+        { href: "setup.html", label: "\u2699 Setup", active: false },
+        { href: "dashboard.html", label: "\u25a0 Dashboard", active: false },
+        { href: "geo-process.html", label: "\u25b8 Next Steps", active: false },
       ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
         padding: "7px 14px", borderRadius: 8, textDecoration: "none",
-        background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`,
-        color: T.muted, fontSize: 11, fontWeight: 700,
+        background: l.active ? `${T.electric}18` : `${T.cardBg}aa`,
+        border: `1px solid ${l.active ? T.electric + "55" : T.cardBorder}`,
+        color: l.active ? T.electric : T.muted, fontSize: 11, fontWeight: 700,
         fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
         transition: "all 0.2s ease",
       }}, l.label)),
