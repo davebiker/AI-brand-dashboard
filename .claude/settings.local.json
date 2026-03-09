@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh run:*)",
+      "Bash(ls /c/Python*)",
+      "Read(//c/Users/DavidBeška/AppData/Local/Programs/**)",
+      "WebFetch(domain:davebiker.github.io)",
+      "WebFetch(domain:aibranddashboard.daveai.cz)"
+    ]
+  }
+}
