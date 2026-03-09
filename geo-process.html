@@ -16,32 +16,18 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #14352A; border-radius: 4px; }
-  @keyframes stairAppear {
-    from { opacity: 0; transform: translateY(40px) scale(0.92); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px #78FAAE10; } 50% { box-shadow: 0 0 50px #78FAAE20; } }
-  @keyframes particleUp {
-    0% { opacity: 0; transform: translateY(0) scale(0); }
-    20% { opacity: 1; transform: translateY(-8px) scale(1); }
-    100% { opacity: 0; transform: translateY(-50px) scale(0.3); }
-  }
-  @keyframes arrowBounce {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 20px #78FAAE10; } 50% { box-shadow: 0 0 50px #78FAAE20; } }
   @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes breathe { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; } }
+  @keyframes dataFlow { 0% { transform: translateX(-100%); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateX(200%); opacity: 0; } }
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useRef, useCallback } = React;
+const { useState, useEffect, useRef } = React;
 
 const T = {
   emerald: "#0E3A2F", electric: "#78FAAE", emeraldLight: "#14493B",
@@ -51,67 +37,167 @@ const T = {
   purple: "#B4A0FF", blue: "#5AA8D4",
 };
 
-const STAIRS = [
+const STEPS = [
   {
-    num: "01",
-    title: "GEO Analytics",
+    num: "01", title: "GEO Analytics", color: T.electric,
     desc: "Monitoring & data collection from AI platforms",
-    color: T.electric,
     details: "Systematic querying of ChatGPT, Claude, Gemini & Perplexity. Brand mention detection, position tracking, competitor analysis across all AI engines.",
+    group: "analyze",
   },
   {
-    num: "02",
-    title: "Executive Summary + Overview",
+    num: "02", title: "Executive Summary + Overview", color: T.cyan,
     desc: "High-level visibility scorecard",
-    color: T.cyan,
     details: "Consolidated KPI dashboard with visibility score, sentiment trends, competitive positioning and key findings for leadership review.",
+    group: "analyze",
   },
   {
-    num: "03",
-    title: "Insights & Recommendations",
+    num: "03", title: "Insights & Recommendations", color: T.blue,
     desc: "Data-driven optimization strategy",
-    color: T.blue,
     details: "Actionable recommendations based on gap analysis. Priority list of content improvements, keyword opportunities and competitive threats.",
+    group: "optimize",
   },
   {
-    num: "04",
-    title: "Content Sources",
+    num: "04", title: "Content Sources", color: T.purple,
     subtitle: "Website Metadata \u00b7 Website Content \u00b7 Media Content \u00b7 Blogs Content",
     desc: "Owned content optimization",
-    color: T.purple,
     details: "Optimize website metadata, page content, media assets and blog articles for AI discoverability. Schema.org markup, structured data, factual accuracy.",
     channels: ["Website Metadata", "Website Content", "Media Content", "Blogs Content"],
+    group: "optimize",
   },
   {
-    num: "05",
-    title: "External Channels",
+    num: "05", title: "External Channels", color: T.amber,
     subtitle: "Facebook \u00b7 YouTube \u00b7 Wikipedia \u00b7 Reddit",
     desc: "Third-party presence & citations",
-    color: T.amber,
     details: "Strengthen brand presence on platforms that AI engines use as training data and citation sources. Ensure consistent, accurate brand information.",
     channels: ["Facebook", "YouTube", "Wikipedia", "Reddit"],
+    group: "optimize",
   },
   {
-    num: "06",
-    title: "Content Creation",
+    num: "06", title: "Content Creation", color: T.electric,
     desc: "Produce optimized content",
-    color: T.electric,
     details: "Create new content specifically designed for AI visibility \u2014 authoritative articles, FAQ pages, structured comparisons, expert guides.",
+    group: "optimize",
   },
   {
-    num: "07",
-    title: "Implementation",
+    num: "07", title: "Implementation", color: T.cyan,
     desc: "Deploy & measure impact",
-    color: T.cyan,
     details: "Publish optimized content, update metadata, deploy changes across all channels. Monitor AI response changes and measure visibility improvement.",
+    group: "deploy",
   },
 ];
 
+function useReveal(threshold = 0.2) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
+
+function StepCard({ step, index, active, onClick, isMobile }) {
+  const [ref, vis] = useReveal(0.15);
+  return React.createElement("div", {
+    ref,
+    onClick,
+    style: {
+      display: "flex", gap: isMobile ? 14 : 20, cursor: "pointer",
+      opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(24px)",
+      transition: `all 0.5s ease ${index * 0.08}s`,
+    },
+  },
+    // Left: number badge + connector
+    React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: isMobile ? 44 : 52 } },
+      React.createElement("div", { style: {
+        width: isMobile ? 44 : 52, height: isMobile ? 44 : 52, borderRadius: 14,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: active ? `${step.color}18` : T.cardBg,
+        border: `2px solid ${active ? step.color : step.color + "33"}`,
+        fontSize: isMobile ? 14 : 16, fontWeight: 900, color: active ? step.color : `${step.color}99`,
+        fontFamily: "'JetBrains Mono', monospace",
+        transition: "all 0.3s ease",
+        animation: active ? "pulseGlow 2.5s ease-in-out infinite" : "none",
+        flexShrink: 0,
+      }}, step.num),
+      index < STEPS.length - 1 && React.createElement("div", { style: {
+        flex: 1, width: 2, minHeight: 16,
+        background: `${step.color}33`, margin: "6px 0",
+      }}),
+    ),
+
+    // Right: content
+    React.createElement("div", { style: {
+      flex: 1, padding: isMobile ? "12px 14px" : "16px 22px",
+      borderRadius: 14,
+      background: active ? `linear-gradient(160deg, ${T.emeraldLight}, ${step.color}08)` : T.cardBg,
+      border: `1.5px solid ${active ? step.color + "44" : T.cardBorder}`,
+      transition: "all 0.3s ease",
+      boxShadow: active ? `0 4px 30px ${step.color}10` : "none",
+      position: "relative", overflow: "hidden",
+      marginBottom: 4,
+    }},
+      // Watermark
+      React.createElement("div", { style: {
+        position: "absolute", top: -6, right: 8,
+        fontSize: isMobile ? 50 : 64, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
+        color: `${step.color}05`, lineHeight: 1, pointerEvents: "none",
+      }}, step.num),
+
+      // Phase label
+      React.createElement("div", { style: {
+        fontSize: 10, fontWeight: 700, color: active ? step.color : `${step.color}77`,
+        fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2,
+        marginBottom: 5, textTransform: "uppercase", transition: "color 0.3s ease",
+      }}, `Step ${step.num}`),
+
+      // Title
+      React.createElement("div", { style: {
+        fontSize: isMobile ? 17 : 20, fontWeight: 800, color: active ? T.text : `${T.text}cc`,
+        fontFamily: "'Outfit', sans-serif", lineHeight: 1.25, transition: "color 0.3s ease",
+      }}, step.title),
+
+      // Subtitle
+      step.subtitle && React.createElement("div", { style: {
+        fontSize: 11, color: `${step.color}88`, marginTop: 4,
+        fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
+      }}, step.subtitle),
+
+      // Desc
+      React.createElement("div", { style: {
+        fontSize: 13, color: `${T.muted}cc`, marginTop: 6, lineHeight: 1.5,
+        fontFamily: "'JetBrains Mono', monospace",
+      }}, step.desc),
+
+      // Expanded details
+      active && React.createElement("div", { style: { marginTop: 14, animation: "fadeIn 0.3s ease-out" } },
+        React.createElement("p", { style: { fontSize: 14, color: T.textDim, lineHeight: 1.7, marginBottom: step.channels ? 12 : 0 } }, step.details),
+        step.channels && React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } },
+          step.channels.map((ch, ci) => React.createElement("div", { key: ci, style: {
+            padding: "6px 12px", borderRadius: 6,
+            background: `${step.color}10`, border: `1px solid ${step.color}25`,
+            fontSize: 11, fontWeight: 700, color: step.color,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}, ch)),
+        ),
+      ),
+
+      // Bottom accent
+      React.createElement("div", { style: {
+        position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
+        background: active ? `linear-gradient(90deg, ${step.color}, ${step.color}33)` : `${step.color}10`,
+        transition: "background 0.3s ease",
+      }}),
+    ),
+  );
+}
+
 function App() {
-  const [visibleSteps, setVisibleSteps] = useState(0);
   const [activeStep, setActiveStep] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -119,28 +205,9 @@ function App() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  useEffect(() => {
-    if (!started) return;
-    if (visibleSteps >= STAIRS.length) return;
-    const t = setTimeout(() => setVisibleSteps(v => v + 1), 400);
-    return () => clearTimeout(t);
-  }, [started, visibleSteps]);
-
-  // Auto-start after mount
-  useEffect(() => {
-    const t = setTimeout(() => setStarted(true), 600);
-    return () => clearTimeout(t);
-  }, []);
-
-  const stairW = isMobile ? 240 : 280;
-  const stairH = isMobile ? 100 : 110;
-  const gapX = isMobile ? 8 : 12;
-  const gapY = isMobile ? 8 : 12;
-  const stepX = stairW + gapX;
-  const stepY = stairH + gapY;
-
-  const totalW = stairW + stepX * (STAIRS.length - 1) + 40;
-  const totalH = stairH + stepY * (STAIRS.length - 1) + 60;
+  const analyzeSteps = STEPS.filter(s => s.group === "analyze");
+  const optimizeSteps = STEPS.filter(s => s.group === "optimize");
+  const deploySteps = STEPS.filter(s => s.group === "deploy");
 
   return React.createElement("div", { style: { minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column" } },
 
@@ -159,7 +226,7 @@ function App() {
       background: `${T.bg}ee`, backdropFilter: "blur(12px)",
       position: "sticky", top: 0, zIndex: 50, flexWrap: "wrap", gap: 12,
     }},
-      React.createElement("div", null,
+      React.createElement("a", { href: "index.html", style: { textDecoration: "none", display: "flex", flexDirection: "column" } },
         React.createElement("div", { style: { fontSize: 12, fontWeight: 700, color: `${T.muted}aa`, letterSpacing: 3, fontFamily: "'Outfit', sans-serif", textTransform: "uppercase" } }, "\u0160koda X"),
         React.createElement("div", { style: { fontSize: isMobile ? 16 : 22, fontWeight: 900, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace" } }, "GEO PROCESS"),
       ),
@@ -179,185 +246,92 @@ function App() {
       ),
     ),
 
-    // Main — staircase area
-    React.createElement("div", { style: {
-      flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-      padding: isMobile ? "20px 8px" : "40px 20px",
-      overflow: "auto",
+    // Main content
+    React.createElement("main", { style: {
+      flex: 1, maxWidth: 720, margin: "0 auto", width: "100%",
+      padding: isMobile ? "24px 16px 60px" : "36px 24px 80px",
     }},
-      React.createElement("div", { style: {
-        position: "relative",
-        width: totalW,
-        height: totalH,
-        minWidth: totalW,
-        minHeight: totalH,
-      }},
 
-        // Stairs — bottom-left to top-right
-        STAIRS.map((stair, i) => {
-          const idx = i;
-          const fromBottom = i;
-          const x = stepX * i;
-          const y = totalH - stairH - stepY * i;
-          const show = idx < visibleSteps;
-          const active = activeStep === i;
-
-          return React.createElement("div", {
-            key: i,
-            onClick: () => setActiveStep(active ? null : i),
-            style: {
-              position: "absolute",
-              left: x,
-              top: y,
-              width: stairW,
-              height: stairH,
-              opacity: show ? 1 : 0,
-              transform: show ? "translateY(0) scale(1)" : "translateY(40px) scale(0.92)",
-              transition: "opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-              cursor: "pointer",
-              zIndex: STAIRS.length - i,
-            },
-          },
-
-            // Stair block — the "step" shape
-            React.createElement("div", { style: {
-              width: "100%", height: "100%", borderRadius: 14,
-              background: active
-                ? `linear-gradient(135deg, ${stair.color}18, ${T.emeraldLight})`
-                : `linear-gradient(160deg, ${T.cardBg}, ${T.cardBg}dd)`,
-              border: `1.5px solid ${active ? stair.color + "66" : stair.color + "25"}`,
-              padding: isMobile ? "14px 16px" : "18px 22px",
-              display: "flex", flexDirection: "column", justifyContent: "center",
-              position: "relative", overflow: "hidden",
-              transition: "all 0.3s ease",
-              boxShadow: active
-                ? `0 8px 40px ${stair.color}20, 0 0 60px ${stair.color}08`
-                : `0 4px 20px rgba(0,0,0,0.3)`,
-              animation: active ? "glowPulse 2.5s ease-in-out infinite" : "none",
-            }},
-
-              // Watermark number
-              React.createElement("div", { style: {
-                position: "absolute", top: -4, right: 10,
-                fontSize: isMobile ? 60 : 72, fontWeight: 900,
-                fontFamily: "'JetBrains Mono', monospace",
-                color: `${stair.color}06`, lineHeight: 1, pointerEvents: "none",
-              }}, stair.num),
-
-              // Step label
-              React.createElement("div", { style: {
-                fontSize: 10, fontWeight: 700, color: active ? stair.color : `${stair.color}88`,
-                fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2,
-                marginBottom: 6, transition: "color 0.3s ease", textTransform: "uppercase",
-              }}, `Step ${stair.num}`),
-
-              // Title
-              React.createElement("div", { style: {
-                fontSize: isMobile ? 16 : 19, fontWeight: 800, color: active ? T.text : `${T.text}cc`,
-                fontFamily: "'Outfit', sans-serif", lineHeight: 1.25,
-                transition: "color 0.3s ease",
-              }}, stair.title),
-
-              // Subtitle (channels)
-              stair.subtitle && React.createElement("div", { style: {
-                fontSize: isMobile ? 10 : 11, color: `${stair.color}99`, marginTop: 4,
-                fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, lineHeight: 1.4,
-              }}, stair.subtitle),
-
-              // Desc
-              !stair.subtitle && React.createElement("div", { style: {
-                fontSize: isMobile ? 11 : 12, color: `${T.muted}cc`, marginTop: 4,
-                fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.4,
-              }}, stair.desc),
-
-              // Bottom accent line
-              React.createElement("div", { style: {
-                position: "absolute", bottom: 0, left: 0, right: 0, height: 3,
-                background: active ? `linear-gradient(90deg, ${stair.color}, ${stair.color}33)` : `${stair.color}15`,
-                transition: "background 0.3s ease",
-              }}),
-
-              // Rising particles on active
-              active && [0,1,2].map(pi =>
-                React.createElement("div", { key: pi, style: {
-                  position: "absolute", bottom: 8, left: `${25 + pi * 25}%`,
-                  width: 4, height: 4, borderRadius: 2, background: stair.color,
-                  animation: `particleUp 2s ease-out infinite`,
-                  animationDelay: `${pi * 0.6}s`,
-                }})
-              ),
-            ),
-
-            // Arrow connector to next step — sits in the diagonal gap
-            show && i < STAIRS.length - 1 && React.createElement("div", { style: {
-              position: "absolute",
-              left: stairW + gapX / 2 - 8,
-              top: -(gapY / 2) - 8,
-              fontSize: isMobile ? 18 : 22,
-              color: `${stair.color}66`,
-              animation: "arrowBounce 1.5s ease-in-out infinite",
-              animationDelay: `${i * 0.2}s`,
-              transform: "rotate(-45deg)",
-            }}, "\u2191"),
-          );
+      // Phase 1: Analyze (steps 1-2)
+      React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          fontSize: 11, fontWeight: 700, color: `${T.electric}55`, letterSpacing: 3,
+          fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
+          marginBottom: 16, paddingLeft: isMobile ? 58 : 72,
+        }}, "Analyze"),
+        analyzeSteps.map((step, si) => {
+          const i = STEPS.indexOf(step);
+          return React.createElement(StepCard, {
+            key: step.num, step, index: i, isMobile,
+            active: activeStep === i,
+            onClick: () => setActiveStep(activeStep === i ? null : i),
+          });
         }),
+      ),
 
-        // Completion badge
-        visibleSteps >= STAIRS.length && React.createElement("div", { style: {
-          position: "absolute",
-          left: stepX * (STAIRS.length - 1) + stairW + 20,
-          top: totalH - stairH - stepY * (STAIRS.length - 1) - 50,
-          animation: "slideUp 0.8s ease-out",
+      // Phase 2: Optimize (steps 3-6) — grouped visually
+      React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          fontSize: 11, fontWeight: 700, color: `${T.amber}55`, letterSpacing: 3,
+          fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
+          marginBottom: 16, paddingLeft: isMobile ? 58 : 72,
+        }}, "Optimize"),
+        React.createElement("div", { style: {
+          borderLeft: `2px solid ${T.amber}22`,
+          borderRight: `2px solid ${T.amber}22`,
+          borderTop: `1px solid ${T.amber}15`,
+          borderBottom: `1px solid ${T.amber}15`,
+          borderRadius: 20,
+          padding: isMobile ? "16px 10px" : "20px 16px",
+          background: `linear-gradient(180deg, ${T.amber}04, transparent 30%, transparent 70%, ${T.amber}04)`,
+          position: "relative",
         }},
+          // Group label badge
           React.createElement("div", { style: {
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "12px 20px", borderRadius: 12,
-            background: `${T.electric}12`, border: `1px solid ${T.electric}33`,
-          }},
-            React.createElement("div", { style: { fontSize: 22, color: T.electric } }, "\u2714"),
-            React.createElement("div", null,
-              React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: T.electric, fontFamily: "'Outfit', sans-serif" } }, "Repeat Cycle"),
-              React.createElement("div", { style: { fontSize: 10, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Continuous optimization"),
-            ),
-          ),
+            position: "absolute", top: -10, left: isMobile ? 54 : 68,
+            padding: "3px 12px", borderRadius: 6,
+            background: T.bg, border: `1px solid ${T.amber}33`,
+            fontSize: 9, fontWeight: 800, color: T.amber, letterSpacing: 2,
+            fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
+          }}, "Steps 03\u201306 \u00b7 Content & Channels"),
+          optimizeSteps.map((step, si) => {
+            const i = STEPS.indexOf(step);
+            return React.createElement(StepCard, {
+              key: step.num, step, index: i, isMobile,
+              active: activeStep === i,
+              onClick: () => setActiveStep(activeStep === i ? null : i),
+            });
+          }),
         ),
       ),
-    ),
 
-    // Detail panel — appears when a step is clicked
-    activeStep !== null && React.createElement("div", { style: {
-      padding: isMobile ? "20px 16px" : "24px 40px",
-      borderTop: `1px solid ${STAIRS[activeStep].color}33`,
-      background: `linear-gradient(180deg, ${STAIRS[activeStep].color}08, ${T.bg})`,
-      animation: "fadeIn 0.3s ease-out",
-    }},
-      React.createElement("div", { style: { maxWidth: 900, margin: "0 auto" } },
-        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 14, marginBottom: 14 } },
-          React.createElement("div", { style: {
-            width: 40, height: 40, borderRadius: 10,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: `${STAIRS[activeStep].color}15`, border: `1.5px solid ${STAIRS[activeStep].color}44`,
-            fontSize: 14, fontWeight: 900, color: STAIRS[activeStep].color,
-            fontFamily: "'JetBrains Mono', monospace",
-          }}, STAIRS[activeStep].num),
-          React.createElement("div", null,
-            React.createElement("div", { style: { fontSize: 18, fontWeight: 800, color: T.text, fontFamily: "'Outfit', sans-serif" } }, STAIRS[activeStep].title),
-            React.createElement("div", { style: { fontSize: 12, color: STAIRS[activeStep].color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, marginTop: 2 } }, STAIRS[activeStep].desc),
-          ),
-        ),
-        React.createElement("p", { style: { fontSize: 15, color: T.textDim, lineHeight: 1.8, marginBottom: STAIRS[activeStep].channels ? 16 : 0 } }, STAIRS[activeStep].details),
+      // Phase 3: Deploy (step 7)
+      React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          fontSize: 11, fontWeight: 700, color: `${T.cyan}55`, letterSpacing: 3,
+          fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
+          marginBottom: 16, paddingLeft: isMobile ? 58 : 72,
+        }}, "Deploy"),
+        deploySteps.map((step, si) => {
+          const i = STEPS.indexOf(step);
+          return React.createElement(StepCard, {
+            key: step.num, step, index: i, isMobile,
+            active: activeStep === i,
+            onClick: () => setActiveStep(activeStep === i ? null : i),
+          });
+        }),
+      ),
 
-        // Channel tags
-        STAIRS[activeStep].channels && React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
-          STAIRS[activeStep].channels.map((ch, ci) =>
-            React.createElement("div", { key: ci, style: {
-              padding: "8px 16px", borderRadius: 8,
-              background: `${STAIRS[activeStep].color}10`,
-              border: `1px solid ${STAIRS[activeStep].color}30`,
-              fontSize: 13, fontWeight: 700, color: STAIRS[activeStep].color,
-              fontFamily: "'JetBrains Mono', monospace",
-            }}, ch)
-          ),
+      // Loop indicator
+      React.createElement("div", { style: {
+        marginTop: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 14,
+        padding: "16px 24px", borderRadius: 14,
+        background: T.cardBg, border: `1px solid ${T.cardBorder}`,
+      }},
+        React.createElement("div", { style: { fontSize: 22, color: T.cyan, animation: "spin 4s linear infinite" } }, "\u21bb"),
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: T.text } }, "Continuous Optimization Cycle"),
+          React.createElement("div", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace", marginTop: 2 } }, "Process repeats with refined parameters"),
         ),
       ),
     ),
