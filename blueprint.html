@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#060D0A">
-<title>GEO Setup Flow — Škoda X</title>
+<title>GEO Blueprint — Škoda X</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -210,12 +210,12 @@ function App() {
     React.createElement("div", { style: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, display: "flex", justifyContent: "space-between", alignItems: "center", padding: isMobile ? "16px 16px" : "20px 40px", background: `linear-gradient(180deg, ${T.bg}ee, transparent)`, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" } },
       React.createElement("a", { href: "index.html", style: { textDecoration: "none", display: "flex", flexDirection: "column" } },
         React.createElement("div", { style: { fontSize: isMobile ? 22 : 32, fontWeight: 900, color: T.text, letterSpacing: 1, fontFamily: "'Outfit', sans-serif" } }, "\u0160koda X"),
-        React.createElement("div", { style: { fontSize: isMobile ? 11 : 13, fontWeight: 700, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginTop: 2 } }, "Flow"),
+        React.createElement("div", { style: { fontSize: isMobile ? 11 : 13, fontWeight: 700, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginTop: 2 } }, "Blueprint"),
       ),
       React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
       [
         { href: "index.html", label: "\u25c6 Intro", active: false },
-        { href: "flow.html", label: "\u25c9 Flow", active: true },
+        { href: "blueprint.html", label: "\u25c9 Blueprint", active: true },
         { href: "setup.html", label: "\u2699 Setup", active: false },
         { href: "dashboard.html", label: "\u25a0 Dashboard", active: false },
         { href: "geo-process.html", label: "\u25b8 Next Steps", active: false },
@@ -316,7 +316,7 @@ function App() {
       React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
         [
           { href: "index.html", label: "Intro", color: T.electric },
-          { href: "flow.html", label: "Flow", color: T.electric },
+          { href: "blueprint.html", label: "Blueprint", color: T.electric },
           { href: "setup.html", label: "Setup", color: T.electric },
           { href: "dashboard.html", label: "Dashboard", color: T.cyan },
           { href: "geo-process.html", label: "Next Steps", color: T.amber },
