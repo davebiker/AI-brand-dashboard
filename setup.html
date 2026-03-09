@@ -947,64 +947,102 @@ function VisualFlow({ onClose, onStepClick }) {
   const [hovered, setHovered] = useState(null);
   const [selected, setSelected] = useState(null);
 
-  useEffect(() => { requestAnimationFrame(() => setAppeared(true)); }, []);
+  useEffect(() => { const t = setTimeout(() => setAppeared(true), 50); return () => clearTimeout(t); }, []);
 
-  // Layout: elliptical constellation
-  const cx = 480, cy = 340, rx = 340, ry = 240;
+  const sepIndex = 7;
+  const selStep = selected !== null ? STEPS[selected] : null;
+
+  // Zigzag path layout — horizontal flow with vertical stagger
+  const W = 1200, H = 700;
+  const marginX = 110, marginY = 100;
+  const usableW = W - marginX * 2;
+  // 7 config steps on top row, 4 scoring steps on bottom row (reversed for flow)
+  const topSteps = STEPS.slice(0, sepIndex);    // 0-6
+  const botSteps = STEPS.slice(sepIndex);        // 7-10
+  const topY = 220, botY = 480;
+  const topSpacing = usableW / (topSteps.length - 1);
+  const botSpacing = usableW / (botSteps.length + 1);
+
   const positions = STEPS.map((s, i) => {
-    const angle = -Math.PI / 2 + (i / STEPS.length) * Math.PI * 2;
-    return { x: cx + rx * Math.cos(angle), y: cy + ry * Math.sin(angle), step: s, index: i };
+    if (i < sepIndex) {
+      return { x: marginX + i * topSpacing, y: topY, step: s, index: i };
+    } else {
+      // Bottom row flows right-to-left then right — place evenly under config
+      const bi = i - sepIndex;
+      return { x: marginX + usableW - bi * botSpacing * 1.8, y: botY, step: s, index: i };
+    }
   });
 
-  // Particles state
-  const [particles, setParticles] = useState([]);
+  // Bezier path between consecutive nodes
+  function pathBetween(a, b, isCross) {
+    if (isCross) {
+      // Vertical drop from last top to first bottom
+      const midY = (a.y + b.y) / 2;
+      return `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
+    }
+    const dx = (b.x - a.x) * 0.4;
+    return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
+  }
+
+  // Animated pulse dot traveling along path
+  const [pulsePos, setPulsePos] = useState(0);
   useEffect(() => {
-    const interval = setInterval(() => {
-      const idx = Math.floor(Math.random() * positions.length);
-      const p = positions[idx];
-      setParticles(prev => [...prev.slice(-20), { id: Date.now() + Math.random(), x: p.x, y: p.y, born: Date.now() }]);
-    }, 400);
+    const interval = setInterval(() => setPulsePos(p => (p + 0.003) % 1), 30);
     return () => clearInterval(interval);
   }, []);
-
-  const sepIndex = 7; // separator before scoring
-  const selStep = selected !== null ? STEPS[selected] : null;
 
   return React.createElement("div", {
     onClick: (e) => { if (e.target === e.currentTarget) { if (selected !== null) setSelected(null); else onClose(); } },
     style: {
       position: "fixed", inset: 0, zIndex: 10000,
-      background: "rgba(3,8,6,0.92)",
-      backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+      background: `radial-gradient(ellipse at 50% 30%, ${T.emerald}44, ${T.bg} 70%)`,
+      backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      animation: "flowFadeIn 0.5s ease-out",
-      cursor: "default",
+      animation: "flowFadeIn 0.5s ease-out", cursor: "default", overflow: "hidden",
     },
   },
-    // Title bar
-    React.createElement("div", { style: { position: "absolute", top: 28, left: 0, right: 0, display: "flex", justifyContent: "center", alignItems: "center", gap: 16 } },
-      React.createElement("div", { style: { fontSize: 14, fontWeight: 800, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" } }, "GEO Setup Flow"),
-      React.createElement("button", { onClick: onClose, style: { position: "absolute", right: 32, background: "none", border: `1px solid ${T.cardBorder}`, borderRadius: 8, color: T.muted, fontSize: 14, padding: "6px 14px", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace" } }, "ESC"),
+
+    // Ambient grid lines
+    React.createElement("div", { style: {
+      position: "absolute", inset: 0, opacity: 0.03,
+      backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
+      backgroundSize: "60px 60px",
+    }}),
+
+    // Title
+    React.createElement("div", { style: { position: "absolute", top: 32, left: 0, right: 0, display: "flex", justifyContent: "center", alignItems: "center" } },
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 16 } },
+        React.createElement("div", { style: { width: 32, height: 2, background: `linear-gradient(90deg, transparent, ${T.electric}66)` } }),
+        React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: T.electric, letterSpacing: 4, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" } }, "GEO Setup Flow"),
+        React.createElement("div", { style: { width: 32, height: 2, background: `linear-gradient(90deg, ${T.electric}66, transparent)` } }),
+      ),
+      React.createElement("button", { onClick: onClose, style: { position: "absolute", right: 32, background: `${T.cardBg}88`, border: `1px solid ${T.cardBorder}`, borderRadius: 8, color: T.muted, fontSize: 12, padding: "6px 14px", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace", backdropFilter: "blur(8px)" } }, "\u2715 Close"),
     ),
 
-    // SVG Canvas
+    // Section labels
+    React.createElement("div", { style: { position: "absolute", left: 40, top: "28%", transform: "translateY(-50%)" } },
+      React.createElement("div", { style: { fontSize: 10, fontWeight: 700, color: `${T.electric}66`, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", writingMode: "vertical-lr", transform: "rotate(180deg)" } }, "Configuration"),
+    ),
+    React.createElement("div", { style: { position: "absolute", left: 40, top: "68%", transform: "translateY(-50%)" } },
+      React.createElement("div", { style: { fontSize: 10, fontWeight: 700, color: `${T.amber}66`, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", writingMode: "vertical-lr", transform: "rotate(180deg)" } }, "Output & Launch"),
+    ),
+
+    // SVG
     React.createElement("svg", {
-      width: 960, height: 680,
-      viewBox: "0 0 960 680",
-      style: { maxWidth: "90vw", maxHeight: "75vh" },
+      width: W, height: H, viewBox: `0 0 ${W} ${H}`,
+      style: { maxWidth: "92vw", maxHeight: "72vh" },
     },
-      // Defs
       React.createElement("defs", null,
-        React.createElement("radialGradient", { id: "nodeGlow", cx: "50%", cy: "50%", r: "50%" },
-          React.createElement("stop", { offset: "0%", stopColor: T.electric, stopOpacity: 0.3 }),
-          React.createElement("stop", { offset: "100%", stopColor: T.electric, stopOpacity: 0 }),
+        React.createElement("linearGradient", { id: "pathGrad", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
+          React.createElement("stop", { offset: "0%", stopColor: T.electric, stopOpacity: 0.4 }),
+          React.createElement("stop", { offset: "100%", stopColor: T.cyan, stopOpacity: 0.2 }),
         ),
-        React.createElement("radialGradient", { id: "nodeGlowAmber", cx: "50%", cy: "50%", r: "50%" },
+        React.createElement("linearGradient", { id: "pathGradAmber", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
           React.createElement("stop", { offset: "0%", stopColor: T.amber, stopOpacity: 0.3 }),
-          React.createElement("stop", { offset: "100%", stopColor: T.amber, stopOpacity: 0 }),
+          React.createElement("stop", { offset: "100%", stopColor: T.amber, stopOpacity: 0.15 }),
         ),
-        React.createElement("filter", { id: "glow" },
-          React.createElement("feGaussianBlur", { stdDeviation: "4", result: "blur" }),
+        React.createElement("filter", { id: "softGlow" },
+          React.createElement("feGaussianBlur", { stdDeviation: "6", result: "blur" }),
           React.createElement("feMerge", null,
             React.createElement("feMergeNode", { in: "blur" }),
             React.createElement("feMergeNode", { in: "SourceGraphic" }),
@@ -1012,60 +1050,28 @@ function VisualFlow({ onClose, onStepClick }) {
         ),
       ),
 
-      // Orbital ring (subtle)
-      React.createElement("ellipse", {
-        cx, cy, rx, ry,
-        fill: "none", stroke: `${T.cardBorder}66`, strokeWidth: 1, strokeDasharray: "4 8",
-        style: { animation: "orbitSpin 120s linear infinite", transformOrigin: `${cx}px ${cy}px` },
-      }),
-      // Inner ring
-      React.createElement("ellipse", {
-        cx, cy, rx: rx * 0.15, ry: ry * 0.15,
-        fill: "none", stroke: `${T.electric}15`, strokeWidth: 1,
+      // Separator line between rows
+      React.createElement("line", {
+        x1: marginX - 20, y1: (topY + botY) / 2, x2: W - marginX + 20, y2: (topY + botY) / 2,
+        stroke: `${T.cardBorder}`, strokeWidth: 1, strokeDasharray: "2 6",
       }),
 
-      // Center hub — shows selected step info or default
-      React.createElement("circle", { cx, cy, r: 56, fill: `${T.electric}08`, stroke: selected !== null ? `${T.electric}44` : `${T.electric}22`, strokeWidth: selected !== null ? 2 : 1, style: { transition: "all 0.3s ease" } }),
-      selected !== null ? React.createElement(React.Fragment, null,
-        React.createElement("text", { x: cx, y: cy - 14, textAnchor: "middle", fill: (selected >= sepIndex ? T.amber : T.electric), fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, textTransform: "uppercase" }, `STEP ${selStep.num}`),
-        React.createElement("text", { x: cx, y: cy + 6, textAnchor: "middle", fill: T.text, fontSize: 13, fontWeight: 800, fontFamily: "'Outfit', sans-serif" }, selStep.title),
-        React.createElement("text", { x: cx, y: cy + 22, textAnchor: "middle", fill: T.muted, fontSize: 9, fontFamily: "'JetBrains Mono', monospace" }, "click again to open"),
-      ) : React.createElement(React.Fragment, null,
-        React.createElement("text", { x: cx, y: cy - 8, textAnchor: "middle", fill: T.electric, fontSize: 14, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2 }, "GEO"),
-        React.createElement("text", { x: cx, y: cy + 10, textAnchor: "middle", fill: T.muted, fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }, "11 STEPS"),
-      ),
-
-      // Connection lines
+      // Connection paths
       positions.map((p, i) => {
-        const next = positions[(i + 1) % positions.length];
-        const isSep = i === sepIndex - 1;
-        return React.createElement("line", {
-          key: `line-${i}`, x1: p.x, y1: p.y, x2: next.x, y2: next.y,
-          stroke: isSep ? `${T.amber}33` : `${T.electric}22`,
-          strokeWidth: isSep ? 1 : 1.5,
-          strokeDasharray: isSep ? "6 4" : "none",
+        if (i >= STEPS.length - 1) return null;
+        const next = positions[i + 1];
+        const isCross = i === sepIndex - 1;
+        const isBotPath = i >= sepIndex;
+        const d = pathBetween(p, next, isCross);
+        return React.createElement("path", {
+          key: `path-${i}`, d, fill: "none",
+          stroke: isCross ? `${T.amber}44` : isBotPath ? "url(#pathGradAmber)" : "url(#pathGrad)",
+          strokeWidth: isCross ? 2 : 2.5,
+          strokeDasharray: isCross ? "8 6" : "none",
           style: appeared ? {
-            strokeDasharray: 200, strokeDashoffset: 0,
-            animation: `lineDraw 1.5s ease-out ${0.3 + i * 0.1}s both`,
+            strokeDasharray: isCross ? "8 6" : 500, strokeDashoffset: 0,
+            animation: `lineDraw 1.2s ease-out ${0.15 + i * 0.08}s both`,
           } : { opacity: 0 },
-        });
-      }),
-
-      // Lines to center
-      positions.map((p, i) => React.createElement("line", {
-        key: `spoke-${i}`, x1: cx, y1: cy, x2: p.x, y2: p.y,
-        stroke: selected === i ? `${(i >= sepIndex ? T.amber : T.electric)}33` : `${T.electric}08`,
-        strokeWidth: selected === i ? 1.5 : 0.5,
-        style: { transition: "all 0.3s ease" },
-      })),
-
-      // Floating particles
-      particles.map(pt => {
-        const age = (Date.now() - pt.born) / 2000;
-        if (age > 1) return null;
-        return React.createElement("circle", {
-          key: pt.id, cx: pt.x, cy: pt.y - age * 50, r: 2 * (1 - age),
-          fill: T.electric, opacity: 0.6 * (1 - age),
         });
       }),
 
@@ -1073,42 +1079,83 @@ function VisualFlow({ onClose, onStepClick }) {
       positions.map((p, i) => {
         const isHov = hovered === i;
         const isSel = selected === i;
-        const isBelowSep = i >= sepIndex;
-        const nodeColor = isBelowSep ? T.amber : T.electric;
-        const glowId = isBelowSep ? "nodeGlowAmber" : "nodeGlow";
-        const r = isSel ? 36 : isHov ? 32 : 28;
+        const isBot = i >= sepIndex;
+        const nodeColor = isBot ? T.amber : T.electric;
+        const r = isSel ? 30 : isHov ? 27 : 24;
         const isActive = isHov || isSel;
+        const labelAbove = !isBot;
+
         return React.createElement("g", {
           key: `node-${i}`,
           style: appeared ? {
-            animation: `nodeAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${0.2 + i * 0.08}s both`,
+            animation: `nodeAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${0.1 + i * 0.07}s both`,
             cursor: "pointer",
           } : { opacity: 0 },
           onMouseEnter: () => setHovered(i),
           onMouseLeave: () => setHovered(null),
           onClick: (e) => { e.stopPropagation(); if (selected === i) { onStepClick(i); } else { setSelected(i); } },
         },
-          // Glow
-          React.createElement("circle", { cx: p.x, cy: p.y, r: r + 24, fill: `url(#${glowId})`, style: isActive ? { animation: "glowPulse 1.5s ease-in-out infinite" } : {} }),
-          // Node bg
-          React.createElement("circle", { cx: p.x, cy: p.y, r, fill: isSel ? `${nodeColor}18` : T.cardBg, stroke: isActive ? nodeColor : `${nodeColor}66`, strokeWidth: isSel ? 3 : isHov ? 2.5 : 1.5, style: { transition: "all 0.25s ease", filter: isActive ? "url(#glow)" : "none" } }),
-          // Number
-          React.createElement("text", { x: p.x, y: p.y + 1, textAnchor: "middle", fill: nodeColor, fontSize: isSel ? 18 : isHov ? 16 : 14, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", dominantBaseline: "middle", style: { transition: "all 0.25s ease" } }, p.step.num),
-          // Label outside — always visible, bigger
+          // Outer glow ring
+          isActive && React.createElement("circle", { cx: p.x, cy: p.y, r: r + 16, fill: "none", stroke: `${nodeColor}22`, strokeWidth: 1, style: { animation: "glowPulse 2s ease-in-out infinite" } }),
+          isActive && React.createElement("circle", { cx: p.x, cy: p.y, r: r + 30, fill: "none", stroke: `${nodeColor}0a`, strokeWidth: 0.5 }),
+          // Node
+          React.createElement("circle", {
+            cx: p.x, cy: p.y, r,
+            fill: isSel ? `${nodeColor}15` : `${T.cardBg}ee`,
+            stroke: isActive ? nodeColor : `${nodeColor}55`,
+            strokeWidth: isSel ? 2.5 : isHov ? 2 : 1.5,
+            style: { transition: "all 0.3s ease", filter: isActive ? "url(#softGlow)" : "none" },
+          }),
+          // Step number
           React.createElement("text", {
-            x: p.x, y: p.y + (p.y < cy ? -46 : 48),
-            textAnchor: "middle", fill: isSel ? T.text : isHov ? T.textDim : T.muted,
-            fontSize: isSel ? 15 : isHov ? 14 : 13, fontWeight: isSel ? 800 : isHov ? 700 : 600,
+            x: p.x, y: p.y + 1, textAnchor: "middle", dominantBaseline: "middle",
+            fill: isActive ? nodeColor : `${nodeColor}cc`,
+            fontSize: isSel ? 16 : 14, fontWeight: 800,
+            fontFamily: "'JetBrains Mono', monospace",
+            style: { transition: "all 0.3s ease" },
+          }, p.step.num),
+          // Title label
+          React.createElement("text", {
+            x: p.x, y: p.y + (labelAbove ? -38 : 42),
+            textAnchor: "middle",
+            fill: isSel ? T.text : isHov ? T.textDim : `${T.muted}cc`,
+            fontSize: isSel ? 14 : isHov ? 13 : 12,
+            fontWeight: isSel ? 800 : isHov ? 700 : 500,
             fontFamily: "'Outfit', sans-serif",
-            style: { transition: "all 0.25s ease" },
+            style: { transition: "all 0.3s ease" },
           }, p.step.title),
+          // Description on select
+          isSel && React.createElement("text", {
+            x: p.x, y: p.y + (labelAbove ? -56 : 58),
+            textAnchor: "middle", fill: T.muted, fontSize: 10,
+            fontFamily: "'JetBrains Mono', monospace",
+            style: { animation: "fadeIn 0.3s ease-out" },
+          }, p.step.desc),
+          // "click to open" hint on select
+          isSel && React.createElement("text", {
+            x: p.x, y: p.y + (labelAbove ? -70 : 74),
+            textAnchor: "middle", fill: `${nodeColor}88`, fontSize: 9,
+            fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
+            style: { animation: "fadeIn 0.3s ease-out 0.1s both" },
+          }, "\u25b8 click to open"),
         );
       }),
     ),
 
-    // Bottom hint
-    React.createElement("div", { style: { position: "absolute", bottom: 28, fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace", opacity: 0.5 } },
-      selected !== null ? "Click step again to navigate \u00b7 Click outside to deselect" : "Click a step to see details \u00b7 Click outside to close"),
+    // Bottom info
+    React.createElement("div", { style: { position: "absolute", bottom: 28, display: "flex", alignItems: "center", gap: 24 } },
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+        React.createElement("div", { style: { width: 8, height: 8, borderRadius: 4, background: T.electric } }),
+        React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Configuration"),
+      ),
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+        React.createElement("div", { style: { width: 8, height: 8, borderRadius: 4, background: T.amber } }),
+        React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Output & Launch"),
+      ),
+      React.createElement("span", { style: { fontSize: 11, color: `${T.muted}66`, fontFamily: "'JetBrains Mono', monospace" } }, "\u00b7"),
+      React.createElement("span", { style: { fontSize: 11, color: `${T.muted}88`, fontFamily: "'JetBrains Mono', monospace" } },
+        selected !== null ? "Click again to navigate" : "Select a step"),
+    ),
   );
 }
 
