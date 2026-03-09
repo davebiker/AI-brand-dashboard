@@ -217,27 +217,20 @@ function App() {
     ),
 
     // Nav links — top right
-    React.createElement("div", { style: { position: "fixed", top: 20, right: 24, zIndex: 60, display: "flex", gap: 10 } },
-      React.createElement("a", {
-        href: "setup.html",
-        style: {
-          padding: "8px 16px", borderRadius: 8, textDecoration: "none",
-          background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`,
-          color: T.electric, fontSize: 12, fontWeight: 700,
-          fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-          transition: "all 0.2s ease",
-        },
-      }, "\u2699 Setup"),
-      React.createElement("a", {
-        href: "dashboard.html",
-        style: {
-          padding: "8px 16px", borderRadius: 8, textDecoration: "none",
-          background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`,
-          color: T.muted, fontSize: 12, fontWeight: 700,
-          fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-          transition: "all 0.2s ease",
-        },
-      }, "\u25c0 Dashboard"),
+    React.createElement("div", { style: { position: "fixed", top: 20, right: 24, zIndex: 60, display: "flex", gap: 8 } },
+      [
+        { href: "index.html", label: "\u25c6 Intro" },
+        { href: "flow.html", label: "\u25c9 Flow" },
+        { href: "setup.html", label: "\u2699 Setup" },
+        { href: "dashboard.html", label: "\u25a0 Dashboard" },
+        { href: "geo-process.html", label: "\u25b8 Next Steps" },
+      ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
+        padding: "7px 14px", borderRadius: 8, textDecoration: "none",
+        background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`,
+        color: T.muted, fontSize: 11, fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
+        transition: "all 0.2s ease",
+      }}, l.label)),
     ),
 
     // START button

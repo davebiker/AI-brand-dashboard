@@ -106,10 +106,11 @@ function TopNav({ isMobile }) {
     ),
     !isMobile && React.createElement("div", { style: { display: "flex", gap: 8 } },
       [
+        { href: "index.html", label: "\u25c6 Intro" },
+        { href: "flow.html", label: "\u25c9 Flow" },
         { href: "setup.html", label: "\u2699 Setup" },
         { href: "dashboard.html", label: "\u25a0 Dashboard" },
-        { href: "flow.html", label: "\u25c9 Flow" },
-        { href: "geo-process.html", label: "\u25b8 Process" },
+        { href: "geo-process.html", label: "\u25b8 Next Steps" },
       ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
         padding: "6px 14px", borderRadius: 6, textDecoration: "none",
         border: `1px solid ${T.cardBorder}`, background: `${T.cardBg}88`,
@@ -588,10 +589,11 @@ function App() {
       ),
       React.createElement("div", { style: { display: "flex", gap: 10, flexWrap: "wrap" } },
         [
+          { href: "index.html", label: "Intro", color: T.electric },
+          { href: "flow.html", label: "Flow", color: T.electric },
           { href: "setup.html", label: "Setup", color: T.electric },
           { href: "dashboard.html", label: "Dashboard", color: T.cyan },
-          { href: "flow.html", label: "Flow", color: T.electric },
-          { href: "geo-process.html", label: "Process", color: T.amber },
+          { href: "geo-process.html", label: "Next Steps", color: T.amber },
         ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
           padding: "7px 14px", borderRadius: 6, textDecoration: "none",
           border: `1px solid ${l.color}44`, background: `${l.color}08`,

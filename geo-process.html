@@ -164,9 +164,18 @@ function App() {
         React.createElement("div", { style: { fontSize: isMobile ? 16 : 22, fontWeight: 900, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace" } }, "GEO PROCESS"),
       ),
       React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
-        React.createElement("a", { href: "flow.html", style: { padding: "7px 14px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.electric, fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, "\u25c9 Flow"),
-        React.createElement("a", { href: "setup.html", style: { padding: "7px 14px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.electric, fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, "\u2699 Setup"),
-        React.createElement("a", { href: "dashboard.html", style: { padding: "7px 14px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.muted, fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, "\u25c0 Dashboard"),
+        [
+          { href: "index.html", label: "\u25c6 Intro" },
+          { href: "flow.html", label: "\u25c9 Flow" },
+          { href: "setup.html", label: "\u2699 Setup" },
+          { href: "dashboard.html", label: "\u25a0 Dashboard" },
+          { href: "geo-process.html", label: "\u25b8 Next Steps" },
+        ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
+          padding: "7px 14px", borderRadius: 8, textDecoration: "none",
+          background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`,
+          color: T.muted, fontSize: 11, fontWeight: 700,
+          fontFamily: "'JetBrains Mono', monospace", transition: "all 0.2s ease",
+        }}, l.label)),
       ),
     ),
 

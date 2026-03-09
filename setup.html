@@ -1286,30 +1286,22 @@ function App() {
           },
         })),
       ),
-      isMobile && React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 8, justifyContent: "center" } },
-        React.createElement("button", {
-          onClick: () => setShowFlow(true),
-          style: {
-            padding: "6px 14px", borderRadius: 6, cursor: "pointer",
-            border: `1px solid ${T.electric}44`,
-            background: `${T.emeraldLight}`,
-            color: T.electric, fontSize: 11, fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace",
-          },
-        }, "\u25c9 Flow"),
-        React.createElement("a", {
-          href: "dashboard.html",
-          style: {
-            padding: "6px 14px", borderRadius: 6, textDecoration: "none",
-            border: `1px solid ${T.electric}44`,
-            background: `${T.emeraldLight}`,
-            color: T.electric, fontSize: 11, fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace",
-          },
-        }, "\u25c0 Dashboard"),
+      isMobile && React.createElement("div", { style: { display: "flex", gap: 6, marginTop: 8, justifyContent: "center", flexWrap: "wrap" } },
+        [
+          { href: "index.html", label: "\u25c6 Intro" },
+          { href: "flow.html", label: "\u25c9 Flow" },
+          { href: "dashboard.html", label: "\u25a0 Dashboard" },
+          { href: "geo-process.html", label: "\u25b8 Next Steps" },
+        ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
+          padding: "6px 12px", borderRadius: 6, textDecoration: "none",
+          border: `1px solid ${T.electric}44`,
+          background: `${T.emeraldLight}`,
+          color: T.electric, fontSize: 10, fontWeight: 700,
+          fontFamily: "'JetBrains Mono', monospace",
+        }}, l.label)),
       ),
-      // Flow + Dashboard links at bottom of sidebar
-      !isMobile && React.createElement("div", { style: { marginTop: "auto", paddingTop: 20, display: "flex", flexDirection: "column", gap: 8 } },
+      // Navigation links at bottom of sidebar
+      !isMobile && React.createElement("div", { style: { marginTop: "auto", paddingTop: 20, display: "flex", flexDirection: "column", gap: 6 } },
         React.createElement("button", {
           onClick: () => setShowFlow(true),
           style: {
@@ -1321,19 +1313,22 @@ function App() {
             fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
             transition: "all 0.2s ease",
           },
-        }, "\u25c9 Flow"),
-        React.createElement("a", {
-          href: "dashboard.html",
-          style: {
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            padding: "10px 16px", borderRadius: 8, textDecoration: "none",
-            border: `1px solid ${T.electric}44`,
-            background: `linear-gradient(135deg, ${T.emeraldLight}, ${T.electric}15)`,
-            color: T.electric, fontSize: 12, fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-            transition: "all 0.2s ease",
-          },
-        }, "\u25c0 Dashboard"),
+        }, "\u25c9 Flow Preview"),
+        React.createElement("div", { style: { height: 1, background: T.cardBorder, margin: "4px 0" } }),
+        [
+          { href: "index.html", label: "\u25c6 Intro" },
+          { href: "flow.html", label: "\u25c9 Flow" },
+          { href: "dashboard.html", label: "\u25a0 Dashboard" },
+          { href: "geo-process.html", label: "\u25b8 Next Steps" },
+        ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          padding: "8px 16px", borderRadius: 8, textDecoration: "none",
+          border: `1px solid ${T.electric}33`,
+          background: `${T.emeraldLight}`,
+          color: T.electric, fontSize: 11, fontWeight: 700,
+          fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
+          transition: "all 0.2s ease",
+        }}, l.label)),
       ),
     ),
 

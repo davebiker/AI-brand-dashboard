@@ -5308,41 +5308,21 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
         React.createElement("span", { style: { fontSize: mobile ? 13 : 12, fontWeight: 600, color: THEME.electric, opacity: 0.7 } },
           lang === "en" ? `${totalQueries} queries \u00b7 ${PLATFORMS.length} AI` : lang === "de" ? `${totalQueries} Anfragen \u00b7 ${PLATFORMS.length} KI` : lang === "hi" ? `${totalQueries} \u092A\u094D\u0930\u0936\u094D\u0928 \u00b7 ${PLATFORMS.length} AI` : lang === "no" ? `${totalQueries} sp\u00F8rsm\u00E5l \u00b7 ${PLATFORMS.length} KI` : `${totalQueries} dotaz\u016F \u00b7 ${PLATFORMS.length} AI`),
-        React.createElement("button", {
-          onClick: () => typeof onSetup === "function" && onSetup(),
-          style: {
-            padding: mobile ? "8px 16px" : "7px 14px", borderRadius: 6, cursor: "pointer",
-            border: `1.5px solid ${THEME.electric}88`,
-            background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}20)`,
-            color: THEME.electric, fontSize: mobile ? 13 : 12, fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-            transition: "all 0.3s ease", display: "flex", alignItems: "center", gap: 5,
-          },
-        }, "\u2699 Setup"),
-        React.createElement("a", {
-          href: "setup.html",
-          style: {
-            padding: mobile ? "8px 16px" : "7px 14px", borderRadius: 6, cursor: "pointer",
-            border: `1.5px solid ${THEME.electric}88`,
-            background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}20)`,
-            color: THEME.electric, fontSize: mobile ? 13 : 12, fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-            transition: "all 0.3s ease", display: "flex", alignItems: "center", gap: 5,
-            textDecoration: "none",
-          },
-        }, "\u25c9 GEO Setup"),
-        React.createElement("a", {
-          href: "geo-process.html",
-          style: {
-            padding: mobile ? "8px 16px" : "7px 14px", borderRadius: 6, cursor: "pointer",
-            border: `1.5px solid ${THEME.electric}88`,
-            background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}20)`,
-            color: THEME.electric, fontSize: mobile ? 13 : 12, fontWeight: 700,
-            fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-            transition: "all 0.3s ease", display: "flex", alignItems: "center", gap: 5,
-            textDecoration: "none",
-          },
-        }, "\u25b8 GEO Process"),
+        [
+          { href: "index.html", label: "\u25c6 Intro" },
+          { href: "flow.html", label: "\u25c9 Flow" },
+          { href: "setup.html", label: "\u2699 Setup" },
+          { href: "dashboard.html", label: "\u25a0 Dashboard" },
+          { href: "geo-process.html", label: "\u25b8 Next Steps" },
+        ].map((l, li) => React.createElement("a", { key: li, href: l.href, style: {
+          padding: mobile ? "8px 14px" : "7px 12px", borderRadius: 6,
+          border: `1.5px solid ${THEME.electric}88`,
+          background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}20)`,
+          color: THEME.electric, fontSize: mobile ? 12 : 11, fontWeight: 700,
+          fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
+          transition: "all 0.3s ease", display: "flex", alignItems: "center", gap: 5,
+          textDecoration: "none",
+        }}, l.label)),
       ),
     ),
   );
@@ -5759,32 +5739,23 @@ function App() {
       React.createElement("span", { style: { fontSize: 10, color: `${THEME.muted}88` } },
         `Škoda CI — Emerald (#0E3A2F) + Electric Green (#78FAAE) · refresh ${UPDATE_INTERVAL/1000}s`),
     ),
-    // GEO links
-    React.createElement("div", { style: { marginTop: 12, textAlign: "center", display: "flex", gap: 10, justifyContent: "center" } },
-      React.createElement("a", {
-        href: "setup.html",
-        style: {
-          display: "inline-flex", alignItems: "center", gap: 6,
-          padding: "8px 20px", borderRadius: 8, textDecoration: "none",
-          border: `1px solid ${THEME.electric}44`,
-          background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}18)`,
-          color: THEME.electric, fontSize: 12, fontWeight: 700,
-          fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-          transition: "all 0.3s ease",
-        },
-      }, "\u25c9 GEO Setup"),
-      React.createElement("a", {
-        href: "geo-process.html",
-        style: {
-          display: "inline-flex", alignItems: "center", gap: 6,
-          padding: "8px 20px", borderRadius: 8, textDecoration: "none",
-          border: `1px solid ${THEME.electric}44`,
-          background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}18)`,
-          color: THEME.electric, fontSize: 12, fontWeight: 700,
-          fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-          transition: "all 0.3s ease",
-        },
-      }, "\u25b8 GEO Process"),
+    // Navigation links
+    React.createElement("div", { style: { marginTop: 12, textAlign: "center", display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" } },
+      [
+        { href: "index.html", label: "\u25c6 Intro" },
+        { href: "flow.html", label: "\u25c9 Flow" },
+        { href: "setup.html", label: "\u2699 Setup" },
+        { href: "dashboard.html", label: "\u25a0 Dashboard" },
+        { href: "geo-process.html", label: "\u25b8 Next Steps" },
+      ].map((l, li) => React.createElement("a", { key: li, href: l.href, style: {
+        display: "inline-flex", alignItems: "center", gap: 6,
+        padding: "8px 16px", borderRadius: 8, textDecoration: "none",
+        border: `1px solid ${THEME.electric}44`,
+        background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}18)`,
+        color: THEME.electric, fontSize: 11, fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
+        transition: "all 0.3s ease",
+      }}, l.label)),
     ),
   ));
 }
