@@ -646,37 +646,164 @@ function StepModels() {
 
 // ── STEP 8: SCORING ──
 function StepScoring() {
-  const kpis = [
-    { id: "sov", name: "Share of Voice", desc: "How often your brand is mentioned vs. competition", target: "35%", icon: "\ud83d\udcca" },
-    { id: "mention", name: "Mention Rate", desc: "% of AI responses containing your brand", target: "60%", icon: "\ud83d\udce2" },
-    { id: "position", name: "Average Position", desc: "Position in AI-generated lists and rankings", target: "#2.5", icon: "\ud83c\udfc6" },
-    { id: "sentiment", name: "Sentiment Score", desc: "Positive vs. negative mentions ratio", target: "78%+", icon: "\ud83d\udc9a" },
-    { id: "recommend", name: "Recommendation Rate", desc: "How often AI directly recommends you", target: "25%", icon: "\u2b50" },
+  const [expanded, setExpanded] = useState("visibility");
+
+  const kpiSections = [
+    {
+      id: "visibility", icon: "\ud83d\udcca", title: "1. Visibility",
+      desc: "Visibility score over time, by Engine, by Category",
+      subsections: [
+        { id: "vis-competitors", icon: "\u2694", title: "Competitors", items: [
+          { label: "Visibility Score", desc: "Overall brand/model visibility compared to competitors" },
+          { label: "Share of Voice", desc: "% of AI responses mentioning your brand vs. competition" },
+        ]},
+        { id: "vis-engines", icon: "\u25ce", title: "Engines", items: [
+          { label: "Brand Visibility by Platform", desc: "How visible your brand is across each AI engine" },
+          { label: "Model Visibility by Platform", desc: "Per-model visibility across Claude, GPT, Gemini\u2026" },
+        ]},
+        { id: "vis-categories", icon: "\u25c8", title: "Categories", items: [
+          { label: "Ranking by Category", desc: "Your position in each query category vs. competitors" },
+          { label: "Visibility by Category", desc: "Visibility score breakdown per category" },
+        ]},
+      ],
+    },
+    {
+      id: "content", icon: "\ud83d\udcc4", title: "2. Content",
+      desc: "How AI engines use your content",
+      subsections: [
+        { id: "cnt-usage", icon: "\ud83d\udd0d", title: "Content Usage", items: [
+          { label: "Cited", desc: "AI directly references your content with attribution" },
+          { label: "Crawled", desc: "AI has accessed your content during training/retrieval" },
+          { label: "Synthesised", desc: "AI paraphrases or blends your content into answers" },
+          { label: "Ignored", desc: "Your content exists but AI does not use it" },
+        ]},
+        { id: "cnt-optimisation", icon: "\u2b50", title: "Optimisation", items: [
+          { label: "Citation Frequency by URL", desc: "Which of your pages are cited most often" },
+        ]},
+        { id: "cnt-gaps", icon: "\u26a0", title: "Gap Analysis", items: [
+          { label: "Category Analysis", desc: "Query coverage vs. priority \u2014 where are the gaps?" },
+        ]},
+        { id: "cnt-competitors", icon: "\ud83d\udc41", title: "Competitor Insights", items: [
+          { label: "By URL Source", desc: "Which competitor pages are being cited by AI engines" },
+        ]},
+      ],
+    },
+    {
+      id: "sentiment", icon: "\ud83d\udc9a", title: "3. Sentiment",
+      desc: "How AI engines perceive and describe your brand",
+      subsections: [
+        { id: "sent-overview", icon: "\ud83d\udcca", title: "Sentiment Analysis", items: [
+          { label: "Positive / Neutral / Negative", desc: "Sentiment ratio across all AI responses" },
+          { label: "Sentiment by Engine", desc: "How each platform perceives your brand" },
+          { label: "Sentiment by Category", desc: "Which topics drive positive/negative perception" },
+          { label: "Sentiment Trend", desc: "Sentiment changes over time" },
+        ]},
+      ],
+    },
+    {
+      id: "citations", icon: "\ud83d\udd17", title: "4. Citation by Domain",
+      desc: "Which domains AI engines cite when talking about you",
+      subsections: [
+        { id: "cit-domains", icon: "\ud83c\udf10", title: "Domain Analysis", items: [
+          { label: "Top Cited Domains", desc: "Most frequently cited sources across AI responses" },
+          { label: "Your Domain Share", desc: "How often your own domain is cited vs. third-party" },
+          { label: "Competitor Domain Share", desc: "Which domains are cited for your competitors" },
+        ]},
+      ],
+    },
+    {
+      id: "queries", icon: "\u25b8", title: "5. Queries Overview",
+      desc: "Monitor and manage all tracked queries",
+      subsections: [
+        { id: "q-overview", icon: "\ud83d\udccb", title: "Query Management", items: [
+          { label: "Query Performance", desc: "Visibility score per individual query" },
+          { label: "Query Coverage", desc: "How many queries are active per category/powertrain" },
+          { label: "Low Performers", desc: "Queries where your brand scores poorly" },
+          { label: "Top Performers", desc: "Queries where your brand dominates" },
+        ]},
+      ],
+    },
   ];
-  const [active, setActive] = useState(["sov", "mention", "position", "sentiment", "recommend"]);
-  const toggle = (id) => setActive(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const [activeSections, setActiveSections] = useState(() => kpiSections.map(s => s.id));
+  const toggleSection = (id) => setActiveSections(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, "Define what success looks like for your brand"),
+    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, `${activeSections.length} of ${kpiSections.length} KPI sections active`),
+
     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
-      kpis.map(k => React.createElement("div", {
-        key: k.id, onClick: () => toggle(k.id),
-        style: {
-          padding: "14px 16px", borderRadius: 12, cursor: "pointer",
-          border: active.includes(k.id) ? `1px solid ${T.electric}33` : `1px solid ${T.cardBorder}`,
-          background: active.includes(k.id) ? `linear-gradient(135deg, ${T.emeraldLight}88, ${T.electric}08)` : T.cardBg,
-          display: "flex", alignItems: "center", gap: 14, transition: "all 0.2s ease",
+      kpiSections.map(section => {
+        const isActive = activeSections.includes(section.id);
+        const isExpanded = expanded === section.id;
+        return React.createElement("div", {
+          key: section.id,
+          style: {
+            borderRadius: 14, overflow: "hidden", transition: "all 0.25s ease",
+            border: isActive ? `1px solid ${T.electric}33` : `1px solid ${T.cardBorder}`,
+            background: isActive ? `linear-gradient(135deg, ${T.emeraldLight}44, ${T.electric}06)` : T.cardBg,
+          },
         },
-      },
-        React.createElement("span", { style: { fontSize: 20 } }, k.icon),
-        React.createElement("div", { style: { flex: 1 } },
-          React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: active.includes(k.id) ? T.text : T.muted } }, k.name),
-          React.createElement("div", { style: { fontSize: 11, color: T.muted } }, k.desc),
-        ),
-        active.includes(k.id) && React.createElement("div", { style: { padding: "5px 10px", borderRadius: 8, background: `${T.electric}15`, border: `1px solid ${T.electric}22` } },
-          React.createElement("div", { style: { fontSize: 9, color: T.muted, textTransform: "uppercase", letterSpacing: 1, fontFamily: "'JetBrains Mono', monospace" } }, "target"),
-          React.createElement("div", { style: { fontSize: 13, color: T.electric, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, k.target),
-        ),
-      )),
+          // Section header
+          React.createElement("div", {
+            style: { padding: "16px 18px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" },
+            onClick: () => setExpanded(isExpanded ? null : section.id),
+          },
+            React.createElement("div", {
+              onClick: (e) => { e.stopPropagation(); toggleSection(section.id); },
+              style: {
+                width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                border: isActive ? `2px solid ${T.electric}` : `2px solid ${T.cardBorder}`,
+                background: isActive ? T.electric : "transparent", transition: "all 0.2s ease",
+                display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+              },
+            }, isActive && React.createElement("span", { style: { color: T.emerald, fontSize: 13, fontWeight: 900 } }, "\u2713")),
+            React.createElement("span", { style: { fontSize: 22 } }, section.icon),
+            React.createElement("div", { style: { flex: 1 } },
+              React.createElement("div", { style: { fontSize: 15, fontWeight: 700, color: isActive ? T.text : T.muted } }, section.title),
+              React.createElement("div", { style: { fontSize: 11, color: T.muted, marginTop: 2 } }, section.desc),
+            ),
+            React.createElement("span", { style: {
+              color: T.muted, fontSize: 12, transition: "transform 0.2s",
+              transform: isExpanded ? "rotate(90deg)" : "none",
+            }}, "\u25b8"),
+          ),
+
+          // Expanded subsections
+          isExpanded && isActive && React.createElement("div", { style: { padding: "0 18px 16px" } },
+            section.subsections.map(sub => React.createElement("div", {
+              key: sub.id,
+              style: { marginTop: 12 },
+            },
+              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 } },
+                React.createElement("span", { style: { fontSize: 14 } }, sub.icon),
+                React.createElement("span", { style: { fontSize: 12, fontWeight: 700, color: T.electric, letterSpacing: 1, textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" } }, sub.title),
+              ),
+              React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6, paddingLeft: 22 } },
+                sub.items.map(item => React.createElement("div", {
+                  key: item.label,
+                  style: {
+                    padding: "10px 14px", borderRadius: 10,
+                    background: T.cardBg, border: `1px solid ${T.cardBorder}`,
+                    display: "flex", alignItems: "center", gap: 10,
+                  },
+                },
+                  React.createElement("div", { style: { width: 6, height: 6, borderRadius: 3, background: T.electric, flexShrink: 0 } }),
+                  React.createElement("div", null,
+                    React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: T.text } }, item.label),
+                    React.createElement("div", { style: { fontSize: 11, color: T.muted, marginTop: 1 } }, item.desc),
+                  ),
+                )),
+              ),
+            )),
+          ),
+        );
+      }),
+    ),
+
+    // Summary
+    React.createElement("div", { style: { marginTop: 20, padding: 14, borderRadius: 12, background: `${T.emerald}44`, border: `1px solid ${T.cardBorder}` } },
+      React.createElement("div", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } },
+        `${kpiSections.reduce((s, sec) => s + sec.subsections.reduce((ss, sub) => ss + sub.items.length, 0), 0)} KPI metrics across ${kpiSections.length} sections \u00b7 Click sections to expand details`),
     ),
   );
 }
@@ -754,7 +881,7 @@ function StepLaunch() {
     { label: "Query Categories", value: "18 BEV + 16 ICE + 16 Hybrid" },
     { label: "Markets", value: "9 EU + 2 non-EU" },
     { label: "Models", value: "6 (ICE/Hybrid/BEV)" },
-    { label: "KPIs", value: "5 metrics" },
+    { label: "KPIs", value: "5 sections · 22 metrics" },
     { label: "Schedule", value: "Daily at 6:00 AM" },
     { label: "Outputs", value: "TV + Mobile" },
   ];
