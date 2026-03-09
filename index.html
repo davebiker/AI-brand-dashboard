@@ -5313,9 +5313,10 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
 
 // ── MAIN APP ──
 function App() {
-  const [blurActive, setBlurActive] = useState(true);
+  // TESTING: password + animation disabled (set blurActive=true, dashBlur=0, showPwd=true to restore)
+  const [blurActive, setBlurActive] = useState(false);
   const [blurFading, setBlurFading] = useState(false);
-  const [dashBlur, setDashBlur] = useState(0); // 0=hidden, 1=blurred, 2=clear
+  const [dashBlur, setDashBlur] = useState(3);
   const [pwd, setPwd] = useState("");
   const [pwdWrong, setPwdWrong] = useState(false);
   const [showPwd, setShowPwd] = useState(true);
