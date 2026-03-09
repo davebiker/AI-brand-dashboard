@@ -91,18 +91,14 @@ function NavDots({ active, onNav }) {
 function TopNav({ isMobile }) {
   return React.createElement("nav", { style: {
     position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-    padding: isMobile ? "14px 16px" : "16px 40px",
+    padding: isMobile ? "16px 16px" : "20px 40px",
     display: "flex", justifyContent: "space-between", alignItems: "center",
     background: `linear-gradient(180deg, ${T.bg}ee, transparent)`,
     backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
   }},
-    React.createElement("a", { href: "index.html", style: { display: "flex", alignItems: "center", gap: 10, textDecoration: "none" } },
-      React.createElement("div", { style: {
-        width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
-        background: `${T.electric}15`, border: `1px solid ${T.electric}33`,
-        fontSize: 14, fontWeight: 900, color: T.electric, fontFamily: "'JetBrains Mono', monospace",
-      }}, "X"),
-      React.createElement("span", { style: { fontSize: 14, fontWeight: 800, color: T.text, letterSpacing: 1 } }, "\u0160koda X"),
+    React.createElement("a", { href: "index.html", style: { textDecoration: "none", display: "flex", flexDirection: "column" } },
+      React.createElement("div", { style: { fontSize: isMobile ? 22 : 32, fontWeight: 900, color: T.text, letterSpacing: 1, fontFamily: "'Outfit', sans-serif" } }, "\u0160koda X"),
+      React.createElement("div", { style: { fontSize: isMobile ? 11 : 13, fontWeight: 700, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginTop: 2 } }, "Intro"),
     ),
     !isMobile && React.createElement("div", { style: { display: "flex", gap: 8 } },
       [
@@ -112,9 +108,9 @@ function TopNav({ isMobile }) {
         { href: "dashboard.html", label: "\u25a0 Dashboard", active: false },
         { href: "geo-process.html", label: "\u25b8 Next Steps", active: false },
       ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
-        padding: "6px 14px", borderRadius: 6, textDecoration: "none",
+        padding: "7px 14px", borderRadius: 8, textDecoration: "none",
         border: `1px solid ${l.active ? T.electric + "55" : T.cardBorder}`,
-        background: l.active ? `${T.electric}18` : `${T.cardBg}88`,
+        background: l.active ? `${T.electric}18` : `${T.cardBg}aa`,
         color: l.active ? T.electric : T.muted, fontSize: 11, fontWeight: 700,
         fontFamily: "'JetBrains Mono', monospace", transition: "all 0.2s ease",
       }}, l.label))

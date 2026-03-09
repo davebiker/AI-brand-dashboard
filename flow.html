@@ -207,17 +207,12 @@ function App() {
     }}),
 
     // Header
-    React.createElement("div", { style: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, display: "flex", flexDirection: "column", alignItems: "center", padding: "22px 0 14px", background: `linear-gradient(180deg, ${T.bg}, ${T.bg}dd 80%, transparent)` } },
-      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 20 } },
-        React.createElement("div", { style: { width: 50, height: 1, background: `linear-gradient(90deg, transparent, ${T.electric}55)` } }),
-        React.createElement("div", { style: { fontSize: 15, fontWeight: 800, color: T.electric, letterSpacing: 5, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" } }, "GEO Setup Flow"),
-        React.createElement("div", { style: { width: 50, height: 1, background: `linear-gradient(90deg, ${T.electric}55, transparent)` } }),
+    React.createElement("div", { style: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, display: "flex", justifyContent: "space-between", alignItems: "center", padding: isMobile ? "16px 16px" : "20px 40px", background: `linear-gradient(180deg, ${T.bg}ee, transparent)`, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" } },
+      React.createElement("a", { href: "index.html", style: { textDecoration: "none", display: "flex", flexDirection: "column" } },
+        React.createElement("div", { style: { fontSize: isMobile ? 22 : 32, fontWeight: 900, color: T.text, letterSpacing: 1, fontFamily: "'Outfit', sans-serif" } }, "\u0160koda X"),
+        React.createElement("div", { style: { fontSize: isMobile ? 11 : 13, fontWeight: 700, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginTop: 2 } }, "Flow"),
       ),
-      React.createElement("div", { style: { fontSize: 12, fontWeight: 700, color: `${T.muted}aa`, letterSpacing: 3, fontFamily: "'Outfit', sans-serif", textTransform: "uppercase", marginTop: 4 } }, "\u0160koda X"),
-    ),
-
-    // Nav links — top right
-    React.createElement("div", { style: { position: "fixed", top: 20, right: 24, zIndex: 60, display: "flex", gap: 8 } },
+      React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
       [
         { href: "index.html", label: "\u25c6 Intro", active: false },
         { href: "flow.html", label: "\u25c9 Flow", active: true },
@@ -232,9 +227,9 @@ function App() {
         fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
         transition: "all 0.2s ease",
       }}, l.label)),
+      ),
     ),
 
-    // START button
     // Flow boxes
     React.createElement("div", { style: {
       display: "flex", flexDirection: "column", alignItems: "stretch",

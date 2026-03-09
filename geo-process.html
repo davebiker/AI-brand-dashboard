@@ -214,9 +214,9 @@ function App() {
 
     // Grid bg
     React.createElement("div", { style: {
-      position: "fixed", inset: 0, opacity: 0.015, pointerEvents: "none",
+      position: "fixed", inset: 0, opacity: 0.02, pointerEvents: "none",
       backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
-      backgroundSize: "60px 60px",
+      backgroundSize: "80px 80px",
     }}),
 
     // Header
@@ -357,13 +357,29 @@ function App() {
 
     // Footer
     React.createElement("footer", { style: {
-      padding: isMobile ? "14px 16px" : "14px 40px",
-      borderTop: `1px solid ${T.electric}44`,
+      padding: isMobile ? "24px 20px" : "20px 48px",
+      borderTop: `1px solid ${T.electric}33`,
       background: `linear-gradient(180deg, ${T.emerald}, ${T.bg})`,
-      display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12,
+      display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16,
     }},
-      React.createElement("span", { style: { fontSize: 13, fontWeight: 800, letterSpacing: 1.5, color: T.electric, fontFamily: "'JetBrains Mono', monospace" } }, "\u0160KODA X \u2014 AI Brand Intelligence"),
-      React.createElement("span", { style: { fontSize: 12, fontWeight: 600, color: `${T.electric}88`, fontFamily: "'JetBrains Mono', monospace" } }, "GEO Process \u00b7 7 Steps \u00b7 Continuous Cycle"),
+      React.createElement("div", null,
+        React.createElement("div", { style: { fontSize: 14, fontWeight: 800, color: T.electric, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.5 } }, "\u0160KODA X \u2014 AI Brand Intelligence"),
+        React.createElement("div", { style: { fontSize: 11, color: T.muted, marginTop: 4 } }, "Generative Engine Optimization \u00b7 Monitoring \u00b7 Optimization"),
+      ),
+      React.createElement("div", { style: { display: "flex", gap: 10, flexWrap: "wrap" } },
+        [
+          { href: "index.html", label: "Intro", color: T.electric },
+          { href: "flow.html", label: "Flow", color: T.electric },
+          { href: "setup.html", label: "Setup", color: T.electric },
+          { href: "dashboard.html", label: "Dashboard", color: T.cyan },
+          { href: "geo-process.html", label: "Next Steps", color: T.amber },
+        ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
+          padding: "7px 14px", borderRadius: 6, textDecoration: "none",
+          border: `1px solid ${l.color}44`, background: `${l.color}08`,
+          color: l.color, fontSize: 11, fontWeight: 700,
+          fontFamily: "'JetBrains Mono', monospace",
+        }}, l.label)),
+      ),
     ),
   );
 }
