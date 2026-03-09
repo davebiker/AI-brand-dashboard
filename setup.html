@@ -19,7 +19,6 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
   input:focus, textarea:focus { outline: none; border-color: #78FAAE66 !important; box-shadow: 0 0 0 3px #78FAAE18; }
   button { font-family: 'Outfit', sans-serif; }
 </style>
@@ -27,7 +26,7 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useCallback, useRef } = React;
+const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
 const T = {
   emerald: "#0E3A2F", electric: "#78FAAE", emeraldLight: "#14493B",
@@ -36,43 +35,206 @@ const T = {
   amber: "#F5C842", red: "#E85454", cyan: "#5AD4C4",
 };
 
-const STEPS = [
-  { id: "brand",       num: 1,  icon: "◆", title: "Brand Identity",          desc: "Define your brand for AI monitoring" },
-  { id: "competitors", num: 2,  icon: "⚔", title: "Competitors",             desc: "Who are you competing against?" },
-  { id: "platforms",   num: 3,  icon: "◎", title: "AI Platforms",             desc: "Which AI engines to monitor" },
-  { id: "personas",    num: 4,  icon: "◉", title: "Personas",                desc: "Who is asking AI about you?" },
-  { id: "queries",     num: 5,  icon: "▸", title: "Query Categories",        desc: "What questions to test" },
-  { id: "markets",     num: 6,  icon: "◈", title: "Markets & Languages",     desc: "Target regions and localization" },
-  { id: "models",      num: 7,  icon: "△", title: "Product / Model Mode",    desc: "Track specific products" },
-  { id: "scoring",     num: 8,  icon: "◇", title: "Scoring & KPIs",          desc: "What success looks like" },
-  { id: "schedule",    num: 9,  icon: "↻", title: "Update Schedule",         desc: "Monitoring frequency" },
-  { id: "display",     num: 10, icon: "▢", title: "Display & Output",        desc: "How to view results" },
-  { id: "launch",      num: 11, icon: "▶", title: "Review & Launch",         desc: "Final check and go live" },
+// ── DATA ──
+
+const BRAND_COMPETITORS = {
+  ICE: ["VW", "Hyundai", "Toyota", "Kia", "Ford", "Opel", "Renault", "Peugeot", "Fiat", "Seat/Cupra", "Mazda", "Suzuki"],
+  Hybrid: ["Toyota", "Hyundai", "Kia", "VW", "Ford", "Renault", "Honda", "Mazda"],
+  BEV: ["VW", "Tesla", "Hyundai", "Kia", "BYD", "Xpeng", "BMW", "Mercedes", "Volvo", "Polestar", "Renault", "Dacia"],
+};
+
+const MODEL_COMPETITORS = {
+  ICE: {
+    "Fabia": ["VW Polo", "Hyundai i20", "Toyota Yaris", "Kia Rio", "Renault Clio", "Peugeot 208", "Opel Corsa"],
+    "Scala": ["VW Golf", "Hyundai i30", "Toyota Corolla", "Kia Ceed", "Ford Focus", "Mazda 3", "Seat Leon"],
+    "Kamiq": ["VW T-Cross", "Hyundai Bayon", "Toyota Yaris Cross", "Kia Stonic", "Renault Captur", "Peugeot 2008"],
+    "Karoq": ["VW T-Roc", "Hyundai Tucson", "Toyota C-HR", "Kia Sportage", "Ford Kuga", "Peugeot 3008"],
+    "Octavia": ["VW Golf/Passat", "Hyundai i30/Elantra", "Toyota Corolla", "Kia Ceed/K5", "Ford Focus", "Mazda 3/6"],
+    "Kodiaq": ["VW Tiguan", "Hyundai Tucson", "Toyota RAV4", "Kia Sportage", "Ford Kuga", "Peugeot 5008"],
+    "Superb": ["VW Passat", "Hyundai Sonata", "Toyota Camry", "Kia K5", "Ford Mondeo", "Mazda 6"],
+  },
+  Hybrid: {
+    "Octavia iV": ["VW Golf GTE", "Toyota Corolla Hybrid", "Hyundai Ioniq Hybrid", "Kia Niro HEV", "Ford Kuga PHEV"],
+    "Superb iV": ["VW Passat GTE", "Toyota Camry Hybrid", "Hyundai Sonata Hybrid", "Kia K5 Hybrid", "Ford Mondeo Hybrid"],
+    "Kodiaq iV": ["VW Tiguan eHybrid", "Toyota RAV4 Hybrid", "Hyundai Tucson Hybrid", "Kia Sportage HEV", "Ford Kuga PHEV"],
+  },
+  BEV: {
+    "Enyaq": ["Tesla Model Y", "VW ID.4", "Hyundai Ioniq 5", "BMW iX1", "BYD Seal U", "Kia EV6", "Volvo EX40"],
+    "Enyaq Coupe": ["Tesla Model Y", "VW ID.5", "BMW iX3", "Polestar 2", "Kia EV6 GT-Line"],
+    "Elroq": ["VW ID.3", "Hyundai Kona EV", "Kia Niro EV", "BYD Atto 3", "Renault Megane E-Tech"],
+    "Epiq": ["Renault 5 E-Tech", "VW ID.2", "Dacia Spring", "Fiat Grande Panda EV", "Citroen e-C3"],
+  },
+};
+
+const QUERY_CATEGORIES = {
+  BEV: [
+    { name: "General", count: 8 },
+    { name: "Brand Perception & Reputation", count: 6 },
+    { name: "Incentives & Benefits", count: 5 },
+    { name: "Price & Financing", count: 7 },
+    { name: "Car Assistants", count: 4 },
+    { name: "Design & Style", count: 5 },
+    { name: "Practicality", count: 6 },
+    { name: "Performance", count: 5 },
+    { name: "Availability & Delivery", count: 4 },
+    { name: "Interior Space & Comfort", count: 6 },
+    { name: "Build Quality & Reliability", count: 5 },
+    { name: "Environmental Impact", count: 4 },
+    { name: "Charging Infrastructure", count: 6 },
+    { name: "Running Costs", count: 5 },
+    { name: "Safety", count: 5 },
+    { name: "Charging", count: 6 },
+    { name: "Technology & Infotainment", count: 5 },
+    { name: "Range & Efficiency", count: 7 },
+  ],
+  ICE: [
+    { name: "General", count: 8 },
+    { name: "Brand Perception & Reputation", count: 6 },
+    { name: "Price & Financing", count: 7 },
+    { name: "Design & Style", count: 5 },
+    { name: "Practicality", count: 6 },
+    { name: "Performance & Engine", count: 6 },
+    { name: "Availability & Delivery", count: 4 },
+    { name: "Interior Space & Comfort", count: 6 },
+    { name: "Build Quality & Reliability", count: 5 },
+    { name: "Environmental Impact & Emissions", count: 4 },
+    { name: "Fuel Economy & Consumption", count: 6 },
+    { name: "Running Costs & Maintenance", count: 5 },
+    { name: "Safety", count: 5 },
+    { name: "Technology & Infotainment", count: 5 },
+    { name: "Towing & Cargo Capacity", count: 4 },
+    { name: "Resale Value", count: 4 },
+  ],
+  Hybrid: [
+    { name: "General", count: 8 },
+    { name: "Brand Perception & Reputation", count: 6 },
+    { name: "Incentives & Benefits", count: 5 },
+    { name: "Price & Financing", count: 7 },
+    { name: "Design & Style", count: 5 },
+    { name: "Practicality", count: 6 },
+    { name: "Performance & Powertrain", count: 6 },
+    { name: "Availability & Delivery", count: 4 },
+    { name: "Interior Space & Comfort", count: 6 },
+    { name: "Build Quality & Reliability", count: 5 },
+    { name: "Environmental Impact", count: 4 },
+    { name: "Fuel Economy & Electric Range", count: 6 },
+    { name: "Running Costs & Maintenance", count: 5 },
+    { name: "Safety", count: 5 },
+    { name: "Charging & Battery", count: 5 },
+    { name: "Technology & Infotainment", count: 5 },
+  ],
+};
+
+const PLATFORMS_DATA = [
+  { id: "claude", name: "Claude", model: "Sonnet 4", color: "#D4A574", icon: "C", costPerQuery: 0.003 },
+  { id: "gpt", name: "GPT-4o", model: "GPT-4o", color: "#78FAAE", icon: "G", costPerQuery: 0.005 },
+  { id: "gemini", name: "Gemini", model: "2.5 Pro", color: "#5AD4C4", icon: "G", costPerQuery: 0.004 },
+  { id: "copilot", name: "Copilot", model: "GPT-4o", color: "#26C6F0", icon: "C", costPerQuery: 0.005 },
+  { id: "perplexity", name: "Perplexity", model: "Sonar", color: "#B4A0FF", icon: "P", costPerQuery: 0.006 },
+  { id: "grok", name: "Grok", model: "Grok 3", color: "#FF6B4A", icon: "X", costPerQuery: 0.004 },
+  { id: "deepseek", name: "DeepSeek", model: "V3", color: "#4A90D9", icon: "D", costPerQuery: 0.002 },
+  { id: "mistral", name: "Mistral", model: "Large", color: "#FF8C42", icon: "M", costPerQuery: 0.003 },
 ];
 
-// ── CHIP COMPONENT ──
-function Chip({ label, active, onClick, removable, onRemove }) {
+const EU_MARKETS = [
+  { key: "cz", flag: "\ud83c\udde8\ud83c\uddff", name: "Czech Republic", lang: "Czech" },
+  { key: "de", flag: "\ud83c\udde9\ud83c\uddea", name: "Germany", lang: "German" },
+  { key: "at", flag: "\ud83c\udde6\ud83c\uddf9", name: "Austria", lang: "German" },
+  { key: "fr", flag: "\ud83c\uddeb\ud83c\uddf7", name: "France", lang: "French" },
+  { key: "es", flag: "\ud83c\uddea\ud83c\uddf8", name: "Spain", lang: "Spanish" },
+  { key: "it", flag: "\ud83c\uddee\ud83c\uddf9", name: "Italy", lang: "Italian" },
+  { key: "uk", flag: "\ud83c\uddec\ud83c\udde7", name: "United Kingdom", lang: "English" },
+  { key: "ie", flag: "\ud83c\uddee\ud83c\uddea", name: "Ireland", lang: "English" },
+  { key: "nl", flag: "\ud83c\uddf3\ud83c\uddf1", name: "Netherlands", lang: "Dutch" },
+  { key: "be", flag: "\ud83c\udde7\ud83c\uddea", name: "Belgium", lang: "Dutch / French" },
+  { key: "pl", flag: "\ud83c\uddf5\ud83c\uddf1", name: "Poland", lang: "Polish" },
+  { key: "se", flag: "\ud83c\uddf8\ud83c\uddea", name: "Sweden", lang: "Swedish" },
+  { key: "dk", flag: "\ud83c\udde9\ud83c\uddf0", name: "Denmark", lang: "Danish" },
+  { key: "fi", flag: "\ud83c\uddeb\ud83c\uddee", name: "Finland", lang: "Finnish" },
+  { key: "no", flag: "\ud83c\uddf3\ud83c\uddf4", name: "Norway", lang: "Norwegian" },
+  { key: "pt", flag: "\ud83c\uddf5\ud83c\uddf9", name: "Portugal", lang: "Portuguese" },
+  { key: "gr", flag: "\ud83c\uddec\ud83c\uddf7", name: "Greece", lang: "Greek" },
+  { key: "hu", flag: "\ud83c\udded\ud83c\uddfa", name: "Hungary", lang: "Hungarian" },
+  { key: "ro", flag: "\ud83c\uddf7\ud83c\uddf4", name: "Romania", lang: "Romanian" },
+  { key: "bg", flag: "\ud83c\udde7\ud83c\uddec", name: "Bulgaria", lang: "Bulgarian" },
+  { key: "hr", flag: "\ud83c\udded\ud83c\uddf7", name: "Croatia", lang: "Croatian" },
+  { key: "sk", flag: "\ud83c\uddf8\ud83c\uddf0", name: "Slovakia", lang: "Slovak" },
+  { key: "si", flag: "\ud83c\uddf8\ud83c\uddee", name: "Slovenia", lang: "Slovenian" },
+  { key: "ee", flag: "\ud83c\uddea\ud83c\uddea", name: "Estonia", lang: "Estonian" },
+  { key: "lv", flag: "\ud83c\uddf1\ud83c\uddfb", name: "Latvia", lang: "Latvian" },
+  { key: "lt", flag: "\ud83c\uddf1\ud83c\uddf9", name: "Lithuania", lang: "Lithuanian" },
+  { key: "lu", flag: "\ud83c\uddf1\ud83c\uddfa", name: "Luxembourg", lang: "French / German" },
+  { key: "ch", flag: "\ud83c\udde8\ud83c\udded", name: "Switzerland", lang: "German / French" },
+];
+
+const NON_EU_MARKETS = [
+  { key: "tr", flag: "\ud83c\uddf9\ud83c\uddf7", name: "Turkey", lang: "Turkish" },
+  { key: "kz", flag: "\ud83c\uddf0\ud83c\uddff", name: "Kazakhstan", lang: "Kazakh / Russian" },
+  { key: "in", flag: "\ud83c\uddee\ud83c\uddf3", name: "India", lang: "Hindi / English" },
+  { key: "vn", flag: "\ud83c\uddfb\ud83c\uddf3", name: "Vietnam", lang: "Vietnamese" },
+  { key: "th", flag: "\ud83c\uddf9\ud83c\udded", name: "Thailand", lang: "Thai" },
+];
+
+const SKODA_MODELS = {
+  ICE: [
+    { id: "fabia", name: "Fabia", segment: "Supermini" },
+    { id: "scala", name: "Scala", segment: "Compact Hatchback" },
+    { id: "kamiq", name: "Kamiq", segment: "Compact SUV" },
+    { id: "karoq", name: "Karoq", segment: "Compact SUV" },
+    { id: "octavia", name: "Octavia", segment: "Compact Sedan/Combi" },
+    { id: "kodiaq", name: "Kodiaq", segment: "Mid-size SUV" },
+    { id: "superb", name: "Superb", segment: "Mid-size Sedan/Combi" },
+  ],
+  Hybrid: [
+    { id: "octavia-iv", name: "Octavia iV", segment: "Compact PHEV" },
+    { id: "superb-iv", name: "Superb iV", segment: "Mid-size PHEV" },
+    { id: "kodiaq-iv", name: "Kodiaq iV", segment: "Mid-size SUV PHEV" },
+  ],
+  BEV: [
+    { id: "enyaq", name: "Enyaq", segment: "Electric SUV" },
+    { id: "enyaq-coupe", name: "Enyaq Coupe", segment: "Electric SUV Coupe" },
+    { id: "elroq", name: "Elroq", segment: "Compact Electric SUV" },
+    { id: "epiq", name: "Epiq", segment: "Entry Electric" },
+  ],
+};
+
+const STEPS = [
+  { id: "brand", num: 1, icon: "\u25c6", title: "Brand Identity", desc: "Define your brand for AI monitoring" },
+  { id: "competitors", num: 2, icon: "\u2694", title: "Competitors", desc: "Brand & model competitors by powertrain" },
+  { id: "platforms", num: 3, icon: "\u25ce", title: "AI Platforms", desc: "Which AI engines to monitor" },
+  { id: "personas", num: 4, icon: "\u25c9", title: "Personas", desc: "Who is asking AI about you?" },
+  { id: "queries", num: 5, icon: "\u25b8", title: "Query Categories", desc: "What questions to test per powertrain" },
+  { id: "markets", num: 6, icon: "\u25c8", title: "Markets & Languages", desc: "EU and non-EU target regions" },
+  { id: "models", num: 7, icon: "\u25b3", title: "Product / Model Mode", desc: "Track Skoda models by powertrain" },
+  { id: "scoring", num: 8, icon: "\u25c7", title: "Scoring & KPIs", desc: "What success looks like" },
+  { id: "schedule", num: 9, icon: "\u21bb", title: "Update Schedule", desc: "Monitoring frequency" },
+  { id: "display", num: 10, icon: "\u25a2", title: "Display & Output", desc: "How to view results" },
+  { id: "launch", num: 11, icon: "\u25b6", title: "Review & Launch", desc: "Final check and go live" },
+];
+
+// ── SHARED COMPONENTS ──
+
+function Chip({ label, active, onClick, removable, onRemove, color }) {
   return React.createElement("div", {
     onClick,
     style: {
       display: "inline-flex", alignItems: "center", gap: 6,
-      padding: "7px 14px", borderRadius: 20, cursor: onClick ? "pointer" : "default",
-      border: active ? `1px solid ${T.electric}55` : `1px solid ${T.cardBorder}`,
-      background: active ? `linear-gradient(135deg, ${T.emeraldLight}, ${T.electric}18)` : T.cardBg,
-      color: active ? T.electric : T.textDim,
-      fontSize: 13, fontWeight: 600, transition: "all 0.2s ease",
+      padding: "6px 12px", borderRadius: 20, cursor: onClick ? "pointer" : "default",
+      border: active ? `1px solid ${(color || T.electric) + "55"}` : `1px solid ${T.cardBorder}`,
+      background: active ? `linear-gradient(135deg, ${T.emeraldLight}, ${(color || T.electric) + "18"})` : T.cardBg,
+      color: active ? (color || T.electric) : T.muted,
+      fontSize: 12, fontWeight: 600, transition: "all 0.2s ease",
       fontFamily: "'JetBrains Mono', monospace",
     },
   },
     label,
     removable && React.createElement("span", {
       onClick: (e) => { e.stopPropagation(); onRemove && onRemove(); },
-      style: { marginLeft: 2, opacity: 0.5, cursor: "pointer", fontSize: 11 },
-    }, "✕"),
+      style: { marginLeft: 2, opacity: 0.5, cursor: "pointer", fontSize: 10 },
+    }, "\u2715"),
   );
 }
 
-// ── INPUT COMPONENT ──
 function Field({ label, placeholder, value, onChange, type, small }) {
   return React.createElement("div", { style: { marginBottom: 16 } },
     label && React.createElement("div", { style: {
@@ -84,7 +246,7 @@ function Field({ label, placeholder, value, onChange, type, small }) {
       rows: type === "textarea" ? 3 : undefined,
       style: {
         width: "100%", padding: small ? "8px 12px" : "12px 16px", borderRadius: 10,
-        border: `1px solid ${T.cardBorder}`, background: `${T.cardBg}`,
+        border: `1px solid ${T.cardBorder}`, background: T.cardBg,
         color: T.text, fontSize: 14, fontFamily: "'Outfit', sans-serif",
         transition: "all 0.2s ease", resize: type === "textarea" ? "vertical" : undefined,
       },
@@ -92,118 +254,176 @@ function Field({ label, placeholder, value, onChange, type, small }) {
   );
 }
 
-// ── TOGGLE CARD ──
 function ToggleCard({ icon, title, subtitle, active, onClick }) {
   return React.createElement("div", {
     onClick,
     style: {
-      padding: "16px 18px", borderRadius: 12, cursor: "pointer",
+      padding: "14px 16px", borderRadius: 12, cursor: "pointer",
       border: active ? `1px solid ${T.electric}44` : `1px solid ${T.cardBorder}`,
       background: active ? `linear-gradient(135deg, ${T.emeraldLight}cc, ${T.electric}12)` : T.cardBg,
       transition: "all 0.25s ease", display: "flex", alignItems: "center", gap: 14,
     },
   },
     React.createElement("div", { style: {
-      width: 40, height: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-      background: active ? `${T.electric}22` : `${T.cardBorder}66`, fontSize: 18,
+      width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+      background: active ? `${T.electric}22` : `${T.cardBorder}66`, fontSize: 17,
       transition: "all 0.25s ease",
     }}, icon),
     React.createElement("div", { style: { flex: 1 } },
-      React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: active ? T.electric : T.text } }, title),
-      subtitle && React.createElement("div", { style: { fontSize: 12, color: T.muted, marginTop: 2 } }, subtitle),
+      React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: active ? T.electric : T.text } }, title),
+      subtitle && React.createElement("div", { style: { fontSize: 11, color: T.muted, marginTop: 2 } }, subtitle),
     ),
     React.createElement("div", { style: {
-      width: 22, height: 22, borderRadius: 6, border: active ? `2px solid ${T.electric}` : `2px solid ${T.cardBorder}`,
+      width: 20, height: 20, borderRadius: 6, border: active ? `2px solid ${T.electric}` : `2px solid ${T.cardBorder}`,
       background: active ? T.electric : "transparent", transition: "all 0.2s ease",
       display: "flex", alignItems: "center", justifyContent: "center",
-    }}, active && React.createElement("span", { style: { color: T.emerald, fontSize: 14, fontWeight: 900 } }, "✓")),
+    }}, active && React.createElement("span", { style: { color: T.emerald, fontSize: 12, fontWeight: 900 } }, "\u2713")),
   );
 }
 
-// ── STEP CONTENT COMPONENTS ──
+function SectionLabel({ children }) {
+  return React.createElement("div", { style: {
+    fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5,
+    textTransform: "uppercase", marginBottom: 10, marginTop: 4,
+    fontFamily: "'JetBrains Mono', monospace",
+  }}, children);
+}
 
+function PowertrainTabs({ active, onChange }) {
+  const tabs = ["ICE", "Hybrid", "BEV"];
+  const colors = { ICE: T.amber, Hybrid: T.cyan, BEV: T.electric };
+  return React.createElement("div", { style: { display: "flex", gap: 4, padding: 3, borderRadius: 10, background: T.cardBg, border: `1px solid ${T.cardBorder}`, marginBottom: 16 } },
+    tabs.map(t => React.createElement("button", {
+      key: t, onClick: () => onChange(t),
+      style: {
+        flex: 1, padding: "9px 0", borderRadius: 8, cursor: "pointer", border: "none",
+        background: active === t ? `linear-gradient(135deg, ${T.emeraldLight}, ${colors[t]}22)` : "transparent",
+        color: active === t ? colors[t] : T.muted,
+        fontSize: 13, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
+        transition: "all 0.2s ease",
+        boxShadow: active === t ? `0 0 12px ${colors[t]}15` : "none",
+      },
+    }, t)),
+  );
+}
+
+function CompetitorGroup({ title, competitors, selected, onToggle }) {
+  return React.createElement("div", { style: { marginBottom: 12 } },
+    title && React.createElement("div", { style: { fontSize: 11, color: T.muted, marginBottom: 6, fontFamily: "'JetBrains Mono', monospace" } }, title),
+    React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
+      competitors.map(c => React.createElement(Chip, { key: c, label: c, active: selected.includes(c), onClick: () => onToggle(c) })),
+    ),
+  );
+}
+
+// ── STEP 1: BRAND ──
 function StepBrand() {
-  const [name, setName] = useState("Škoda");
+  const [name, setName] = useState("Skoda");
   const [domain, setDomain] = useState("skoda-auto.cz");
-  const [attrs, setAttrs] = useState(["reliable", "innovative", "electric"]);
+  const [attrs, setAttrs] = useState(["reliable", "innovative", "electric", "value"]);
   const [newAttr, setNewAttr] = useState("");
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
     React.createElement(Field, { label: "Brand Name", value: name, onChange: setName, placeholder: "Your brand name" }),
     React.createElement(Field, { label: "Website Domain", value: domain, onChange: setDomain, placeholder: "example.com" }),
     React.createElement("div", { style: { marginBottom: 16 } },
-      React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, fontFamily: "'JetBrains Mono', monospace" } }, "Brand Attributes"),
+      React.createElement(SectionLabel, null, "Brand Attributes"),
       React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 } },
         attrs.map((a, i) => React.createElement(Chip, { key: i, label: a, active: true, removable: true, onRemove: () => setAttrs(attrs.filter((_, j) => j !== i)) })),
       ),
       React.createElement("div", { style: { display: "flex", gap: 8 } },
-        React.createElement("input", { value: newAttr, onChange: (e) => setNewAttr(e.target.value), placeholder: "Add attribute…",
+        React.createElement("input", { value: newAttr, onChange: (e) => setNewAttr(e.target.value), placeholder: "Add attribute\u2026",
           onKeyDown: (e) => { if (e.key === "Enter" && newAttr.trim()) { setAttrs([...attrs, newAttr.trim()]); setNewAttr(""); } },
           style: { flex: 1, padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.cardBorder}`, background: T.cardBg, color: T.text, fontSize: 13, fontFamily: "'Outfit', sans-serif" },
         }),
       ),
     ),
-    React.createElement("div", { style: { padding: 16, borderRadius: 12, background: `${T.emerald}44`, border: `1px solid ${T.cardBorder}`, marginTop: 8 } },
-      React.createElement("div", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "💡 Brand attributes help AI understand how you want to be perceived. They influence query generation and sentiment scoring."),
+    React.createElement("div", { style: { padding: 14, borderRadius: 12, background: `${T.emerald}44`, border: `1px solid ${T.cardBorder}` } },
+      React.createElement("div", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Brand attributes help AI understand how you want to be perceived. They influence query generation and sentiment scoring."),
     ),
   );
 }
 
+// ── STEP 2: COMPETITORS ──
 function StepCompetitors() {
-  const presets = ["VW", "Hyundai", "Toyota", "Kia", "BMW", "Tesla", "BYD", "Xpeng", "Dacia", "Volvo", "Mercedes", "Audi"];
-  const [selected, setSelected] = useState(["VW", "Hyundai", "Toyota", "Kia", "BMW", "Tesla", "BYD", "Xpeng"]);
-  const toggle = (c) => setSelected(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  const [tab, setTab] = useState("BEV");
+  const [brandSel, setBrandSel] = useState({ ICE: ["VW", "Hyundai", "Toyota", "Kia", "Opel", "Renault"], Hybrid: ["Toyota", "Hyundai", "Kia", "VW"], BEV: ["VW", "Tesla", "Hyundai", "Kia", "BYD", "Xpeng"] });
+  const [modelTab, setModelTab] = useState("BEV");
+  const [modelSel, setModelSel] = useState(() => {
+    const init = {};
+    Object.entries(MODEL_COMPETITORS).forEach(([pt, models]) => {
+      Object.entries(models).forEach(([model, comps]) => { init[model] = [...comps]; });
+    });
+    return init;
+  });
+
+  const toggleBrand = (c) => setBrandSel(prev => {
+    const arr = prev[tab];
+    return { ...prev, [tab]: arr.includes(c) ? arr.filter(x => x !== c) : [...arr, c] };
+  });
+  const toggleModelComp = (model, c) => setModelSel(prev => {
+    const arr = prev[model] || [];
+    return { ...prev, [model]: arr.includes(c) ? arr.filter(x => x !== c) : [...arr, c] };
+  });
+
+  const totalBrand = Object.values(brandSel).reduce((s, a) => s + a.length, 0);
+  const totalModel = Object.values(modelSel).reduce((s, a) => s + a.length, 0);
+
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, `${selected.length} selected · recommended: 5–10 competitors`),
-    React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 } },
-      presets.map(c => React.createElement(Chip, { key: c, label: c, active: selected.includes(c), onClick: () => toggle(c) })),
-    ),
-    React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center" } },
-      React.createElement("input", { placeholder: "Add custom competitor…", style: { flex: 1, padding: "10px 14px", borderRadius: 8, border: `1px solid ${T.cardBorder}`, background: T.cardBg, color: T.text, fontSize: 13 } }),
-      React.createElement("button", { style: { padding: "10px 16px", borderRadius: 8, border: `1px solid ${T.electric}44`, background: `${T.emeraldLight}`, color: T.electric, fontSize: 13, fontWeight: 700, cursor: "pointer" } }, "+ Add"),
-    ),
-    // Priority labels
-    React.createElement("div", { style: { marginTop: 20, padding: 16, borderRadius: 12, background: `${T.cardBg}`, border: `1px solid ${T.cardBorder}` } },
-      React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 10, fontFamily: "'JetBrains Mono', monospace" } }, "Priority"),
-      React.createElement("div", { style: { display: "flex", gap: 12 } },
-        React.createElement("div", { style: { flex: 1 } },
-          React.createElement("div", { style: { fontSize: 11, color: T.muted, marginBottom: 6 } }, "PRIMARY (direct)"),
-          React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
-            selected.slice(0, 4).map(c => React.createElement(Chip, { key: c, label: c, active: true })),
-          ),
-        ),
-        React.createElement("div", { style: { flex: 1 } },
-          React.createElement("div", { style: { fontSize: 11, color: T.muted, marginBottom: 6 } }, "SECONDARY (indirect)"),
-          React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
-            selected.slice(4).map(c => React.createElement(Chip, { key: c, label: c, active: false })),
-          ),
-        ),
+    // Brand Competitors
+    React.createElement(SectionLabel, null, "Brand Competitors"),
+    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 10 } }, `${totalBrand} brand competitors across all powertrains`),
+    React.createElement(PowertrainTabs, { active: tab, onChange: setTab }),
+    React.createElement("div", { style: { padding: 16, borderRadius: 12, background: T.cardBg, border: `1px solid ${T.cardBorder}`, marginBottom: 24 } },
+      React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 8 } }, `${tab} \u2014 ${brandSel[tab].length} selected`),
+      React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 } },
+        BRAND_COMPETITORS[tab].map(c => React.createElement(Chip, { key: c, label: c, active: brandSel[tab].includes(c), onClick: () => toggleBrand(c) })),
       ),
     ),
+
+    // Model Competitors
+    React.createElement(SectionLabel, null, "Model Competitors"),
+    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 10 } }, `${totalModel} model-level competitors`),
+    React.createElement(PowertrainTabs, { active: modelTab, onChange: setModelTab }),
+    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
+      Object.entries(MODEL_COMPETITORS[modelTab] || {}).map(([model, comps]) => React.createElement("div", {
+        key: model,
+        style: { padding: 14, borderRadius: 12, background: T.cardBg, border: `1px solid ${T.cardBorder}` },
+      },
+        React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 8 } }, `Skoda ${model}`),
+        React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
+          comps.map(c => React.createElement(Chip, {
+            key: c, label: c, active: (modelSel[model] || []).includes(c),
+            onClick: () => toggleModelComp(model, c),
+          })),
+        ),
+      )),
+    ),
   );
 }
 
+// ── STEP 3: PLATFORMS ──
 function StepPlatforms() {
-  const platforms = [
-    { id: "claude", name: "Claude", model: "Sonnet 4", color: "#D4A574", icon: "C" },
-    { id: "gpt", name: "GPT-4o", model: "GPT-4o", color: "#78FAAE", icon: "G" },
-    { id: "gemini", name: "Gemini", model: "2.5 Pro", color: "#5AD4C4", icon: "G" },
-    { id: "copilot", name: "Copilot", model: "GPT-4o", color: "#26C6F0", icon: "C" },
-    { id: "perplexity", name: "Perplexity", model: "Sonar", color: "#B4A0FF", icon: "P" },
-    { id: "grok", name: "Grok", model: "Grok 3", color: "#FF6B4A", icon: "X" },
-  ];
   const [active, setActive] = useState(["claude", "gpt", "gemini", "copilot", "perplexity", "grok"]);
   const toggle = (id) => setActive(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const totalQueries = 260;
+  const costPerDay = active.reduce((sum, id) => {
+    const p = PLATFORMS_DATA.find(x => x.id === id);
+    return sum + (p ? p.costPerQuery * totalQueries : 0);
+  }, 0);
+  const monthlyCost = Math.round(costPerDay * 30);
+
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
     React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, `${active.length} platforms active`),
     React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 } },
-      platforms.map(p => React.createElement("div", {
+      PLATFORMS_DATA.map(p => React.createElement("div", {
         key: p.id, onClick: () => toggle(p.id),
         style: {
           padding: "14px 16px", borderRadius: 12, cursor: "pointer",
           border: active.includes(p.id) ? `1px solid ${p.color}44` : `1px solid ${T.cardBorder}`,
           background: active.includes(p.id) ? `linear-gradient(135deg, ${T.emeraldLight}cc, ${p.color}12)` : T.cardBg,
           transition: "all 0.25s ease", display: "flex", alignItems: "center", gap: 12,
-          opacity: active.includes(p.id) ? 1 : 0.5,
+          opacity: active.includes(p.id) ? 1 : 0.45,
         },
       },
         React.createElement("div", { style: {
@@ -211,40 +431,51 @@ function StepPlatforms() {
           background: `${p.color}22`, color: p.color, fontWeight: 800, fontSize: 16,
           fontFamily: "'JetBrains Mono', monospace",
         }}, p.icon),
-        React.createElement("div", null,
+        React.createElement("div", { style: { flex: 1 } },
           React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: active.includes(p.id) ? T.text : T.muted } }, p.name),
           React.createElement("div", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, p.model),
         ),
+        active.includes(p.id) && React.createElement("div", { style: { fontSize: 10, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, `$${p.costPerQuery}/q`),
       )),
     ),
-    React.createElement("div", { style: { marginTop: 20, padding: 14, borderRadius: 10, background: `${T.emerald}44`, border: `1px solid ${T.cardBorder}` } },
-      React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6, fontFamily: "'JetBrains Mono', monospace" } }, "API Budget"),
-      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
-        React.createElement("div", { style: { flex: 1, height: 6, borderRadius: 3, background: T.cardBorder, overflow: "hidden" } },
-          React.createElement("div", { style: { width: "35%", height: "100%", background: `linear-gradient(90deg, ${T.electric}, ${T.cyan})`, borderRadius: 3 } }),
+    // Budget
+    React.createElement("div", { style: { marginTop: 20, padding: 16, borderRadius: 12, background: `linear-gradient(135deg, ${T.emerald}, ${T.emeraldLight})`, border: `1px solid ${T.electric}22` } },
+      React.createElement(SectionLabel, null, "Estimated API Budget"),
+      React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
+        React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 28, fontWeight: 800, color: T.electric, fontFamily: "'JetBrains Mono', monospace" } }, `$${monthlyCost}`),
+          React.createElement("div", { style: { fontSize: 11, color: T.muted } }, "per month"),
         ),
-        React.createElement("span", { style: { fontSize: 12, color: T.textDim, fontFamily: "'JetBrains Mono', monospace" } }, "~$85/mo"),
+        React.createElement("div", { style: { textAlign: "right" } },
+          React.createElement("div", { style: { fontSize: 12, color: T.textDim } }, `${totalQueries} queries/day`),
+          React.createElement("div", { style: { fontSize: 12, color: T.textDim } }, `${active.length} platforms`),
+          React.createElement("div", { style: { fontSize: 12, color: T.textDim } }, `$${costPerDay.toFixed(2)}/day`),
+        ),
+      ),
+      React.createElement("div", { style: { marginTop: 10, height: 6, borderRadius: 3, background: T.cardBorder, overflow: "hidden" } },
+        React.createElement("div", { style: { width: `${Math.min(100, (monthlyCost / 200) * 100)}%`, height: "100%", borderRadius: 3, background: monthlyCost > 150 ? T.amber : `linear-gradient(90deg, ${T.electric}, ${T.cyan})`, transition: "width 0.4s ease" } }),
       ),
     ),
   );
 }
 
+// ── STEP 4: PERSONAS ──
 function StepPersonas() {
   const presets = [
-    { id: "family", icon: "👨‍👩‍👧", name: "Family Buyer", age: "32–45", intent: "Safe, spacious, budget-friendly" },
-    { id: "fleet", icon: "🏢", name: "Fleet Manager", age: "35–55", intent: "TCO, reliability, service network" },
-    { id: "ev", icon: "⚡", name: "EV Early Adopter", age: "28–40", intent: "Range, tech, charging infrastructure" },
-    { id: "young", icon: "🎯", name: "Young Professional", age: "25–35", intent: "Design, connectivity, value" },
-    { id: "premium", icon: "💎", name: "Premium Switcher", age: "40–55", intent: "Comparing down from BMW/Audi" },
+    { id: "family", icon: "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67", name: "Family Buyer", age: "32\u201345", intent: "Safe, spacious, budget-friendly" },
+    { id: "fleet", icon: "\ud83c\udfe2", name: "Fleet Manager", age: "35\u201355", intent: "TCO, reliability, service network" },
+    { id: "ev", icon: "\u26a1", name: "EV Early Adopter", age: "28\u201340", intent: "Range, tech, charging infrastructure" },
+    { id: "young", icon: "\ud83c\udfaf", name: "Young Professional", age: "25\u201335", intent: "Design, connectivity, value" },
+    { id: "premium", icon: "\ud83d\udc8e", name: "Premium Switcher", age: "40\u201355", intent: "Comparing down from BMW/Audi" },
   ];
   const [active, setActive] = useState(["family", "ev", "young"]);
   const toggle = (id) => setActive(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, `${active.length} personas selected · these define what queries AI will test`),
+    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, `${active.length} personas selected \u2014 these define what queries AI will test`),
     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
       presets.map(p => React.createElement(ToggleCard, {
         key: p.id, icon: p.icon, active: active.includes(p.id),
-        title: p.name, subtitle: `${p.age} · ${p.intent}`,
+        title: p.name, subtitle: `${p.age} \u00b7 ${p.intent}`,
         onClick: () => toggle(p.id),
       })),
     ),
@@ -253,9 +484,8 @@ function StepPersonas() {
       border: `1px dashed ${T.cardBorder}`, background: "transparent",
       color: T.muted, fontSize: 13, fontWeight: 600,
     }}, "+ Create Custom Persona"),
-    // Intent mapping
     active.length > 0 && React.createElement("div", { style: { marginTop: 20, padding: 16, borderRadius: 12, background: T.cardBg, border: `1px solid ${T.cardBorder}` } },
-      React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 10, fontFamily: "'JetBrains Mono', monospace" } }, "Auto-generated intent map"),
+      React.createElement(SectionLabel, null, "Auto-generated intent map"),
       React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
         ["Comparison", "Recommendation", "Technical", "Pricing", "Safety", "Reviews", "vs. Competition"].map(intent =>
           React.createElement(Chip, { key: intent, label: intent, active: true }),
@@ -265,156 +495,163 @@ function StepPersonas() {
   );
 }
 
+// ── STEP 5: QUERIES ──
 function StepQueries() {
-  const categories = [
-    { name: "Purchase Decision", count: 12, sample: "What's the best family SUV under €40k?" },
-    { name: "Brand Comparison", count: 8, sample: "Škoda vs VW — which is better value?" },
-    { name: "Technical Specs", count: 10, sample: "What is the real-world range of Enyaq?" },
-    { name: "Recommendations", count: 6, sample: "Recommend an electric car for daily commuting" },
-    { name: "Safety & Reliability", count: 5, sample: "Safest family cars 2025 Euro NCAP" },
-    { name: "Price & Value", count: 7, sample: "Best value electric SUV in Europe" },
-    { name: "Trends & Market", count: 4, sample: "Which car brands are growing fastest in EV?" },
-  ];
-  const [expanded, setExpanded] = useState("Purchase Decision");
+  const [tab, setTab] = useState("BEV");
+  const [expanded, setExpanded] = useState(null);
+  const cats = QUERY_CATEGORIES[tab] || [];
+  const totalQ = cats.reduce((s, c) => s + c.count, 0);
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 6 } }, "52 queries auto-generated from 3 personas × 7 categories"),
-    React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" } },
-      React.createElement(Chip, { label: "👨‍👩‍👧 Family", active: true }),
-      React.createElement(Chip, { label: "⚡ EV Adopter", active: true }),
-      React.createElement(Chip, { label: "🎯 Young Pro", active: true }),
-    ),
-    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
-      categories.map(cat => React.createElement("div", {
+    React.createElement(PowertrainTabs, { active: tab, onChange: (t) => { setTab(t); setExpanded(null); } }),
+    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 12 } }, `${cats.length} categories \u00b7 ${totalQ} queries for ${tab}`),
+    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } },
+      cats.map(cat => React.createElement("div", {
         key: cat.name,
-        style: { borderRadius: 12, border: `1px solid ${expanded === cat.name ? T.electric + "33" : T.cardBorder}`, background: T.cardBg, overflow: "hidden", transition: "all 0.2s ease" },
+        style: { borderRadius: 10, border: `1px solid ${expanded === cat.name ? T.electric + "33" : T.cardBorder}`, background: T.cardBg, overflow: "hidden", transition: "all 0.2s ease" },
       },
         React.createElement("div", {
           onClick: () => setExpanded(expanded === cat.name ? null : cat.name),
-          style: { padding: "14px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" },
+          style: { padding: "12px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" },
         },
-          React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
-            React.createElement("span", { style: { fontSize: 14, fontWeight: 600, color: expanded === cat.name ? T.electric : T.text } }, cat.name),
-          ),
+          React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: expanded === cat.name ? T.electric : T.text } }, cat.name),
           React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
-            React.createElement("span", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, `${cat.count} queries`),
-            React.createElement("span", { style: { color: T.muted, fontSize: 12, transform: expanded === cat.name ? "rotate(90deg)" : "none", transition: "transform 0.2s" } }, "▸"),
+            React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, `${cat.count}q`),
+            React.createElement("span", { style: { color: T.muted, fontSize: 11, transform: expanded === cat.name ? "rotate(90deg)" : "none", transition: "transform 0.2s" } }, "\u25b8"),
           ),
         ),
-        expanded === cat.name && React.createElement("div", { style: { padding: "0 16px 14px", borderTop: `1px solid ${T.cardBorder}`, paddingTop: 12 } },
-          React.createElement("div", { style: { fontSize: 13, color: T.textDim, fontStyle: "italic", marginBottom: 10, padding: "8px 12px", borderRadius: 8, background: `${T.emerald}44`, fontFamily: "'JetBrains Mono', monospace" } }, `"${cat.sample}"`),
-          React.createElement("button", { style: { fontSize: 12, color: T.electric, background: "none", border: "none", cursor: "pointer", fontWeight: 600 } }, "View all queries →"),
+        expanded === cat.name && React.createElement("div", { style: { padding: "0 14px 12px", borderTop: `1px solid ${T.cardBorder}`, paddingTop: 10 } },
+          React.createElement("div", { style: { fontSize: 12, color: T.textDim, fontFamily: "'JetBrains Mono', monospace", opacity: 0.8 } }, `${cat.count} auto-generated queries from personas`),
+          React.createElement("button", { style: { marginTop: 8, fontSize: 12, color: T.electric, background: "none", border: "none", cursor: "pointer", fontWeight: 600, padding: 0 } }, "View all queries \u2192"),
         ),
       )),
     ),
-    React.createElement("button", { style: {
-      marginTop: 12, width: "100%", padding: "12px", borderRadius: 10, cursor: "pointer",
-      border: `1px dashed ${T.cardBorder}`, background: "transparent",
-      color: T.muted, fontSize: 13, fontWeight: 600,
-    }}, "+ Add Custom Query"),
+    React.createElement("div", { style: { marginTop: 16, padding: 14, borderRadius: 10, background: `${T.emerald}44`, border: `1px solid ${T.cardBorder}` } },
+      React.createElement("div", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } },
+        `Total: BEV ${QUERY_CATEGORIES.BEV.reduce((s,c)=>s+c.count,0)}q \u00b7 ICE ${QUERY_CATEGORIES.ICE.reduce((s,c)=>s+c.count,0)}q \u00b7 Hybrid ${QUERY_CATEGORIES.Hybrid.reduce((s,c)=>s+c.count,0)}q`),
+    ),
   );
 }
 
+// ── STEP 6: MARKETS ──
 function StepMarkets() {
-  const markets = [
-    { key: "cz", flag: "🇨🇿", name: "Czech Republic", lang: "Czech", queries: 52 },
-    { key: "de", flag: "🇩🇪", name: "Germany", lang: "German", queries: 52 },
-    { key: "uk", flag: "🇬🇧", name: "United Kingdom", lang: "English", queries: 52 },
-    { key: "in", flag: "🇮🇳", name: "India", lang: "Hindi / English", queries: 48 },
-    { key: "no", flag: "🇳🇴", name: "Norway", lang: "Norwegian", queries: 44 },
-    { key: "fr", flag: "🇫🇷", name: "France", lang: "French", queries: 0 },
-    { key: "es", flag: "🇪🇸", name: "Spain", lang: "Spanish", queries: 0 },
-  ];
-  const [active, setActive] = useState(["cz", "de", "uk", "in", "no"]);
-  const toggle = (k) => setActive(prev => prev.includes(k) ? prev.filter(x => x !== k) : [...prev, k]);
-  return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, `${active.length} markets · queries auto-translated per locale`),
-    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
-      markets.map(m => React.createElement("div", {
-        key: m.key, onClick: () => toggle(m.key),
-        style: {
-          padding: "14px 16px", borderRadius: 12, cursor: "pointer",
-          border: active.includes(m.key) ? `1px solid ${T.electric}33` : `1px solid ${T.cardBorder}`,
-          background: active.includes(m.key) ? `linear-gradient(135deg, ${T.emeraldLight}88, ${T.electric}08)` : T.cardBg,
-          display: "flex", alignItems: "center", gap: 14, transition: "all 0.2s ease",
-          opacity: active.includes(m.key) ? 1 : 0.5,
-        },
+  const [activeEU, setActiveEU] = useState(["cz", "de", "at", "sk", "pl", "uk", "fr", "no", "se"]);
+  const [activeNonEU, setActiveNonEU] = useState(["tr", "in"]);
+  const [showAllEU, setShowAllEU] = useState(false);
+  const toggleEU = (k) => setActiveEU(prev => prev.includes(k) ? prev.filter(x => x !== k) : [...prev, k]);
+  const toggleNonEU = (k) => setActiveNonEU(prev => prev.includes(k) ? prev.filter(x => x !== k) : [...prev, k]);
+  const total = activeEU.length + activeNonEU.length;
+  const visibleEU = showAllEU ? EU_MARKETS : EU_MARKETS.slice(0, 12);
+
+  function MarketRow({ m, active, onToggle }) {
+    return React.createElement("div", {
+      onClick: () => onToggle(m.key),
+      style: {
+        padding: "12px 14px", borderRadius: 10, cursor: "pointer",
+        border: active ? `1px solid ${T.electric}33` : `1px solid ${T.cardBorder}`,
+        background: active ? `linear-gradient(135deg, ${T.emeraldLight}88, ${T.electric}08)` : T.cardBg,
+        display: "flex", alignItems: "center", gap: 12, transition: "all 0.2s ease",
+        opacity: active ? 1 : 0.5,
       },
-        React.createElement("span", { style: { fontSize: 24 } }, m.flag),
-        React.createElement("div", { style: { flex: 1 } },
-          React.createElement("div", { style: { fontSize: 14, fontWeight: 600, color: active.includes(m.key) ? T.text : T.muted } }, m.name),
-          React.createElement("div", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, m.lang),
-        ),
-        active.includes(m.key) && m.queries > 0 && React.createElement("span", { style: { fontSize: 12, color: T.electric, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 } }, `${m.queries}q`),
-        React.createElement("div", { style: {
-          width: 20, height: 20, borderRadius: 5, border: active.includes(m.key) ? `2px solid ${T.electric}` : `2px solid ${T.cardBorder}`,
-          background: active.includes(m.key) ? T.electric : "transparent", transition: "all 0.2s ease",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}, active.includes(m.key) && React.createElement("span", { style: { color: T.emerald, fontSize: 12, fontWeight: 900 } }, "✓")),
-      )),
+    },
+      React.createElement("span", { style: { fontSize: 20 } }, m.flag),
+      React.createElement("div", { style: { flex: 1 } },
+        React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: active ? T.text : T.muted } }, m.name),
+        React.createElement("div", { style: { fontSize: 10, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, m.lang),
+      ),
+      React.createElement("div", { style: {
+        width: 18, height: 18, borderRadius: 5, border: active ? `2px solid ${T.electric}` : `2px solid ${T.cardBorder}`,
+        background: active ? T.electric : "transparent", transition: "all 0.2s ease",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}, active && React.createElement("span", { style: { color: T.emerald, fontSize: 11, fontWeight: 900 } }, "\u2713")),
+    );
+  }
+
+  return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
+    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, `${total} markets selected \u00b7 queries auto-translated per locale`),
+
+    React.createElement(SectionLabel, null, `EU & EEA (${activeEU.length}/${EU_MARKETS.length})`),
+    React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 8 } },
+      visibleEU.map(m => React.createElement(MarketRow, { key: m.key, m, active: activeEU.includes(m.key), onToggle: toggleEU })),
+    ),
+    !showAllEU && EU_MARKETS.length > 12 && React.createElement("button", {
+      onClick: () => setShowAllEU(true),
+      style: { width: "100%", padding: "10px", borderRadius: 8, cursor: "pointer", border: `1px dashed ${T.cardBorder}`, background: "transparent", color: T.muted, fontSize: 12, fontWeight: 600, marginBottom: 8 },
+    }, `Show all ${EU_MARKETS.length} EU markets \u2193`),
+
+    React.createElement("div", { style: { marginTop: 16 } },
+      React.createElement(SectionLabel, null, `Non-EU (${activeNonEU.length}/${NON_EU_MARKETS.length})`),
+      React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } },
+        NON_EU_MARKETS.map(m => React.createElement(MarketRow, { key: m.key, m, active: activeNonEU.includes(m.key), onToggle: toggleNonEU })),
+      ),
     ),
   );
 }
 
+// ── STEP 7: MODELS ──
 function StepModels() {
-  const models = [
-    { id: "enyaq", name: "Enyaq (+ Coupé)", segment: "Electric SUV", competitors: ["Tesla Model Y", "VW ID.4", "Hyundai Ioniq 5"] },
-    { id: "octavia", name: "Octavia", segment: "Compact Sedan/Combi", competitors: ["VW Golf", "Toyota Corolla", "Hyundai i30"] },
-    { id: "superb", name: "Superb", segment: "Mid-size Sedan/Combi", competitors: ["VW Passat", "Toyota Camry", "Hyundai Sonata"] },
-    { id: "elroq", name: "Elroq", segment: "Compact Electric SUV", competitors: ["VW ID.3", "Hyundai Kona EV", "Kia Niro EV"] },
-    { id: "epiq", name: "Epiq", segment: "Entry Electric", competitors: ["Renault 5 E-Tech", "VW ID.2", "Dacia Spring"] },
-  ];
-  const [active, setActive] = useState(["enyaq", "elroq", "epiq"]);
+  const [tab, setTab] = useState("BEV");
+  const [active, setActive] = useState(["enyaq", "enyaq-coupe", "elroq", "epiq", "octavia", "octavia-iv"]);
   const toggle = (id) => setActive(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const models = SKODA_MODELS[tab] || [];
+  const ptColors = { ICE: T.amber, Hybrid: T.cyan, BEV: T.electric };
+  const ptColor = ptColors[tab];
+  const totalActive = Object.values(SKODA_MODELS).flat().filter(m => active.includes(m.id)).length;
+
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 6 } }, "Optional: track individual products alongside brand monitoring"),
-    React.createElement("div", { style: { fontSize: 12, color: T.amber, marginBottom: 16, fontFamily: "'JetBrains Mono', monospace" } }, `${active.length} models · each adds ~20 model-specific queries`),
-    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
-      models.map(m => React.createElement("div", {
-        key: m.id,
-        style: {
-          borderRadius: 12, border: active.includes(m.id) ? `1px solid ${T.electric}33` : `1px solid ${T.cardBorder}`,
-          background: active.includes(m.id) ? `linear-gradient(135deg, ${T.emeraldLight}88, ${T.electric}08)` : T.cardBg,
-          overflow: "hidden", transition: "all 0.2s ease",
+    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 6 } }, "Track individual Skoda models alongside brand monitoring"),
+    React.createElement("div", { style: { fontSize: 12, color: T.amber, marginBottom: 16, fontFamily: "'JetBrains Mono', monospace" } }, `${totalActive} models active \u00b7 each adds ~20 model-specific queries`),
+    React.createElement(PowertrainTabs, { active: tab, onChange: setTab }),
+    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
+      models.map(m => {
+        const comps = MODEL_COMPETITORS[tab] && MODEL_COMPETITORS[tab][m.name] ? MODEL_COMPETITORS[tab][m.name] : [];
+        return React.createElement("div", {
+          key: m.id,
+          style: {
+            borderRadius: 12, border: active.includes(m.id) ? `1px solid ${ptColor}33` : `1px solid ${T.cardBorder}`,
+            background: active.includes(m.id) ? `linear-gradient(135deg, ${T.emeraldLight}88, ${ptColor}08)` : T.cardBg,
+            overflow: "hidden", transition: "all 0.2s ease",
+          },
         },
-      },
-        React.createElement("div", {
-          onClick: () => toggle(m.id),
-          style: { padding: "14px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 },
-        },
-          React.createElement("div", { style: {
-            width: 40, height: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-            background: active.includes(m.id) ? `${T.electric}22` : `${T.cardBorder}66`,
-            fontSize: 16, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-            color: active.includes(m.id) ? T.electric : T.muted,
-          }}, m.name[0]),
-          React.createElement("div", { style: { flex: 1 } },
-            React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: active.includes(m.id) ? T.text : T.muted } }, m.name),
-            React.createElement("div", { style: { fontSize: 11, color: T.muted } }, m.segment),
+          React.createElement("div", {
+            onClick: () => toggle(m.id),
+            style: { padding: "14px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 },
+          },
+            React.createElement("div", { style: {
+              width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+              background: active.includes(m.id) ? `${ptColor}22` : `${T.cardBorder}66`,
+              fontSize: 15, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
+              color: active.includes(m.id) ? ptColor : T.muted,
+            }}, m.name[0]),
+            React.createElement("div", { style: { flex: 1 } },
+              React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: active.includes(m.id) ? T.text : T.muted } }, m.name),
+              React.createElement("div", { style: { fontSize: 11, color: T.muted } }, m.segment),
+            ),
+            React.createElement("div", { style: {
+              width: 20, height: 20, borderRadius: 6, border: active.includes(m.id) ? `2px solid ${ptColor}` : `2px solid ${T.cardBorder}`,
+              background: active.includes(m.id) ? ptColor : "transparent", transition: "all 0.2s ease",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}, active.includes(m.id) && React.createElement("span", { style: { color: T.emerald, fontSize: 12, fontWeight: 900 } }, "\u2713")),
           ),
-          React.createElement("div", { style: {
-            width: 22, height: 22, borderRadius: 6, border: active.includes(m.id) ? `2px solid ${T.electric}` : `2px solid ${T.cardBorder}`,
-            background: active.includes(m.id) ? T.electric : "transparent", transition: "all 0.2s ease",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}, active.includes(m.id) && React.createElement("span", { style: { color: T.emerald, fontSize: 14, fontWeight: 900 } }, "✓")),
-        ),
-        active.includes(m.id) && React.createElement("div", { style: { padding: "0 16px 14px", borderTop: `1px solid ${T.cardBorder}`, paddingTop: 10 } },
-          React.createElement("div", { style: { fontSize: 11, color: T.muted, marginBottom: 6, fontFamily: "'JetBrains Mono', monospace" } }, "MODEL COMPETITORS"),
-          React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
-            m.competitors.map(c => React.createElement(Chip, { key: c, label: c, active: true })),
+          active.includes(m.id) && comps.length > 0 && React.createElement("div", { style: { padding: "0 16px 12px", borderTop: `1px solid ${T.cardBorder}`, paddingTop: 10 } },
+            React.createElement("div", { style: { fontSize: 10, color: T.muted, marginBottom: 6, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: 1 } }, "Model Competitors"),
+            React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 5 } },
+              comps.map(c => React.createElement(Chip, { key: c, label: c, active: true, color: ptColor })),
+            ),
           ),
-        ),
-      )),
+        );
+      }),
     ),
   );
 }
 
+// ── STEP 8: SCORING ──
 function StepScoring() {
   const kpis = [
-    { id: "sov", name: "Share of Voice", desc: "How often your brand is mentioned vs. competition", target: "35%", icon: "📊" },
-    { id: "mention", name: "Mention Rate", desc: "% of AI responses containing your brand", target: "60%", icon: "📢" },
-    { id: "position", name: "Average Position", desc: "Position in AI-generated lists and rankings", target: "#2.5", icon: "🏆" },
-    { id: "sentiment", name: "Sentiment Score", desc: "Positive vs. negative mentions ratio", target: "78%+", icon: "💚" },
-    { id: "recommend", name: "Recommendation Rate", desc: "How often AI directly recommends you", target: "25%", icon: "⭐" },
+    { id: "sov", name: "Share of Voice", desc: "How often your brand is mentioned vs. competition", target: "35%", icon: "\ud83d\udcca" },
+    { id: "mention", name: "Mention Rate", desc: "% of AI responses containing your brand", target: "60%", icon: "\ud83d\udce2" },
+    { id: "position", name: "Average Position", desc: "Position in AI-generated lists and rankings", target: "#2.5", icon: "\ud83c\udfc6" },
+    { id: "sentiment", name: "Sentiment Score", desc: "Positive vs. negative mentions ratio", target: "78%+", icon: "\ud83d\udc9a" },
+    { id: "recommend", name: "Recommendation Rate", desc: "How often AI directly recommends you", target: "25%", icon: "\u2b50" },
   ];
   const [active, setActive] = useState(["sov", "mention", "position", "sentiment", "recommend"]);
   const toggle = (id) => setActive(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -422,42 +659,40 @@ function StepScoring() {
     React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 16 } }, "Define what success looks like for your brand"),
     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
       kpis.map(k => React.createElement("div", {
-        key: k.id,
+        key: k.id, onClick: () => toggle(k.id),
         style: {
-          padding: "16px", borderRadius: 12, cursor: "pointer",
+          padding: "14px 16px", borderRadius: 12, cursor: "pointer",
           border: active.includes(k.id) ? `1px solid ${T.electric}33` : `1px solid ${T.cardBorder}`,
           background: active.includes(k.id) ? `linear-gradient(135deg, ${T.emeraldLight}88, ${T.electric}08)` : T.cardBg,
           display: "flex", alignItems: "center", gap: 14, transition: "all 0.2s ease",
         },
-        onClick: () => toggle(k.id),
       },
-        React.createElement("span", { style: { fontSize: 22 } }, k.icon),
+        React.createElement("span", { style: { fontSize: 20 } }, k.icon),
         React.createElement("div", { style: { flex: 1 } },
-          React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: active.includes(k.id) ? T.text : T.muted } }, k.name),
-          React.createElement("div", { style: { fontSize: 12, color: T.muted } }, k.desc),
+          React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: active.includes(k.id) ? T.text : T.muted } }, k.name),
+          React.createElement("div", { style: { fontSize: 11, color: T.muted } }, k.desc),
         ),
-        active.includes(k.id) && React.createElement("div", { style: {
-          padding: "6px 12px", borderRadius: 8, background: `${T.electric}15`, border: `1px solid ${T.electric}22`,
-        }},
-          React.createElement("div", { style: { fontSize: 10, color: T.muted, textTransform: "uppercase", letterSpacing: 1, fontFamily: "'JetBrains Mono', monospace" } }, "target"),
-          React.createElement("div", { style: { fontSize: 14, color: T.electric, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, k.target),
+        active.includes(k.id) && React.createElement("div", { style: { padding: "5px 10px", borderRadius: 8, background: `${T.electric}15`, border: `1px solid ${T.electric}22` } },
+          React.createElement("div", { style: { fontSize: 9, color: T.muted, textTransform: "uppercase", letterSpacing: 1, fontFamily: "'JetBrains Mono', monospace" } }, "target"),
+          React.createElement("div", { style: { fontSize: 13, color: T.electric, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, k.target),
         ),
       )),
     ),
   );
 }
 
+// ── STEP 9: SCHEDULE ──
 function StepSchedule() {
   const frequencies = [
-    { id: "realtime", label: "Real-time", desc: "Continuous monitoring", cost: "$$$", interval: "~4s per query" },
-    { id: "hourly", label: "Hourly", desc: "Every 60 minutes", cost: "$$", interval: "Full cycle/hour" },
-    { id: "daily", label: "Daily", desc: "Once per day", cost: "$", interval: "Full cycle at 6:00 AM" },
-    { id: "weekly", label: "Weekly", desc: "Once per week", cost: "$", interval: "Mondays at 6:00 AM" },
+    { id: "realtime", label: "Real-time", desc: "Continuous monitoring", interval: "~4s per query" },
+    { id: "hourly", label: "Hourly", desc: "Every 60 minutes", interval: "Full cycle/hour" },
+    { id: "daily", label: "Daily", desc: "Once per day", interval: "Full cycle at 6:00 AM" },
+    { id: "weekly", label: "Weekly", desc: "Once per week", interval: "Mondays at 6:00 AM" },
   ];
   const [freq, setFreq] = useState("daily");
   const [alerts, setAlerts] = useState(true);
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 12, fontFamily: "'JetBrains Mono', monospace" } }, "Monitoring Frequency"),
+    React.createElement(SectionLabel, null, "Monitoring Frequency"),
     React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 } },
       frequencies.map(f => React.createElement("div", {
         key: f.id, onClick: () => setFreq(f.id),
@@ -469,39 +704,39 @@ function StepSchedule() {
         },
       },
         React.createElement("div", { style: { fontSize: 15, fontWeight: 700, color: freq === f.id ? T.electric : T.text, marginBottom: 4 } }, f.label),
-        React.createElement("div", { style: { fontSize: 11, color: T.muted, marginBottom: 6 } }, f.desc),
+        React.createElement("div", { style: { fontSize: 11, color: T.muted, marginBottom: 4 } }, f.desc),
         React.createElement("div", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, f.interval),
       )),
     ),
-    // Alerts
-    React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 12, fontFamily: "'JetBrains Mono', monospace" } }, "Alerts"),
+    React.createElement(SectionLabel, null, "Alerts"),
     React.createElement(ToggleCard, {
-      icon: "🔔", title: "Alert on significant changes",
+      icon: "\ud83d\udd14", title: "Alert on significant changes",
       subtitle: "Notify when SoV drops >5% or sentiment shifts",
       active: alerts, onClick: () => setAlerts(!alerts),
     }),
   );
 }
 
+// ── STEP 10: DISPLAY ──
 function StepDisplay() {
   const displays = [
-    { id: "tv", icon: "📺", name: "TV Dashboard", desc: "Fullscreen 16:9 for LED TV" },
-    { id: "vertical", icon: "📱", name: "Vertical Panel", desc: "50×180cm LED panel" },
-    { id: "mobile", icon: "📲", name: "Mobile View", desc: "Responsive phone layout" },
-    { id: "report", icon: "📄", name: "PDF Report", desc: "Weekly/monthly export" },
-    { id: "api", icon: "⚡", name: "API Endpoint", desc: "JSON data for integrations" },
+    { id: "tv", icon: "\ud83d\udcfa", name: "TV Dashboard", desc: "Fullscreen 16:9 for LED TV" },
+    { id: "vertical", icon: "\ud83d\udcf1", name: "Vertical Panel", desc: "50\u00d7180cm LED panel" },
+    { id: "mobile", icon: "\ud83d\udcf2", name: "Mobile View", desc: "Responsive phone layout" },
+    { id: "report", icon: "\ud83d\udcc4", name: "PDF Report", desc: "Weekly/monthly export" },
+    { id: "api", icon: "\u26a1", name: "API Endpoint", desc: "JSON data for integrations" },
   ];
   const [active, setActive] = useState(["tv", "mobile"]);
   const toggle = (id) => setActive(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 12, fontFamily: "'JetBrains Mono', monospace" } }, "Output Formats"),
+    React.createElement(SectionLabel, null, "Output Formats"),
     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 } },
       displays.map(d => React.createElement(ToggleCard, {
         key: d.id, icon: d.icon, title: d.name, subtitle: d.desc,
         active: active.includes(d.id), onClick: () => toggle(d.id),
       })),
     ),
-    React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: T.electric, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 12, fontFamily: "'JetBrains Mono', monospace" } }, "Access"),
+    React.createElement(SectionLabel, null, "Access"),
     React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 } },
       React.createElement(Field, { label: "Password", value: "skodax", onChange: () => {}, small: true }),
       React.createElement(Field, { label: "Share URL", value: "aibranddashboard.daveai.cz", onChange: () => {}, small: true }),
@@ -509,15 +744,16 @@ function StepDisplay() {
   );
 }
 
-function StepLaunch({ onLaunch }) {
+// ── STEP 11: LAUNCH ──
+function StepLaunch() {
   const summary = [
-    { label: "Brand", value: "Škoda" },
-    { label: "Competitors", value: "8 brands" },
+    { label: "Brand", value: "Skoda" },
+    { label: "Brand Competitors", value: "16 (ICE/Hybrid/BEV)" },
     { label: "AI Platforms", value: "6 active" },
     { label: "Personas", value: "3 profiles" },
-    { label: "Queries", value: "52 per market" },
-    { label: "Markets", value: "5 regions" },
-    { label: "Models", value: "3 products" },
+    { label: "Query Categories", value: "18 BEV + 16 ICE + 16 Hybrid" },
+    { label: "Markets", value: "9 EU + 2 non-EU" },
+    { label: "Models", value: "6 (ICE/Hybrid/BEV)" },
     { label: "KPIs", value: "5 metrics" },
     { label: "Schedule", value: "Daily at 6:00 AM" },
     { label: "Outputs", value: "TV + Mobile" },
@@ -528,26 +764,24 @@ function StepLaunch({ onLaunch }) {
     React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 } },
       summary.map(s => React.createElement("div", {
         key: s.label,
-        style: { padding: "12px 14px", borderRadius: 10, background: T.cardBg, border: `1px solid ${T.cardBorder}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
+        style: { padding: "11px 14px", borderRadius: 10, background: T.cardBg, border: `1px solid ${T.cardBorder}`, display: "flex", justifyContent: "space-between", alignItems: "center" },
       },
-        React.createElement("span", { style: { fontSize: 12, color: T.muted } }, s.label),
-        React.createElement("span", { style: { fontSize: 13, fontWeight: 700, color: T.electric, fontFamily: "'JetBrains Mono', monospace" } }, s.value),
+        React.createElement("span", { style: { fontSize: 11, color: T.muted } }, s.label),
+        React.createElement("span", { style: { fontSize: 12, fontWeight: 700, color: T.electric, fontFamily: "'JetBrains Mono', monospace" } }, s.value),
       )),
     ),
-    // Cost estimate
     React.createElement("div", { style: { padding: 18, borderRadius: 12, background: `linear-gradient(135deg, ${T.emerald}, ${T.emeraldLight})`, border: `1px solid ${T.electric}22`, marginBottom: 24 } },
       React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
         React.createElement("div", null,
           React.createElement("div", { style: { fontSize: 11, color: T.muted, textTransform: "uppercase", letterSpacing: 1.5, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 } }, "Estimated Monthly Cost"),
-          React.createElement("div", { style: { fontSize: 28, fontWeight: 800, color: T.electric, fontFamily: "'JetBrains Mono', monospace" } }, "$85"),
+          React.createElement("div", { style: { fontSize: 28, fontWeight: 800, color: T.electric, fontFamily: "'JetBrains Mono', monospace" } }, "$115"),
         ),
         React.createElement("div", { style: { textAlign: "right" } },
-          React.createElement("div", { style: { fontSize: 12, color: T.textDim } }, "260 queries/day"),
-          React.createElement("div", { style: { fontSize: 12, color: T.textDim } }, "6 platforms × 5 markets"),
+          React.createElement("div", { style: { fontSize: 12, color: T.textDim } }, "~350 queries/day"),
+          React.createElement("div", { style: { fontSize: 12, color: T.textDim } }, "6 platforms \u00d7 11 markets"),
         ),
       ),
     ),
-    // Launch button
     React.createElement("button", {
       onClick: () => setLaunched(true),
       style: {
@@ -556,18 +790,17 @@ function StepLaunch({ onLaunch }) {
         background: launched ? `${T.electric}22` : `linear-gradient(135deg, ${T.electric}, ${T.cyan})`,
         color: launched ? T.electric : T.emerald,
         fontSize: 16, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase",
-        fontFamily: "'JetBrains Mono', monospace",
-        transition: "all 0.3s ease",
+        fontFamily: "'JetBrains Mono', monospace", transition: "all 0.3s ease",
         boxShadow: launched ? "none" : `0 0 40px ${T.electric}30`,
       },
-    }, launched ? "✓ Monitoring Active" : "▶ Launch Monitoring"),
+    }, launched ? "\u2713 Monitoring Active" : "\u25b6 Launch Monitoring"),
     launched && React.createElement("div", { style: { textAlign: "center", marginTop: 16, fontSize: 13, color: T.electric, animation: "fadeIn 0.5s ease-out" } },
       "Dashboard is now live at ", React.createElement("span", { style: { fontFamily: "'JetBrains Mono', monospace", textDecoration: "underline" } }, "aibranddashboard.daveai.cz"),
     ),
   );
 }
 
-// ── STEP RENDERER ──
+// ── STEP RENDERER MAP ──
 const STEP_COMPONENTS = {
   brand: StepBrand, competitors: StepCompetitors, platforms: StepPlatforms,
   personas: StepPersonas, queries: StepQueries, markets: StepMarkets,
@@ -590,11 +823,10 @@ function App() {
   const StepContent = STEP_COMPONENTS[current.id];
 
   return React.createElement("div", { style: {
-    minHeight: "100vh", display: "flex", flexDirection: isMobile ? "column" : "row",
-    background: T.bg,
+    minHeight: "100vh", display: "flex", flexDirection: isMobile ? "column" : "row", background: T.bg,
   }},
 
-    // ── SIDEBAR (desktop) / TOP BAR (mobile) ──
+    // Sidebar / Top bar
     React.createElement("div", { style: {
       width: isMobile ? "100%" : 280, flexShrink: 0,
       background: `linear-gradient(180deg, ${T.cardBg}, ${T.bg})`,
@@ -603,57 +835,38 @@ function App() {
       padding: isMobile ? "16px 16px 12px" : "28px 20px",
       overflowY: isMobile ? "hidden" : "auto",
     }},
-
-      // Logo area
       React.createElement("div", { style: { marginBottom: isMobile ? 12 : 28 } },
         React.createElement("div", { style: { fontSize: isMobile ? 14 : 18, fontWeight: 800, color: T.electric, letterSpacing: 2, fontFamily: "'JetBrains Mono', monospace" } }, "GEO SETUP"),
-        React.createElement("div", { style: { fontSize: 11, color: T.muted, marginTop: 2 } }, "AI Brand Visibility · MVP"),
+        React.createElement("div", { style: { fontSize: 11, color: T.muted, marginTop: 2 } }, "AI Brand Visibility \u00b7 MVP"),
       ),
-
-      // Progress
       React.createElement("div", { style: { marginBottom: isMobile ? 12 : 24 } },
         React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } },
           React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, `Step ${step + 1} of ${STEPS.length}`),
           React.createElement("span", { style: { fontSize: 11, color: T.electric, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 } }, `${Math.round(progress)}%`),
         ),
         React.createElement("div", { style: { height: 4, borderRadius: 2, background: T.cardBorder, overflow: "hidden" } },
-          React.createElement("div", { style: {
-            width: `${progress}%`, height: "100%", borderRadius: 2,
-            background: `linear-gradient(90deg, ${T.electric}, ${T.cyan})`,
-            transition: "width 0.4s ease",
-          }}),
+          React.createElement("div", { style: { width: `${progress}%`, height: "100%", borderRadius: 2, background: `linear-gradient(90deg, ${T.electric}, ${T.cyan})`, transition: "width 0.4s ease" } }),
         ),
       ),
-
-      // Step list (desktop only)
       !isMobile && React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 2 } },
         STEPS.map((s, i) => React.createElement("div", {
           key: s.id, onClick: () => setStep(i),
           style: {
-            padding: "10px 12px", borderRadius: 8, cursor: "pointer",
+            padding: "9px 12px", borderRadius: 8, cursor: "pointer",
             background: i === step ? `linear-gradient(135deg, ${T.emeraldLight}cc, ${T.electric}12)` : "transparent",
             border: i === step ? `1px solid ${T.electric}22` : "1px solid transparent",
             display: "flex", alignItems: "center", gap: 10, transition: "all 0.2s ease",
           },
         },
           React.createElement("div", { style: {
-            width: 26, height: 26, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center",
+            width: 24, height: 24, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
             background: i < step ? `${T.electric}22` : i === step ? `${T.electric}33` : `${T.cardBorder}66`,
             color: i <= step ? T.electric : T.muted,
-            fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
-            transition: "all 0.2s ease",
-          }}, i < step ? "✓" : s.num),
-          React.createElement("div", null,
-            React.createElement("div", { style: {
-              fontSize: 13, fontWeight: i === step ? 700 : 500,
-              color: i === step ? T.electric : i < step ? T.textDim : T.muted,
-              transition: "all 0.2s ease",
-            }}, s.title),
-          ),
+            fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+          }}, i < step ? "\u2713" : s.num),
+          React.createElement("div", { style: { fontSize: 12, fontWeight: i === step ? 700 : 500, color: i === step ? T.electric : i < step ? T.textDim : T.muted } }, s.title),
         )),
       ),
-
-      // Mobile step indicator
       isMobile && React.createElement("div", { style: { display: "flex", gap: 4, justifyContent: "center" } },
         STEPS.map((s, i) => React.createElement("div", {
           key: s.id, onClick: () => setStep(i),
@@ -666,61 +879,42 @@ function App() {
       ),
     ),
 
-    // ── MAIN CONTENT ──
-    React.createElement("div", { style: {
-      flex: 1, display: "flex", flexDirection: "column", minHeight: isMobile ? "auto" : "100vh",
-    }},
-
-      // Content area
-      React.createElement("div", { style: {
-        flex: 1, padding: isMobile ? "24px 20px" : "40px 48px",
-        overflowY: "auto", maxWidth: 640,
-      }},
-
-        // Step header
-        React.createElement("div", { style: { marginBottom: 28 } },
-          React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 8 } },
-            React.createElement("span", { style: { fontSize: 28, opacity: 0.7 } }, current.icon),
-            React.createElement("h1", { style: { fontSize: isMobile ? 22 : 28, fontWeight: 800, color: T.text, letterSpacing: -0.5 } }, current.title),
+    // Main content
+    React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", minHeight: isMobile ? "auto" : "100vh" } },
+      React.createElement("div", { style: { flex: 1, padding: isMobile ? "24px 20px" : "40px 48px", overflowY: "auto", maxWidth: 680 } },
+        React.createElement("div", { style: { marginBottom: 24 } },
+          React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 6 } },
+            React.createElement("span", { style: { fontSize: 24, opacity: 0.7 } }, current.icon),
+            React.createElement("h1", { style: { fontSize: isMobile ? 22 : 26, fontWeight: 800, color: T.text, letterSpacing: -0.5 } }, current.title),
           ),
-          React.createElement("p", { style: { fontSize: 14, color: T.muted, lineHeight: 1.5 } }, current.desc),
+          React.createElement("p", { style: { fontSize: 13, color: T.muted, lineHeight: 1.5 } }, current.desc),
         ),
-
-        // Dynamic step content
         React.createElement(StepContent, { key: current.id }),
       ),
-
-      // ── BOTTOM NAV ──
+      // Bottom nav
       React.createElement("div", { style: {
-        padding: isMobile ? "16px 20px" : "16px 48px",
-        borderTop: `1px solid ${T.cardBorder}`,
-        background: `${T.cardBg}cc`,
-        backdropFilter: "blur(12px)",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        flexShrink: 0,
+        padding: isMobile ? "14px 20px" : "14px 48px",
+        borderTop: `1px solid ${T.cardBorder}`, background: `${T.cardBg}cc`,
+        backdropFilter: "blur(12px)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0,
       }},
         step > 0 ? React.createElement("button", {
           onClick: () => setStep(step - 1),
           style: {
-            padding: "12px 24px", borderRadius: 10, cursor: "pointer",
+            padding: "11px 22px", borderRadius: 10, cursor: "pointer",
             border: `1px solid ${T.cardBorder}`, background: T.cardBg,
-            color: T.textDim, fontSize: 14, fontWeight: 600, transition: "all 0.2s ease",
+            color: T.textDim, fontSize: 13, fontWeight: 600, transition: "all 0.2s ease",
           },
-        }, "← Back") : React.createElement("div"),
-
-        React.createElement("div", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } },
-          `${step + 1} / ${STEPS.length}`),
-
+        }, "\u2190 Back") : React.createElement("div"),
+        React.createElement("div", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, `${step + 1} / ${STEPS.length}`),
         step < STEPS.length - 1 ? React.createElement("button", {
           onClick: () => setStep(step + 1),
           style: {
-            padding: "12px 28px", borderRadius: 10, cursor: "pointer",
-            border: "none", background: `linear-gradient(135deg, ${T.electric}, ${T.cyan})`,
-            color: T.emerald, fontSize: 14, fontWeight: 800, letterSpacing: 0.5,
-            transition: "all 0.2s ease",
-            boxShadow: `0 0 20px ${T.electric}25`,
+            padding: "11px 26px", borderRadius: 10, cursor: "pointer", border: "none",
+            background: `linear-gradient(135deg, ${T.electric}, ${T.cyan})`,
+            color: T.emerald, fontSize: 13, fontWeight: 800, letterSpacing: 0.5,
+            transition: "all 0.2s ease", boxShadow: `0 0 20px ${T.electric}25`,
           },
-        }, "Next →") : React.createElement("div"),
+        }, "Next \u2192") : React.createElement("div"),
       ),
     ),
   );
