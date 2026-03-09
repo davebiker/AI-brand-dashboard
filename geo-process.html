@@ -132,10 +132,12 @@ function App() {
     return () => clearTimeout(t);
   }, []);
 
-  const stairW = isMobile ? 280 : 320;
-  const stairH = isMobile ? 110 : 120;
-  const stepX = isMobile ? 30 : 50;
-  const stepY = isMobile ? 90 : 105;
+  const stairW = isMobile ? 240 : 280;
+  const stairH = isMobile ? 100 : 110;
+  const gapX = isMobile ? 8 : 12;
+  const gapY = isMobile ? 8 : 12;
+  const stepX = stairW + gapX;
+  const stepY = stairH + gapY;
 
   const totalW = stairW + stepX * (STAIRS.length - 1) + 40;
   const totalH = stairH + stepY * (STAIRS.length - 1) + 60;
@@ -277,13 +279,13 @@ function App() {
               ),
             ),
 
-            // Arrow connector to next step
+            // Arrow connector to next step — sits in the diagonal gap
             show && i < STAIRS.length - 1 && React.createElement("div", { style: {
               position: "absolute",
-              right: isMobile ? -8 : -12,
-              top: isMobile ? -18 : -22,
-              fontSize: isMobile ? 16 : 20,
-              color: `${stair.color}55`,
+              left: stairW + gapX / 2 - 8,
+              top: -(gapY / 2) - 8,
+              fontSize: isMobile ? 18 : 22,
+              color: `${stair.color}66`,
               animation: "arrowBounce 1.5s ease-in-out infinite",
               animationDelay: `${i * 0.2}s`,
               transform: "rotate(-45deg)",
@@ -294,8 +296,8 @@ function App() {
         // Completion badge
         visibleSteps >= STAIRS.length && React.createElement("div", { style: {
           position: "absolute",
-          left: stepX * STAIRS.length + 20,
-          top: totalH - stairH - stepY * STAIRS.length + 30,
+          left: stepX * (STAIRS.length - 1) + stairW + 20,
+          top: totalH - stairH - stepY * (STAIRS.length - 1) - 50,
           animation: "slideUp 0.8s ease-out",
         }},
           React.createElement("div", { style: {
