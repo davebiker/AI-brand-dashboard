@@ -22,6 +22,7 @@
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   @keyframes breathe { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; } }
   @keyframes dataFlow { 0% { transform: translateX(-100%); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateX(200%); opacity: 0; } }
+  @keyframes shake { 0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)} }
 </style>
 </head>
 <body>
@@ -36,6 +37,57 @@ const T = {
   amber: "#F5C842", red: "#E85454", cyan: "#5AD4C4",
   purple: "#B4A0FF", blue: "#5AA8D4",
 };
+
+function PasswordGate({ children }) {
+  const [locked, setLocked] = useState(sessionStorage.getItem("skodax_unlocked") !== "1");
+  const [pwd, setPwd] = useState("");
+  const [wrong, setWrong] = useState(false);
+  const [fading, setFading] = useState(false);
+  const tryUnlock = () => {
+    if (pwd.trim().toLowerCase() === "skodax") {
+      sessionStorage.setItem("skodax_unlocked", "1");
+      setFading(true);
+      setTimeout(() => setLocked(false), 800);
+    } else { setWrong(true); setTimeout(() => setWrong(false), 600); }
+  };
+  if (!locked) return children;
+  return React.createElement("div", { style: {
+    position: "fixed", inset: 0, zIndex: 99999,
+    background: T.bg, display: "flex", flexDirection: "column",
+    alignItems: "center", justifyContent: "center",
+    opacity: fading ? 0 : 1, transition: "opacity 0.8s ease",
+  }},
+    React.createElement("div", { style: { position: "fixed", inset: 0, opacity: 0.02, pointerEvents: "none",
+      backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
+      backgroundSize: "80px 80px" } }),
+    React.createElement("div", { style: { fontSize: 48, fontWeight: 900, color: T.text, fontFamily: "'Outfit', sans-serif", letterSpacing: 2, marginBottom: 6 } }, "\u0160koda X"),
+    React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: T.electric, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 4, textTransform: "uppercase", marginBottom: 40 } }, "AI Brand Intelligence"),
+    React.createElement("input", {
+      type: "password", value: pwd,
+      onChange: e => setPwd(e.target.value),
+      onKeyDown: e => e.key === "Enter" && tryUnlock(),
+      placeholder: "Enter password",
+      style: {
+        width: 260, padding: "14px 20px", borderRadius: 12,
+        background: T.cardBg, border: `2px solid ${wrong ? T.red : T.cardBorder}`,
+        color: T.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
+        outline: "none", textAlign: "center",
+        animation: wrong ? "shake 0.4s ease" : "none",
+        transition: "border-color 0.3s ease",
+      },
+    }),
+    React.createElement("button", {
+      onClick: tryUnlock,
+      style: {
+        marginTop: 16, padding: "12px 40px", borderRadius: 10,
+        background: T.electric, color: T.emerald, border: "none",
+        fontSize: 14, fontWeight: 800, fontFamily: "'Outfit', sans-serif",
+        cursor: "pointer", letterSpacing: 1,
+      },
+    }, "Unlock"),
+    wrong && React.createElement("div", { style: { marginTop: 12, fontSize: 12, color: T.red, fontFamily: "'JetBrains Mono', monospace" } }, "Wrong password"),
+  );
+}
 
 const STEPS = [
   {
@@ -384,7 +436,7 @@ function App() {
   );
 }
 
-ReactDOM.render(React.createElement(App), document.getElementById("root"));
+ReactDOM.render(React.createElement(PasswordGate, null, React.createElement(App)), document.getElementById("root"));
 </script>
 </body>
 </html>
