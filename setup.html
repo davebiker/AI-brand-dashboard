@@ -213,7 +213,7 @@ const STEPS = [
   { id: "personas", num: 4, icon: "\u25c9", title: "Personas", desc: "Who is asking AI about you?" },
   { id: "queries", num: 5, icon: "\u25b8", title: "Query Categories", desc: "What questions to test per powertrain" },
   { id: "markets", num: 6, icon: "\u25c8", title: "Markets & Languages", desc: "EU and non-EU target regions" },
-  { id: "models", num: 7, icon: "\u25b3", title: "Product / Model Mode", desc: "Track Skoda models by powertrain" },
+  { id: "models", num: 7, icon: "\u25b3", title: "Product / Model Mode", desc: "Track Škoda models by powertrain" },
   { id: "scoring", num: 8, icon: "\u25c7", title: "Scoring & KPIs", desc: "What success looks like" },
   { id: "schedule", num: 9, icon: "\u21bb", title: "Update Schedule", desc: "Monitoring frequency" },
   { id: "display", num: 10, icon: "\u25a2", title: "Display & Output", desc: "How to view results" },
@@ -326,7 +326,7 @@ function CompetitorGroup({ title, competitors, selected, onToggle }) {
 
 // ── STEP 1: BRAND ──
 function StepBrand() {
-  const [name, setName] = useState("Skoda");
+  const [name, setName] = useState("Škoda");
   const [domain, setDomain] = useState("skoda-auto.cz");
   const [attrs, setAttrs] = useState(["reliable", "innovative", "electric", "value"]);
   const [newAttr, setNewAttr] = useState("");
@@ -397,7 +397,7 @@ function StepCompetitors() {
         key: model,
         style: { padding: 14, borderRadius: 12, background: T.cardBg, border: `1px solid ${T.cardBorder}` },
       },
-        React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 8 } }, `Skoda ${model}`),
+        React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 8 } }, `Škoda ${model}`),
         React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
           comps.map(c => React.createElement(Chip, {
             key: c, label: c, active: (modelSel[model] || []).includes(c),
@@ -606,7 +606,7 @@ function StepModels() {
   const totalActive = Object.values(SKODA_MODELS).flat().filter(m => active.includes(m.id)).length;
 
   return React.createElement("div", { style: { animation: "slideIn 0.4s ease-out" } },
-    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 6 } }, "Track individual Skoda models alongside brand monitoring"),
+    React.createElement("div", { style: { fontSize: 12, color: T.muted, marginBottom: 6 } }, "Track individual Škoda models alongside brand monitoring"),
     React.createElement("div", { style: { fontSize: 12, color: T.amber, marginBottom: 16, fontFamily: "'JetBrains Mono', monospace" } }, `${totalActive} models active \u00b7 each adds ~20 model-specific queries`),
     React.createElement(PowertrainTabs, { active: tab, onChange: setTab }),
     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
@@ -882,7 +882,7 @@ function StepDisplay() {
 // ── STEP 11: LAUNCH ──
 function StepLaunch() {
   const summary = [
-    { label: "Brand", value: "Skoda" },
+    { label: "Brand", value: "Škoda" },
     { label: "Brand Competitors", value: "16 (ICE/Hybrid/BEV)" },
     { label: "AI Platforms", value: "6 active" },
     { label: "Personas", value: "3 profiles" },
