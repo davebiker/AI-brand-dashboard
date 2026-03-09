@@ -1334,15 +1334,6 @@ function App() {
               color: T.textDim, fontSize: 14, fontWeight: 600, transition: "all 0.2s ease",
             },
           }, "\u2190 Back") : React.createElement("div"),
-          React.createElement("button", {
-            onClick: () => setShowFlow(true),
-            style: {
-              padding: "8px 16px", borderRadius: 8, cursor: "pointer",
-              border: `1px solid ${T.cardBorder}`, background: "transparent",
-              color: T.muted, fontSize: 11, fontWeight: 700,
-              fontFamily: "'JetBrains Mono', monospace", transition: "all 0.2s ease",
-            },
-          }, "\u25c9 Flow View"),
           step < STEPS.length - 1 ? React.createElement("button", {
             onClick: () => setStep(step + 1),
             style: {
