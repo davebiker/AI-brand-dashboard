@@ -1226,6 +1226,25 @@ function App() {
       onClose: () => setShowFlow(false),
       onStepClick: (i) => { setStep(i); setShowFlow(false); },
     }),
+    // Fixed top-right nav
+    !isMobile && React.createElement("div", { style: {
+      position: "fixed", top: 14, right: 20, zIndex: 9999,
+      display: "flex", gap: 8, flexWrap: "wrap",
+    }},
+      [
+        { href: "index.html", label: "\u25c6 Intro" },
+        { href: "flow.html", label: "\u25c9 Flow" },
+        { href: "setup.html", label: "\u2699 Setup" },
+        { href: "dashboard.html", label: "\u25a0 Dashboard" },
+        { href: "geo-process.html", label: "\u25b8 Next Steps" },
+      ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
+        padding: "7px 14px", borderRadius: 8, textDecoration: "none",
+        background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`,
+        color: T.muted, fontSize: 11, fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace", transition: "all 0.2s ease",
+      }}, l.label)),
+    ),
+
     React.createElement("div", { style: {
       height: "100vh", display: "flex", flexDirection: isMobile ? "column" : "row", background: T.bg,
       overflow: "hidden",

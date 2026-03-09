@@ -76,7 +76,7 @@ const STEPS = [
     num: "06", title: "Content Creation", color: T.electric,
     desc: "Produce optimized content",
     details: "Create new content specifically designed for AI visibility \u2014 authoritative articles, FAQ pages, structured comparisons, expert guides.",
-    group: "optimize",
+    group: "create",
   },
   {
     num: "07", title: "Implementation", color: T.cyan,
@@ -207,6 +207,7 @@ function App() {
 
   const analyzeSteps = STEPS.filter(s => s.group === "analyze");
   const optimizeSteps = STEPS.filter(s => s.group === "optimize");
+  const createSteps = STEPS.filter(s => s.group === "create");
   const deploySteps = STEPS.filter(s => s.group === "deploy");
 
   return React.createElement("div", { style: { minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column" } },
@@ -269,7 +270,7 @@ function App() {
         }),
       ),
 
-      // Phase 2: Optimize (steps 3-6) — grouped visually
+      // Phase 2: Optimize (steps 3-5) — grouped visually
       React.createElement("div", { style: { marginBottom: 8 } },
         React.createElement("div", { style: {
           fontSize: 11, fontWeight: 700, color: `${T.amber}55`, letterSpacing: 3,
@@ -293,7 +294,7 @@ function App() {
             background: T.bg, border: `1px solid ${T.amber}33`,
             fontSize: 9, fontWeight: 800, color: T.amber, letterSpacing: 2,
             fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
-          }}, "Steps 03\u201306 \u00b7 Content & Channels"),
+          }}, "Steps 03\u201305 \u00b7 Content & Channels"),
           optimizeSteps.map((step, si) => {
             const i = STEPS.indexOf(step);
             return React.createElement(StepCard, {
@@ -305,7 +306,24 @@ function App() {
         ),
       ),
 
-      // Phase 3: Deploy (step 7)
+      // Phase 3: Create (step 6)
+      React.createElement("div", { style: { marginBottom: 8 } },
+        React.createElement("div", { style: {
+          fontSize: 11, fontWeight: 700, color: `${T.electric}55`, letterSpacing: 3,
+          fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
+          marginBottom: 16, paddingLeft: isMobile ? 58 : 72,
+        }}, "Create"),
+        createSteps.map((step, si) => {
+          const i = STEPS.indexOf(step);
+          return React.createElement(StepCard, {
+            key: step.num, step, index: i, isMobile,
+            active: activeStep === i,
+            onClick: () => setActiveStep(activeStep === i ? null : i),
+          });
+        }),
+      ),
+
+      // Phase 4: Deploy (step 7)
       React.createElement("div", { style: { marginBottom: 8 } },
         React.createElement("div", { style: {
           fontSize: 11, fontWeight: 700, color: `${T.cyan}55`, letterSpacing: 3,
