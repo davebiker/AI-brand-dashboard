@@ -5759,8 +5759,8 @@ function App() {
       React.createElement("span", { style: { fontSize: 10, color: `${THEME.muted}88` } },
         `Škoda CI — Emerald (#0E3A2F) + Electric Green (#78FAAE) · refresh ${UPDATE_INTERVAL/1000}s`),
     ),
-    // GEO Setup link
-    React.createElement("div", { style: { marginTop: 12, textAlign: "center" } },
+    // GEO links
+    React.createElement("div", { style: { marginTop: 12, textAlign: "center", display: "flex", gap: 10, justifyContent: "center" } },
       React.createElement("a", {
         href: "setup.html",
         style: {
@@ -5772,7 +5772,19 @@ function App() {
           fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
           transition: "all 0.3s ease",
         },
-      }, "◉ GEO Setup"),
+      }, "\u25c9 GEO Setup"),
+      React.createElement("a", {
+        href: "geo-process.html",
+        style: {
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "8px 20px", borderRadius: 8, textDecoration: "none",
+          border: `1px solid ${THEME.electric}44`,
+          background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}18)`,
+          color: THEME.electric, fontSize: 12, fontWeight: 700,
+          fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
+          transition: "all 0.3s ease",
+        },
+      }, "\u25b8 GEO Process"),
     ),
   ));
 }
