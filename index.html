@@ -47,13 +47,19 @@ const T = {
 };
 
 // ── PASSWORD GATE ──
+const PWD_HASH = "304e8b90c8e21c35cf1f73fea7a2b3391631fd7380f32f6d7737efb3ee3b7016";
+async function sha256(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
 function PasswordGate({ children }) {
   const [locked, setLocked] = useState(sessionStorage.getItem("skodax_unlocked") !== "1");
   const [pwd, setPwd] = useState("");
   const [wrong, setWrong] = useState(false);
   const [fading, setFading] = useState(false);
-  const tryUnlock = () => {
-    if (pwd.trim().toLowerCase() === "skodax") {
+  const tryUnlock = async () => {
+    const hash = await sha256(pwd.trim().toLowerCase());
+    if (hash === PWD_HASH) {
       sessionStorage.setItem("skodax_unlocked", "1");
       setFading(true);
       setTimeout(() => setLocked(false), 800);
