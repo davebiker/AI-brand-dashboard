@@ -96,7 +96,7 @@ function TopNav({ isMobile }) {
     background: `linear-gradient(180deg, ${T.bg}ee, transparent)`,
     backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
   }},
-    React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+    React.createElement("a", { href: "index.html", style: { display: "flex", alignItems: "center", gap: 10, textDecoration: "none" } },
       React.createElement("div", { style: {
         width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
         background: `${T.electric}15`, border: `1px solid ${T.electric}33`,
@@ -125,10 +125,10 @@ function TopNav({ isMobile }) {
 function SectionHero({ sRef, isMobile }) {
   const [ref, vis] = useReveal(0.1);
   const platforms = [
-    { name: "ChatGPT", color: "#10A37F" },
-    { name: "Claude", color: "#D4A574" },
-    { name: "Gemini", color: "#4285F4" },
-    { name: "Perplexity", color: "#B4A0FF" },
+    { name: "ChatGPT", color: "#10A37F", logo: "https://cdn.oaistatic.com/assets/favicon-o20zuira.svg" },
+    { name: "Claude", color: "#D4A574", logo: "https://claude.ai/favicon.svg" },
+    { name: "Gemini", color: "#4285F4", logo: "https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.svg" },
+    { name: "Perplexity", color: "#B4A0FF", logo: "https://www.perplexity.ai/favicon.svg" },
   ];
 
   return React.createElement("section", { ref: sRef, style: {
@@ -188,8 +188,8 @@ function SectionHero({ sRef, isMobile }) {
         opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(30px)",
         transition: "all 0.8s ease 0.4s",
       }},
-        "Kdy\u017E se z\u00E1kazn\u00EDk zept\u00E1 AI ", React.createElement("span", { style: { color: T.electric, fontWeight: 700 } }, "\"jak\u00FD elektromobil koupit\""),
-        ", zm\u00EDn\u00ED AI va\u0161i zna\u010Dku? GEO monitoruje a optimalizuje viditelnost zna\u010Dky v odpov\u011Bd\u00EDch AI platforem."
+        "When a customer asks AI ", React.createElement("span", { style: { color: T.electric, fontWeight: 700 } }, "\"which electric car should I buy\""),
+        ", does AI mention our brand? \u0160koda X monitors and optimizes brand visibility in AI platform responses."
       ),
 
       // Platform icons
@@ -206,11 +206,11 @@ function SectionHero({ sRef, isMobile }) {
             width: isMobile ? 48 : 56, height: isMobile ? 48 : 56, borderRadius: 14,
             display: "flex", alignItems: "center", justifyContent: "center",
             background: `${p.color}12`, border: `1px solid ${p.color}33`,
-            fontSize: isMobile ? 18 : 22, fontWeight: 900, color: p.color,
-            fontFamily: "'JetBrains Mono', monospace",
             animation: `float 3s ease-in-out infinite`,
             animationDelay: `${i * 0.3}s`,
-          }}, p.name[0]),
+          }},
+            React.createElement("img", { src: p.logo, alt: p.name, style: { width: isMobile ? 24 : 28, height: isMobile ? 24 : 28, objectFit: "contain" }, onError: (e) => { e.target.style.display = "none"; e.target.parentNode.innerText = p.name[0]; } }),
+          ),
           React.createElement("span", { style: { fontSize: 10, color: T.muted, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 } }, p.name),
         )),
 
@@ -529,7 +529,7 @@ function App() {
       sRef: sectionRefs[1], isMobile, num: "01", accent: T.electric,
       subtitle: "Step One \u2014 Configure",
       title: "GEO Setup",
-      desc: "Definujte svou zna\u010Dku, konkurenty, AI platformy, c\u00EDlov\u00E9 trhy a dotazy. 11 krok\u016F konfigurace pokr\u00FDv\u00E1 v\u0161e od brand identity po scoring metriky.",
+      desc: "Define your brand, competitors, AI platforms, target markets and queries. 11 configuration steps cover everything from brand identity to scoring metrics.",
       features: [
         "Competitors by powertrain (ICE / Hybrid / BEV)",
         "19 query categories per powertrain type",
@@ -546,7 +546,7 @@ function App() {
       sRef: sectionRefs[2], isMobile, num: "02", accent: T.cyan, reverse: true,
       subtitle: "Step Two \u2014 Monitor",
       title: "GEO Dashboard",
-      desc: "Real-time monitoring viditelnosti zna\u010Dky v odpov\u011Bd\u00EDch AI. Sledujte visibility score, sentiment, competitive positioning a citation tracking.",
+      desc: "Real-time brand visibility monitoring across AI responses. Track visibility score, sentiment, competitive positioning and citation sources.",
       features: [
         "Real-time visibility scoring across AI engines",
         "Competitive benchmarking & gap analysis",
@@ -563,7 +563,7 @@ function App() {
       sRef: sectionRefs[3], isMobile, num: "03", accent: T.amber,
       subtitle: "Step Three \u2014 Optimize",
       title: "GEO Next Steps",
-      desc: "Vyu\u017Eijte insights k optimalizaci obsahu, metadat a extern\u00EDch kan\u00E1l\u016F. 7 f\u00E1z\u00ED cyklick\u00E9ho procesu od analytiky po implementaci.",
+      desc: "Use insights to optimize content, metadata and external channels. 7 phases of a continuous cycle from analytics to implementation.",
       features: [
         "Analytics \u2192 Executive Summary \u2192 Insights",
         "Website, media & blog content optimization",
