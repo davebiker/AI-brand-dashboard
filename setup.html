@@ -1017,6 +1017,7 @@ function VisualFlow({ onClose, onStepClick }) {
   const [started, setStarted] = useState(false);
   const [visibleCount, setVisibleCount] = useState(0);
   const [hovered, setHovered] = useState(null);
+  const flowMobile = window.innerWidth < 768;
 
   const sepIndex = 7;
   const topSteps = STEPS.slice(0, sepIndex);
@@ -1080,8 +1081,8 @@ function VisualFlow({ onClose, onStepClick }) {
         background: isHov ? `linear-gradient(90deg, ${color}, ${color}44)` : `${color}18`,
         transition: "background 0.25s ease",
       }}),
-      // Tooltip popup on hover
-      isHov && STEP_TOOLTIPS[s.id] && React.createElement("div", {
+      // Tooltip popup on hover (hidden on mobile/touch)
+      isHov && !flowMobile && STEP_TOOLTIPS[s.id] && React.createElement("div", {
         style: {
           position: "absolute", left: "50%", transform: "translateX(-50%)",
           bottom: "calc(100% + 12px)",
@@ -1129,8 +1130,9 @@ function VisualFlow({ onClose, onStepClick }) {
       position: "fixed", inset: 0, zIndex: 10000,
       background: `radial-gradient(ellipse at 50% 25%, ${T.emerald}55, ${T.bg} 70%)`,
       backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      animation: "flowFadeIn 0.5s ease-out", cursor: "default", overflow: "hidden",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: flowMobile ? "flex-start" : "center",
+      animation: "flowFadeIn 0.5s ease-out", cursor: "default", overflowY: "auto", overflowX: "hidden",
+      paddingTop: flowMobile ? 80 : 0, paddingBottom: flowMobile ? 40 : 0,
     },
   },
     // Grid bg
@@ -1167,20 +1169,20 @@ function VisualFlow({ onClose, onStepClick }) {
     // Flow
     started && React.createElement("div", { style: {
       display: "flex", flexDirection: "column", alignItems: "stretch",
-      width: "calc(100vw - 80px)", maxWidth: 1600, gap: 20,
-      padding: "0 8px",
+      width: flowMobile ? "calc(100vw - 32px)" : "calc(100vw - 80px)", maxWidth: 1600, gap: flowMobile ? 12 : 20,
+      padding: flowMobile ? "0 4px" : "0 8px",
     }},
 
       // Row label
       React.createElement("div", { style: {
-        fontSize: 12, fontWeight: 700, color: `${T.electric}66`, letterSpacing: 4,
+        fontSize: flowMobile ? 10 : 12, fontWeight: 700, color: `${T.electric}66`, letterSpacing: 4,
         fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
         textAlign: "center",
         opacity: visibleCount > 0 ? 1 : 0, transition: "opacity 0.4s ease",
       }}, "Configuration"),
 
-      // Row 1
-      React.createElement("div", { style: { display: "flex", gap, alignItems: "stretch" } },
+      // Row 1 — horizontal on desktop, vertical on mobile
+      React.createElement("div", { style: { display: "flex", flexDirection: flowMobile ? "column" : "row", gap, alignItems: "stretch" } },
         topSteps.map((s, i) => FlowBox({ s, i, visible: i < visibleCount, color: T.electric })),
       ),
 
@@ -1193,23 +1195,27 @@ function VisualFlow({ onClose, onStepClick }) {
 
       // Row 2 label
       visibleCount > sepIndex && React.createElement("div", { style: {
-        fontSize: 12, fontWeight: 700, color: `${T.amber}66`, letterSpacing: 4,
+        fontSize: flowMobile ? 10 : 12, fontWeight: 700, color: `${T.amber}66`, letterSpacing: 4,
         fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
         textAlign: "center", animation: "fadeIn 0.4s ease-out",
       }}, "Scoring, Output & Launch"),
 
-      // Row 2 — same width grid, 4 boxes spread across 7 columns
-      visibleCount > sepIndex && React.createElement("div", { style: {
+      // Row 2 — grid on desktop, vertical on mobile
+      visibleCount > sepIndex && React.createElement("div", { style: flowMobile ? {
+        display: "flex", flexDirection: "column", gap,
+      } : {
         display: "grid",
         gridTemplateColumns: "repeat(7, 1fr)",
         gap,
       }},
         botSteps.map((s, bi) => {
           const i = bi + sepIndex;
-          return React.createElement("div", {
-            key: s.id,
-            style: { gridColumn: `${bi * 2 + 1} / span ${bi < 3 ? 2 : 1}` },
-          }, FlowBox({ s, i, visible: i < visibleCount, color: T.amber }));
+          return flowMobile
+            ? FlowBox({ s, i, visible: i < visibleCount, color: T.amber })
+            : React.createElement("div", {
+                key: s.id,
+                style: { gridColumn: `${bi * 2 + 1} / span ${bi < 3 ? 2 : 1}` },
+              }, FlowBox({ s, i, visible: i < visibleCount, color: T.amber }));
         }),
       ),
     ),
@@ -1237,6 +1243,12 @@ function App() {
   const [step, setStep] = useState(0);
   const [showFlow, setShowFlow] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", onResize);
@@ -1260,7 +1272,8 @@ function App() {
       onStepClick: (i) => { setStep(i); setShowFlow(false); },
     }),
     React.createElement("div", { style: {
-      minHeight: "100vh", display: "flex", flexDirection: isMobile ? "column" : "row", background: T.bg,
+      height: "100vh", display: "flex", flexDirection: isMobile ? "column" : "row", background: T.bg,
+      overflow: "hidden",
     }},
 
     // Sidebar / Top bar
@@ -1270,7 +1283,7 @@ function App() {
       borderRight: isMobile ? "none" : `1px solid ${T.cardBorder}`,
       borderBottom: isMobile ? `1px solid ${T.cardBorder}` : "none",
       padding: isMobile ? "16px 16px 12px" : "28px 20px",
-      overflowY: isMobile ? "hidden" : "auto",
+      overflowY: "auto",
       display: "flex", flexDirection: "column",
     }},
       React.createElement("div", { style: { marginBottom: isMobile ? 12 : 28 } },
@@ -1308,7 +1321,7 @@ function App() {
           ),
         )),
       ),
-      isMobile && React.createElement("div", { style: { display: "flex", gap: 4, justifyContent: "center" } },
+      isMobile && React.createElement("div", { style: { display: "flex", gap: 4, justifyContent: "center", flexWrap: "wrap" } },
         STEPS.map((s, i) => React.createElement("div", {
           key: s.id, onClick: () => setStep(i),
           style: {
@@ -1317,6 +1330,28 @@ function App() {
             transition: "all 0.3s ease",
           },
         })),
+      ),
+      isMobile && React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 8, justifyContent: "center" } },
+        React.createElement("button", {
+          onClick: () => setShowFlow(true),
+          style: {
+            padding: "6px 14px", borderRadius: 6, cursor: "pointer",
+            border: `1px solid ${T.electric}44`,
+            background: `${T.emeraldLight}`,
+            color: T.electric, fontSize: 11, fontWeight: 700,
+            fontFamily: "'JetBrains Mono', monospace",
+          },
+        }, "\u25c9 Flow"),
+        React.createElement("a", {
+          href: "index.html",
+          style: {
+            padding: "6px 14px", borderRadius: 6, textDecoration: "none",
+            border: `1px solid ${T.electric}44`,
+            background: `${T.emeraldLight}`,
+            color: T.electric, fontSize: 11, fontWeight: 700,
+            fontFamily: "'JetBrains Mono', monospace",
+          },
+        }, "\u25c0 Dashboard"),
       ),
       // Flow + Dashboard links at bottom of sidebar
       !isMobile && React.createElement("div", { style: { marginTop: "auto", paddingTop: 20, display: "flex", flexDirection: "column", gap: 8 } },
@@ -1348,8 +1383,8 @@ function App() {
     ),
 
     // Main content
-    React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", minHeight: isMobile ? "auto" : "100vh" } },
-      React.createElement("div", { style: { flex: 1, padding: isMobile ? "24px 20px" : "40px 48px", overflowY: "auto", maxWidth: 680 } },
+    React.createElement("div", { style: { flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" } },
+      React.createElement("div", { style: { flex: 1, padding: isMobile ? "24px 20px" : "40px 48px", overflowY: "auto", minHeight: 0, maxWidth: 680 } },
         React.createElement("div", { style: { marginBottom: 24 } },
           React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 6 } },
             React.createElement("span", { style: { fontSize: 24, opacity: 0.7 } }, current.icon),
