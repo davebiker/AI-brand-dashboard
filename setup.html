@@ -1162,19 +1162,7 @@ function App() {
       display: "flex", flexDirection: "column",
     }},
       React.createElement("div", { style: { marginBottom: isMobile ? 12 : 28 } },
-        React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } },
-          React.createElement("div", { style: { fontSize: isMobile ? 14 : 18, fontWeight: 800, color: T.electric, letterSpacing: 2, fontFamily: "'JetBrains Mono', monospace" } }, "GEO SETUP"),
-          React.createElement("button", {
-            onClick: () => setShowFlow(true),
-            style: {
-              padding: "5px 10px", borderRadius: 7, cursor: "pointer",
-              border: `1px solid ${T.electric}33`, background: `${T.electric}0a`,
-              color: T.electric, fontSize: 10, fontWeight: 700,
-              fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.5,
-              transition: "all 0.2s ease",
-            },
-          }, "\u25c9 Flow"),
-        ),
+        React.createElement("div", { style: { fontSize: isMobile ? 14 : 18, fontWeight: 800, color: T.electric, letterSpacing: 2, fontFamily: "'JetBrains Mono', monospace" } }, "GEO SETUP"),
         React.createElement("div", { style: { fontSize: 11, color: T.muted, marginTop: 2 } }, "AI Brand Visibility \u00b7 MVP"),
       ),
       React.createElement("div", { style: { marginBottom: isMobile ? 12 : 24 } },
@@ -1218,8 +1206,20 @@ function App() {
           },
         })),
       ),
-      // Dashboard link at bottom of sidebar
-      !isMobile && React.createElement("div", { style: { marginTop: "auto", paddingTop: 20 } },
+      // Flow + Dashboard links at bottom of sidebar
+      !isMobile && React.createElement("div", { style: { marginTop: "auto", paddingTop: 20, display: "flex", flexDirection: "column", gap: 8 } },
+        React.createElement("button", {
+          onClick: () => setShowFlow(true),
+          style: {
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            padding: "10px 16px", borderRadius: 8, cursor: "pointer",
+            border: `1px solid ${T.electric}44`,
+            background: `linear-gradient(135deg, ${T.emeraldLight}, ${T.electric}15)`,
+            color: T.electric, fontSize: 12, fontWeight: 700,
+            fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
+            transition: "all 0.2s ease",
+          },
+        }, "\u25c9 Flow"),
         React.createElement("a", {
           href: "index.html",
           style: {
