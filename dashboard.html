@@ -5669,39 +5669,74 @@ function App() {
     onTransitionEnd: () => setDashBlur(3),
   }) : null;
 
-  // Top-right navigation
-  const TopNav = React.createElement("div", { style: {
-    position: "fixed", top: 14, right: 20, zIndex: 9999,
-    display: "flex", gap: 8, flexWrap: "wrap",
+  // Top navigation bar
+  const TopNav = React.createElement("header", { style: {
+    padding: isMobile ? "12px 16px" : "14px 40px",
+    display: "flex", justifyContent: "space-between", alignItems: "center",
+    borderBottom: `1px solid ${THEME.cardBorder}`,
+    background: `${THEME.bg}ee`, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+    position: "relative", zIndex: 9999, flexWrap: "wrap", gap: 10,
   }},
-    [
-      { href: "index.html", label: "\u25c6 Intro", active: false },
-      { href: "flow.html", label: "\u25c9 Flow", active: false },
-      { href: "setup.html", label: "\u2699 Setup", active: false },
-      { href: "dashboard.html", label: "\u25a0 Dashboard", active: true },
-      { href: "geo-process.html", label: "\u25b8 Next Steps", active: false },
-    ].map((l, li) => React.createElement("a", { key: li, href: l.href, style: {
-      padding: "7px 14px", borderRadius: 8, textDecoration: "none",
-      background: l.active ? `${THEME.electric}18` : `${THEME.cardBg}aa`,
-      border: `1px solid ${l.active ? THEME.electric + "55" : THEME.cardBorder}`,
-      backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-      color: l.active ? THEME.electric : THEME.muted, fontSize: 11, fontWeight: 700,
-      fontFamily: "'JetBrains Mono', monospace",
-      transition: "all 0.2s ease",
-    }}, l.label)),
+    React.createElement("a", { href: "index.html", style: { textDecoration: "none", display: "flex", flexDirection: "column" } },
+      React.createElement("div", { style: { fontSize: isMobile ? 18 : 24, fontWeight: 900, color: THEME.text, letterSpacing: 1, fontFamily: "'Outfit', sans-serif" } }, "\u0160koda X"),
+      React.createElement("div", { style: { fontSize: isMobile ? 10 : 11, fontWeight: 700, color: THEME.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginTop: 1 } }, "Dashboard"),
+    ),
+    React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
+      [
+        { href: "index.html", label: "\u25c6 Intro", active: false },
+        { href: "flow.html", label: "\u25c9 Flow", active: false },
+        { href: "setup.html", label: "\u2699 Setup", active: false },
+        { href: "dashboard.html", label: "\u25a0 Dashboard", active: true },
+        { href: "geo-process.html", label: "\u25b8 Next Steps", active: false },
+      ].map((l, li) => React.createElement("a", { key: li, href: l.href, style: {
+        padding: "7px 14px", borderRadius: 8, textDecoration: "none",
+        background: l.active ? `${THEME.electric}18` : `${THEME.cardBg}aa`,
+        border: `1px solid ${l.active ? THEME.electric + "55" : THEME.cardBorder}`,
+        color: l.active ? THEME.electric : THEME.muted, fontSize: 11, fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace",
+        transition: "all 0.2s ease",
+      }}, l.label)),
+    ),
+  );
+
+  // Footer
+  const Footer = React.createElement("footer", { style: {
+    padding: isMobile ? "24px 20px" : "20px 48px",
+    borderTop: `1px solid ${THEME.electric}33`,
+    background: `linear-gradient(180deg, ${THEME.emerald}, ${THEME.bg})`,
+    display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16,
+  }},
+    React.createElement("div", null,
+      React.createElement("div", { style: { fontSize: 14, fontWeight: 800, color: THEME.electric, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.5 } }, "\u0160KODA X \u2014 AI Brand Intelligence"),
+      React.createElement("div", { style: { fontSize: 11, color: THEME.muted, marginTop: 4 } }, "Generative Engine Optimization \u00b7 Monitoring \u00b7 Optimization"),
+    ),
+    React.createElement("div", { style: { display: "flex", gap: 10, flexWrap: "wrap" } },
+      [
+        { href: "index.html", label: "Intro", color: THEME.electric },
+        { href: "flow.html", label: "Flow", color: THEME.electric },
+        { href: "setup.html", label: "Setup", color: THEME.electric },
+        { href: "dashboard.html", label: "Dashboard", color: `${THEME.cyan}` },
+        { href: "geo-process.html", label: "Next Steps", color: `${THEME.amber}` },
+      ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
+        padding: "7px 14px", borderRadius: 6, textDecoration: "none",
+        border: `1px solid ${l.color}44`, background: `${l.color}08`,
+        color: l.color, fontSize: 11, fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace",
+      }}, l.label)),
+    ),
   );
 
   // Fullscreen: show layout directly
   const isFullscreen = hash === "#tv" || hash === "#vertical";
   if (isFullscreen) {
     const m = hash.replace("#", "");
-    if (m === "tv") return React.createElement(React.Fragment, null, TopNav, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }));
-    return React.createElement(React.Fragment, null, TopNav, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true, onSetup: () => setShowSetup(true) }));
+    if (m === "tv") return React.createElement(React.Fragment, null, TopNav, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(TVLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang }), Footer);
+    return React.createElement(React.Fragment, null, TopNav, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true, onSetup: () => setShowSetup(true) }), Footer);
   }
 
   // Mobile: go straight to vertical mobile layout, no frame
   if (isMobile) {
-    return React.createElement(React.Fragment, null, TopNav, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true, onSetup: () => setShowSetup(true) }));
+    return React.createElement(React.Fragment, null, TopNav, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement(VerticalLayout, { scores, displayCompetitors, displayTrendHistory, displaySentiment, displayCategories, feed, mentionRate, avgPosition, posSentimentValue, sovTrend, posInCycle, cycleNum, totalQueries, market, setMarket, viewMode, setViewMode, selectedModel, setSelectedModel, t, lang, setLang, mobile: true, onSetup: () => setShowSetup(true) }), Footer);
   }
 
   // Preview mode
@@ -5744,7 +5779,7 @@ function App() {
       React.createElement("span", { style: { fontSize: 10, color: `${THEME.muted}88` } },
         `Škoda CI — Emerald (#0E3A2F) + Electric Green (#78FAAE) · refresh ${UPDATE_INTERVAL/1000}s`),
     ),
-  ));
+  ), Footer);
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
