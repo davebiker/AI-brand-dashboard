@@ -943,218 +943,220 @@ const STEP_COMPONENTS = {
 
 // ── VISUAL FLOW OVERLAY ──
 function VisualFlow({ onClose, onStepClick }) {
-  const [appeared, setAppeared] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(0);
   const [hovered, setHovered] = useState(null);
-  const [selected, setSelected] = useState(null);
-
-  useEffect(() => { const t = setTimeout(() => setAppeared(true), 50); return () => clearTimeout(t); }, []);
 
   const sepIndex = 7;
-  const selStep = selected !== null ? STEPS[selected] : null;
+  const topSteps = STEPS.slice(0, sepIndex);
+  const botSteps = STEPS.slice(sepIndex);
 
-  // Zigzag path layout — horizontal flow with vertical stagger
-  const W = 1200, H = 700;
-  const marginX = 110, marginY = 100;
-  const usableW = W - marginX * 2;
-  // 7 config steps on top row, 4 scoring steps on bottom row (reversed for flow)
-  const topSteps = STEPS.slice(0, sepIndex);    // 0-6
-  const botSteps = STEPS.slice(sepIndex);        // 7-10
-  const topY = 220, botY = 480;
-  const topSpacing = usableW / (topSteps.length - 1);
-  const botSpacing = usableW / (botSteps.length + 1);
-
-  const positions = STEPS.map((s, i) => {
-    if (i < sepIndex) {
-      return { x: marginX + i * topSpacing, y: topY, step: s, index: i };
-    } else {
-      // Bottom row flows right-to-left then right — place evenly under config
-      const bi = i - sepIndex;
-      return { x: marginX + usableW - bi * botSpacing * 1.8, y: botY, step: s, index: i };
-    }
-  });
-
-  // Bezier path between consecutive nodes
-  function pathBetween(a, b, isCross) {
-    if (isCross) {
-      // Vertical drop from last top to first bottom
-      const midY = (a.y + b.y) / 2;
-      return `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
-    }
-    const dx = (b.x - a.x) * 0.4;
-    return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
-  }
-
-  // Animated pulse dot traveling along path
-  const [pulsePos, setPulsePos] = useState(0);
+  // Sequential reveal
   useEffect(() => {
-    const interval = setInterval(() => setPulsePos(p => (p + 0.003) % 1), 30);
-    return () => clearInterval(interval);
-  }, []);
+    if (!started) return;
+    if (visibleCount >= STEPS.length) return;
+    const t = setTimeout(() => setVisibleCount(v => v + 1), 180);
+    return () => clearTimeout(t);
+  }, [started, visibleCount]);
+
+  const boxW = 148, boxH = 88, gap = 8;
+  const totalTopW = topSteps.length * boxW + (topSteps.length - 1) * gap;
 
   return React.createElement("div", {
-    onClick: (e) => { if (e.target === e.currentTarget) { if (selected !== null) setSelected(null); else onClose(); } },
+    onClick: (e) => { if (e.target === e.currentTarget) onClose(); },
     style: {
       position: "fixed", inset: 0, zIndex: 10000,
-      background: `radial-gradient(ellipse at 50% 30%, ${T.emerald}44, ${T.bg} 70%)`,
+      background: `radial-gradient(ellipse at 50% 30%, ${T.emerald}55, ${T.bg} 70%)`,
       backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       animation: "flowFadeIn 0.5s ease-out", cursor: "default", overflow: "hidden",
     },
   },
-
-    // Ambient grid lines
+    // Grid bg
     React.createElement("div", { style: {
-      position: "absolute", inset: 0, opacity: 0.03,
+      position: "absolute", inset: 0, opacity: 0.025,
       backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
       backgroundSize: "60px 60px",
     }}),
 
-    // Title
+    // Header
     React.createElement("div", { style: { position: "absolute", top: 32, left: 0, right: 0, display: "flex", justifyContent: "center", alignItems: "center" } },
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 16 } },
-        React.createElement("div", { style: { width: 32, height: 2, background: `linear-gradient(90deg, transparent, ${T.electric}66)` } }),
+        React.createElement("div", { style: { width: 40, height: 1, background: `linear-gradient(90deg, transparent, ${T.electric}55)` } }),
         React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: T.electric, letterSpacing: 4, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" } }, "GEO Setup Flow"),
-        React.createElement("div", { style: { width: 32, height: 2, background: `linear-gradient(90deg, ${T.electric}66, transparent)` } }),
+        React.createElement("div", { style: { width: 40, height: 1, background: `linear-gradient(90deg, ${T.electric}55, transparent)` } }),
       ),
-      React.createElement("button", { onClick: onClose, style: { position: "absolute", right: 32, background: `${T.cardBg}88`, border: `1px solid ${T.cardBorder}`, borderRadius: 8, color: T.muted, fontSize: 12, padding: "6px 14px", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace", backdropFilter: "blur(8px)" } }, "\u2715 Close"),
+      React.createElement("button", { onClick: onClose, style: { position: "absolute", right: 32, background: `${T.cardBg}88`, border: `1px solid ${T.cardBorder}`, borderRadius: 8, color: T.muted, fontSize: 12, padding: "6px 14px", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace" } }, "\u2715"),
     ),
 
-    // Section labels
-    React.createElement("div", { style: { position: "absolute", left: 40, top: "28%", transform: "translateY(-50%)" } },
-      React.createElement("div", { style: { fontSize: 10, fontWeight: 700, color: `${T.electric}66`, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", writingMode: "vertical-lr", transform: "rotate(180deg)" } }, "Configuration"),
-    ),
-    React.createElement("div", { style: { position: "absolute", left: 40, top: "68%", transform: "translateY(-50%)" } },
-      React.createElement("div", { style: { fontSize: 10, fontWeight: 700, color: `${T.amber}66`, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", writingMode: "vertical-lr", transform: "rotate(180deg)" } }, "Output & Launch"),
-    ),
+    // START button (before reveal)
+    !started && React.createElement("button", {
+      onClick: () => { setStarted(true); setVisibleCount(1); },
+      style: {
+        padding: "20px 52px", borderRadius: 14, cursor: "pointer", border: "none",
+        background: `linear-gradient(135deg, ${T.electric}, ${T.cyan})`,
+        color: T.emerald, fontSize: 18, fontWeight: 800, letterSpacing: 3, textTransform: "uppercase",
+        fontFamily: "'JetBrains Mono', monospace",
+        boxShadow: `0 0 60px ${T.electric}30, 0 0 120px ${T.electric}15`,
+        animation: "glowPulse 2s ease-in-out infinite",
+        transition: "all 0.3s ease",
+      },
+    }, "\u25b6  START SETUP"),
 
-    // SVG
-    React.createElement("svg", {
-      width: W, height: H, viewBox: `0 0 ${W} ${H}`,
-      style: { maxWidth: "92vw", maxHeight: "72vh" },
-    },
-      React.createElement("defs", null,
-        React.createElement("linearGradient", { id: "pathGrad", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
-          React.createElement("stop", { offset: "0%", stopColor: T.electric, stopOpacity: 0.4 }),
-          React.createElement("stop", { offset: "100%", stopColor: T.cyan, stopOpacity: 0.2 }),
-        ),
-        React.createElement("linearGradient", { id: "pathGradAmber", x1: "0%", y1: "0%", x2: "100%", y2: "0%" },
-          React.createElement("stop", { offset: "0%", stopColor: T.amber, stopOpacity: 0.3 }),
-          React.createElement("stop", { offset: "100%", stopColor: T.amber, stopOpacity: 0.15 }),
-        ),
-        React.createElement("filter", { id: "softGlow" },
-          React.createElement("feGaussianBlur", { stdDeviation: "6", result: "blur" }),
-          React.createElement("feMerge", null,
-            React.createElement("feMergeNode", { in: "blur" }),
-            React.createElement("feMergeNode", { in: "SourceGraphic" }),
-          ),
-        ),
+    // Flow boxes
+    started && React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 24 } },
+
+      // Row label: Configuration
+      React.createElement("div", { style: {
+        fontSize: 10, fontWeight: 700, color: `${T.electric}55`, letterSpacing: 3,
+        fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
+        opacity: visibleCount > 0 ? 1 : 0, transition: "opacity 0.4s ease",
+      }}, "Configuration"),
+
+      // Row 1: steps 1-7
+      React.createElement("div", { style: { display: "flex", gap, alignItems: "stretch" } },
+        topSteps.map((s, i) => {
+          const visible = i < visibleCount;
+          const isHov = hovered === i;
+          return React.createElement("div", {
+            key: s.id,
+            onClick: () => visible && onStepClick(i),
+            onMouseEnter: () => visible && setHovered(i),
+            onMouseLeave: () => setHovered(null),
+            style: {
+              width: boxW, minHeight: boxH, borderRadius: 12, cursor: visible ? "pointer" : "default",
+              border: `1px solid ${isHov ? T.electric : T.electric + "33"}`,
+              background: isHov ? `linear-gradient(135deg, ${T.emeraldLight}, ${T.electric}15)` : `${T.cardBg}dd`,
+              padding: "14px 14px 12px",
+              display: "flex", flexDirection: "column", justifyContent: "space-between",
+              opacity: visible ? 1 : 0,
+              transform: visible ? "translateY(0) scale(1)" : "translateY(20px) scale(0.92)",
+              transition: "all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              boxShadow: isHov ? `0 0 30px ${T.electric}20` : "none",
+              position: "relative", overflow: "hidden",
+            },
+          },
+            // Number badge
+            React.createElement("div", { style: {
+              position: "absolute", top: 8, right: 10,
+              fontSize: 28, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
+              color: `${T.electric}12`, lineHeight: 1,
+            }}, s.num),
+            // Step number + title
+            React.createElement("div", null,
+              React.createElement("div", { style: {
+                fontSize: 10, fontWeight: 700, color: isHov ? T.electric : `${T.electric}88`,
+                fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.5, marginBottom: 6,
+                transition: "color 0.2s ease",
+              }}, `STEP ${s.num}`),
+              React.createElement("div", { style: {
+                fontSize: 13, fontWeight: 700, color: isHov ? T.text : T.textDim,
+                fontFamily: "'Outfit', sans-serif", lineHeight: 1.3,
+                transition: "color 0.2s ease",
+              }}, s.title),
+            ),
+            // Desc
+            React.createElement("div", { style: {
+              fontSize: 10, color: T.muted, marginTop: 6, lineHeight: 1.3,
+              fontFamily: "'JetBrains Mono', monospace",
+            }}, s.desc),
+            // Bottom accent line
+            React.createElement("div", { style: {
+              position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
+              background: isHov ? T.electric : `${T.electric}22`,
+              transition: "background 0.2s ease",
+            }}),
+          );
+        }),
       ),
 
-      // Separator line between rows
-      React.createElement("line", {
-        x1: marginX - 20, y1: (topY + botY) / 2, x2: W - marginX + 20, y2: (topY + botY) / 2,
-        stroke: `${T.cardBorder}`, strokeWidth: 1, strokeDasharray: "2 6",
-      }),
+      // Separator
+      visibleCount > sepIndex && React.createElement("div", { style: {
+        width: totalTopW, height: 1,
+        background: `linear-gradient(90deg, transparent, ${T.cardBorder}, transparent)`,
+        opacity: 1, transition: "opacity 0.4s ease",
+      }}),
 
-      // Connection paths
-      positions.map((p, i) => {
-        if (i >= STEPS.length - 1) return null;
-        const next = positions[i + 1];
-        const isCross = i === sepIndex - 1;
-        const isBotPath = i >= sepIndex;
-        const d = pathBetween(p, next, isCross);
-        return React.createElement("path", {
-          key: `path-${i}`, d, fill: "none",
-          stroke: isCross ? `${T.amber}44` : isBotPath ? "url(#pathGradAmber)" : "url(#pathGrad)",
-          strokeWidth: isCross ? 2 : 2.5,
-          strokeDasharray: isCross ? "8 6" : "none",
-          style: appeared ? {
-            strokeDasharray: isCross ? "8 6" : 500, strokeDashoffset: 0,
-            animation: `lineDraw 1.2s ease-out ${0.15 + i * 0.08}s both`,
-          } : { opacity: 0 },
-        });
-      }),
+      // Row label: Output & Launch
+      visibleCount > sepIndex && React.createElement("div", { style: {
+        fontSize: 10, fontWeight: 700, color: `${T.amber}55`, letterSpacing: 3,
+        fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
+        animation: "fadeIn 0.4s ease-out",
+      }}, "Scoring, Output & Launch"),
 
-      // Nodes
-      positions.map((p, i) => {
-        const isHov = hovered === i;
-        const isSel = selected === i;
-        const isBot = i >= sepIndex;
-        const nodeColor = isBot ? T.amber : T.electric;
-        const r = isSel ? 30 : isHov ? 27 : 24;
-        const isActive = isHov || isSel;
-        const labelAbove = !isBot;
-
-        return React.createElement("g", {
-          key: `node-${i}`,
-          style: appeared ? {
-            animation: `nodeAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${0.1 + i * 0.07}s both`,
-            cursor: "pointer",
-          } : { opacity: 0 },
-          onMouseEnter: () => setHovered(i),
-          onMouseLeave: () => setHovered(null),
-          onClick: (e) => { e.stopPropagation(); if (selected === i) { onStepClick(i); } else { setSelected(i); } },
-        },
-          // Outer glow ring
-          isActive && React.createElement("circle", { cx: p.x, cy: p.y, r: r + 16, fill: "none", stroke: `${nodeColor}22`, strokeWidth: 1, style: { animation: "glowPulse 2s ease-in-out infinite" } }),
-          isActive && React.createElement("circle", { cx: p.x, cy: p.y, r: r + 30, fill: "none", stroke: `${nodeColor}0a`, strokeWidth: 0.5 }),
-          // Node
-          React.createElement("circle", {
-            cx: p.x, cy: p.y, r,
-            fill: isSel ? `${nodeColor}15` : `${T.cardBg}ee`,
-            stroke: isActive ? nodeColor : `${nodeColor}55`,
-            strokeWidth: isSel ? 2.5 : isHov ? 2 : 1.5,
-            style: { transition: "all 0.3s ease", filter: isActive ? "url(#softGlow)" : "none" },
-          }),
-          // Step number
-          React.createElement("text", {
-            x: p.x, y: p.y + 1, textAnchor: "middle", dominantBaseline: "middle",
-            fill: isActive ? nodeColor : `${nodeColor}cc`,
-            fontSize: isSel ? 16 : 14, fontWeight: 800,
-            fontFamily: "'JetBrains Mono', monospace",
-            style: { transition: "all 0.3s ease" },
-          }, p.step.num),
-          // Title label
-          React.createElement("text", {
-            x: p.x, y: p.y + (labelAbove ? -38 : 42),
-            textAnchor: "middle",
-            fill: isSel ? T.text : isHov ? T.textDim : `${T.muted}cc`,
-            fontSize: isSel ? 14 : isHov ? 13 : 12,
-            fontWeight: isSel ? 800 : isHov ? 700 : 500,
-            fontFamily: "'Outfit', sans-serif",
-            style: { transition: "all 0.3s ease" },
-          }, p.step.title),
-          // Description on select
-          isSel && React.createElement("text", {
-            x: p.x, y: p.y + (labelAbove ? -56 : 58),
-            textAnchor: "middle", fill: T.muted, fontSize: 10,
-            fontFamily: "'JetBrains Mono', monospace",
-            style: { animation: "fadeIn 0.3s ease-out" },
-          }, p.step.desc),
-          // "click to open" hint on select
-          isSel && React.createElement("text", {
-            x: p.x, y: p.y + (labelAbove ? -70 : 74),
-            textAnchor: "middle", fill: `${nodeColor}88`, fontSize: 9,
-            fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
-            style: { animation: "fadeIn 0.3s ease-out 0.1s both" },
-          }, "\u25b8 click to open"),
-        );
-      }),
+      // Row 2: steps 8-11 aligned under first 4 boxes
+      visibleCount > sepIndex && React.createElement("div", { style: {
+        display: "flex", gap, alignItems: "stretch",
+        width: totalTopW,
+      }},
+        botSteps.map((s, bi) => {
+          const i = bi + sepIndex;
+          const visible = i < visibleCount;
+          const isHov = hovered === i;
+          return React.createElement("div", {
+            key: s.id,
+            onClick: () => visible && onStepClick(i),
+            onMouseEnter: () => visible && setHovered(i),
+            onMouseLeave: () => setHovered(null),
+            style: {
+              width: boxW, minHeight: boxH, borderRadius: 12, cursor: visible ? "pointer" : "default",
+              border: `1px solid ${isHov ? T.amber : T.amber + "33"}`,
+              background: isHov ? `linear-gradient(135deg, ${T.emeraldLight}, ${T.amber}15)` : `${T.cardBg}dd`,
+              padding: "14px 14px 12px",
+              display: "flex", flexDirection: "column", justifyContent: "space-between",
+              opacity: visible ? 1 : 0,
+              transform: visible ? "translateY(0) scale(1)" : "translateY(20px) scale(0.92)",
+              transition: "all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              boxShadow: isHov ? `0 0 30px ${T.amber}20` : "none",
+              position: "relative", overflow: "hidden",
+            },
+          },
+            React.createElement("div", { style: {
+              position: "absolute", top: 8, right: 10,
+              fontSize: 28, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
+              color: `${T.amber}12`, lineHeight: 1,
+            }}, s.num),
+            React.createElement("div", null,
+              React.createElement("div", { style: {
+                fontSize: 10, fontWeight: 700, color: isHov ? T.amber : `${T.amber}88`,
+                fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.5, marginBottom: 6,
+                transition: "color 0.2s ease",
+              }}, `STEP ${s.num}`),
+              React.createElement("div", { style: {
+                fontSize: 13, fontWeight: 700, color: isHov ? T.text : T.textDim,
+                fontFamily: "'Outfit', sans-serif", lineHeight: 1.3,
+                transition: "color 0.2s ease",
+              }}, s.title),
+            ),
+            React.createElement("div", { style: {
+              fontSize: 10, color: T.muted, marginTop: 6, lineHeight: 1.3,
+              fontFamily: "'JetBrains Mono', monospace",
+            }}, s.desc),
+            React.createElement("div", { style: {
+              position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
+              background: isHov ? T.amber : `${T.amber}22`,
+              transition: "background 0.2s ease",
+            }}),
+          );
+        }),
+      ),
     ),
 
-    // Bottom info
-    React.createElement("div", { style: { position: "absolute", bottom: 28, display: "flex", alignItems: "center", gap: 24 } },
+    // Bottom legend
+    started && visibleCount >= STEPS.length && React.createElement("div", { style: {
+      position: "absolute", bottom: 28, display: "flex", alignItems: "center", gap: 24,
+      animation: "fadeIn 0.5s ease-out",
+    }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
         React.createElement("div", { style: { width: 8, height: 8, borderRadius: 4, background: T.electric } }),
         React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Configuration"),
       ),
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
         React.createElement("div", { style: { width: 8, height: 8, borderRadius: 4, background: T.amber } }),
-        React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Output & Launch"),
+        React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Scoring & Output"),
       ),
       React.createElement("span", { style: { fontSize: 11, color: `${T.muted}66`, fontFamily: "'JetBrains Mono', monospace" } }, "\u00b7"),
-      React.createElement("span", { style: { fontSize: 11, color: `${T.muted}88`, fontFamily: "'JetBrains Mono', monospace" } },
-        selected !== null ? "Click again to navigate" : "Select a step"),
+      React.createElement("span", { style: { fontSize: 11, color: `${T.muted}88`, fontFamily: "'JetBrains Mono', monospace" } }, "Click any step to configure"),
     ),
   );
 }
