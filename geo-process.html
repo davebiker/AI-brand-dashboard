@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#060D0A">
+<title>GEO Process — Škoda X</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { background: #060D0A; overflow-x: hidden; -webkit-font-smoothing: antialiased; font-family: 'Outfit', sans-serif; color: #E8F5EE; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #14352A; border-radius: 4px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideRight { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 20px #78FAAE15; } 50% { box-shadow: 0 0 40px #78FAAE25; } }
+  @keyframes flowLine { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+  @keyframes dataFlow { 0% { transform: translateX(-100%); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateX(200%); opacity: 0; } }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes breathe { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const T = {
+  emerald: "#0E3A2F", electric: "#78FAAE", emeraldLight: "#14493B",
+  bg: "#060D0A", cardBg: "#0B1E17", cardBorder: "#14352A",
+  muted: "#4A7A6A", text: "#E8F5EE", textDim: "#9EC5B3",
+  amber: "#F5C842", red: "#E85454", cyan: "#5AD4C4",
+  purple: "#B4A0FF", blue: "#5AA8D4",
+};
+
+const PHASES = [
+  {
+    id: "strategy",
+    num: "01",
+    title: "Strategy & Setup",
+    subtitle: "Define what to monitor",
+    color: T.electric,
+    icon: "\u25c6",
+    desc: "Define brand identity, select competitors by powertrain (ICE/Hybrid/BEV), choose AI platforms and target markets.",
+    details: [
+      "Brand keywords & product terminology",
+      "Competitor mapping (brand + model level)",
+      "AI platform selection & API budget",
+      "Market & language configuration",
+    ],
+    output: "Configuration profile",
+  },
+  {
+    id: "personas",
+    num: "02",
+    title: "Persona & Query Design",
+    subtitle: "What real users ask AI",
+    color: T.cyan,
+    icon: "\u25c9",
+    desc: "Create realistic user personas and craft query templates across 19 categories per powertrain type.",
+    details: [
+      "Buyer personas with demographics & intent",
+      "19 query categories: Range, Safety, Price, Design\u2026",
+      "Localized queries per market & language",
+      "Query rotation to avoid pattern detection",
+    ],
+    output: "Query library",
+  },
+  {
+    id: "interrogation",
+    num: "03",
+    title: "AI Interrogation",
+    subtitle: "Send queries to AI engines",
+    color: T.blue,
+    icon: "\u25b8",
+    desc: "Systematically query multiple AI platforms (ChatGPT, Claude, Gemini, Perplexity) with persona-based prompts.",
+    details: [
+      "Parallel API calls across platforms",
+      "Persona-context injection per query",
+      "Rate limiting & retry handling",
+      "Response timestamping & versioning",
+    ],
+    output: "Raw AI responses",
+  },
+  {
+    id: "collection",
+    num: "04",
+    title: "Response Analysis",
+    subtitle: "Extract brand signals",
+    color: T.purple,
+    icon: "\u25ce",
+    desc: "Parse AI responses to detect brand mentions, position in answer, accuracy of information, and citation sources.",
+    details: [
+      "Brand & competitor mention detection",
+      "Position analysis (1st mention, prominence)",
+      "Factual accuracy verification",
+      "Source & citation URL extraction",
+    ],
+    output: "Structured brand signals",
+  },
+  {
+    id: "scoring",
+    num: "05",
+    title: "Scoring & KPIs",
+    subtitle: "Quantify brand visibility",
+    color: T.amber,
+    icon: "\u25c7",
+    desc: "Compute visibility scores, sentiment analysis, content quality metrics, and citation tracking across all dimensions.",
+    details: [
+      "Visibility Score \u2014 mention rate & position",
+      "Sentiment \u2014 positive / neutral / negative",
+      "Content Quality \u2014 accuracy & depth",
+      "Citation tracking by source domain",
+    ],
+    output: "KPI dashboard data",
+  },
+  {
+    id: "insights",
+    num: "06",
+    title: "Insights & Reporting",
+    subtitle: "Visualize & alert",
+    color: T.electric,
+    icon: "\u25a2",
+    desc: "Real-time dashboards for TV/panel/mobile display, automated alerts on score changes, trend analysis and exports.",
+    details: [
+      "Multi-format dashboards (TV, panel, mobile)",
+      "Threshold alerts & notifications",
+      "Trend analysis over time",
+      "PDF/CSV export & API webhooks",
+    ],
+    output: "Actionable reports",
+  },
+  {
+    id: "optimize",
+    num: "07",
+    title: "Optimization Loop",
+    subtitle: "Improve AI visibility",
+    color: T.cyan,
+    icon: "\u21bb",
+    desc: "Use insights to optimize brand content, update website structured data, and improve AI training signals. Repeat the cycle.",
+    details: [
+      "Content recommendations for AI visibility",
+      "Structured data & schema.org optimization",
+      "Competitor gap analysis & opportunities",
+      "Continuous monitoring & A/B testing",
+    ],
+    output: "Feeds back to Step 01",
+  },
+];
+
+function App() {
+  const [visible, setVisible] = useState(0);
+  const [activePhase, setActivePhase] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isTablet, setIsTablet] = useState(window.innerWidth < 1100);
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth < 1100);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    if (visible >= PHASES.length) return;
+    const t = setTimeout(() => setVisible(v => v + 1), 250);
+    return () => clearTimeout(t);
+  }, [visible]);
+
+  const isActive = (i) => activePhase === i;
+
+  return React.createElement("div", { style: { minHeight: "100vh", background: T.bg, position: "relative" } },
+
+    // Grid background
+    React.createElement("div", { style: {
+      position: "fixed", inset: 0, opacity: 0.015, pointerEvents: "none",
+      backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
+      backgroundSize: "60px 60px",
+    }}),
+
+    // Header
+    React.createElement("header", { style: {
+      position: "sticky", top: 0, zIndex: 50,
+      background: `linear-gradient(180deg, ${T.bg}, ${T.bg}ee 85%, transparent)`,
+      padding: isMobile ? "20px 20px 30px" : "28px 48px 36px",
+    }},
+      React.createElement("div", { style: { maxWidth: 1400, margin: "0 auto" } },
+        // Nav
+        React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 } },
+          React.createElement("div", null,
+            React.createElement("div", { style: { fontSize: isMobile ? 11 : 13, fontWeight: 700, color: `${T.muted}aa`, letterSpacing: 3, fontFamily: "'Outfit', sans-serif", textTransform: "uppercase", marginBottom: 2 } }, "\u0160koda X"),
+            React.createElement("div", { style: { fontSize: isMobile ? 18 : 24, fontWeight: 900, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace" } }, "GEO PROCESS"),
+          ),
+          React.createElement("div", { style: { display: "flex", gap: 10 } },
+            React.createElement("a", { href: "flow.html", style: { padding: "8px 16px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.electric, fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1 } }, "\u25c9 Flow"),
+            React.createElement("a", { href: "setup.html", style: { padding: "8px 16px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.electric, fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1 } }, "\u2699 Setup"),
+            React.createElement("a", { href: "index.html", style: { padding: "8px 16px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.muted, fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1 } }, "\u25c0 Dashboard"),
+          ),
+        ),
+
+        // Subtitle
+        React.createElement("div", { style: { maxWidth: 700 } },
+          React.createElement("p", { style: { fontSize: isMobile ? 14 : 16, color: T.textDim, lineHeight: 1.7, fontWeight: 400 } },
+            "Generative Engine Optimization je systematick\u00FD proces monitorov\u00E1n\u00ED a optimalizace viditelnosti zna\u010Dky v odpov\u011Bd\u00EDch AI platforem. Tento diagram zobrazuje cel\u00FD cyklus od strategie po optimalizaci."
+          ),
+        ),
+
+        // Process indicator
+        React.createElement("div", { style: { marginTop: 20, display: "flex", alignItems: "center", gap: 6 } },
+          PHASES.map((p, i) =>
+            React.createElement("div", { key: p.id, style: {
+              display: "flex", alignItems: "center", gap: 6,
+            }},
+              React.createElement("div", {
+                onClick: () => setActivePhase(activePhase === i ? null : i),
+                style: {
+                  width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, borderRadius: 8,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: activePhase === i ? `${p.color}22` : i < visible ? `${T.cardBg}` : "transparent",
+                  border: `1.5px solid ${activePhase === i ? p.color : i < visible ? p.color + "44" : T.cardBorder}`,
+                  color: activePhase === i ? p.color : i < visible ? `${p.color}99` : T.muted,
+                  fontSize: isMobile ? 10 : 12, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
+                  cursor: "pointer", transition: "all 0.3s ease",
+                },
+              }, p.num),
+              i < PHASES.length - 1 && React.createElement("div", { style: {
+                width: isMobile ? 8 : isTablet ? 16 : 32, height: 2,
+                background: i < visible - 1 ? `linear-gradient(90deg, ${p.color}66, ${PHASES[i+1].color}66)` : T.cardBorder,
+                borderRadius: 1, transition: "background 0.5s ease",
+              }}),
+            )
+          ),
+        ),
+      ),
+    ),
+
+    // Main content
+    React.createElement("main", { style: {
+      maxWidth: 1400, margin: "0 auto", padding: isMobile ? "0 16px 60px" : "0 48px 80px",
+    }},
+
+      // Process phases
+      PHASES.map((phase, i) => {
+        const show = i < visible;
+        const active = activePhase === i;
+        const isLast = i === PHASES.length - 1;
+
+        return React.createElement("div", {
+          key: phase.id,
+          onClick: () => setActivePhase(active ? null : i),
+          style: {
+            opacity: show ? 1 : 0,
+            transform: show ? "translateY(0)" : "translateY(30px)",
+            transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            marginBottom: isLast ? 0 : 0,
+            cursor: "pointer",
+          },
+        },
+
+          // Phase row
+          React.createElement("div", { style: {
+            display: "flex", gap: isMobile ? 16 : 28, alignItems: "stretch", position: "relative",
+          }},
+
+            // Left: timeline
+            React.createElement("div", { style: {
+              display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0,
+              width: isMobile ? 48 : 64,
+            }},
+              // Number circle
+              React.createElement("div", { style: {
+                width: isMobile ? 48 : 64, height: isMobile ? 48 : 64, borderRadius: 16,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: active ? `linear-gradient(135deg, ${phase.color}22, ${phase.color}08)` : T.cardBg,
+                border: `2px solid ${active ? phase.color : phase.color + "44"}`,
+                fontSize: isMobile ? 16 : 20, fontWeight: 900, color: active ? phase.color : `${phase.color}bb`,
+                fontFamily: "'JetBrains Mono', monospace",
+                transition: "all 0.3s ease",
+                animation: active ? "pulseGlow 2s ease-in-out infinite" : "none",
+                flexShrink: 0,
+              }}, phase.num),
+              // Connector line
+              !isLast && React.createElement("div", { style: {
+                flex: 1, width: 2, minHeight: 20,
+                background: `linear-gradient(180deg, ${phase.color}44, ${PHASES[i+1].color}44)`,
+                margin: "8px 0",
+              }}),
+              // Loop arrow for last
+              isLast && React.createElement("div", { style: {
+                marginTop: 12, fontSize: 24, color: `${phase.color}88`,
+                animation: "spin 4s linear infinite",
+              }}, "\u21bb"),
+            ),
+
+            // Right: content card
+            React.createElement("div", { style: {
+              flex: 1, padding: isMobile ? "20px 18px" : "28px 32px",
+              borderRadius: 16,
+              background: active ? `linear-gradient(160deg, ${T.emeraldLight}, ${phase.color}08)` : T.cardBg,
+              border: `1.5px solid ${active ? phase.color + "55" : T.cardBorder}`,
+              marginBottom: isLast ? 0 : 16,
+              transition: "all 0.3s ease",
+              boxShadow: active ? `0 4px 40px ${phase.color}12` : "none",
+              position: "relative", overflow: "hidden",
+            }},
+
+              // Watermark
+              React.createElement("div", { style: {
+                position: "absolute", top: -10, right: isMobile ? 10 : 20,
+                fontSize: isMobile ? 80 : 120, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
+                color: `${phase.color}06`, lineHeight: 1, pointerEvents: "none",
+              }}, phase.num),
+
+              // Top row
+              React.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12 } },
+                React.createElement("div", null,
+                  React.createElement("div", { style: {
+                    fontSize: isMobile ? 10 : 11, fontWeight: 700, color: phase.color, letterSpacing: 2,
+                    fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginBottom: 6,
+                  }}, `Phase ${phase.num} \u2014 ${phase.subtitle}`),
+                  React.createElement("h2", { style: {
+                    fontSize: isMobile ? 20 : 26, fontWeight: 900, color: active ? T.text : `${T.text}dd`,
+                    fontFamily: "'Outfit', sans-serif", letterSpacing: -0.5, lineHeight: 1.2,
+                    transition: "color 0.3s ease",
+                  }}, phase.title),
+                ),
+                React.createElement("div", { style: {
+                  fontSize: 28, opacity: active ? 0.9 : 0.4, transition: "opacity 0.3s ease",
+                  animation: active ? "breathe 3s ease-in-out infinite" : "none",
+                }}, phase.icon),
+              ),
+
+              // Description
+              React.createElement("p", { style: {
+                fontSize: isMobile ? 13 : 15, color: T.textDim, lineHeight: 1.7, marginBottom: active ? 20 : 0,
+                maxWidth: 640,
+              }}, phase.desc),
+
+              // Expandable details
+              active && React.createElement("div", { style: {
+                animation: "fadeIn 0.4s ease-out",
+              }},
+                // Details grid
+                React.createElement("div", { style: {
+                  display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 20,
+                }},
+                  phase.details.map((d, di) =>
+                    React.createElement("div", { key: di, style: {
+                      display: "flex", alignItems: "flex-start", gap: 10,
+                      padding: "12px 16px", borderRadius: 10,
+                      background: `${phase.color}08`,
+                      border: `1px solid ${phase.color}18`,
+                    }},
+                      React.createElement("span", { style: { color: phase.color, fontSize: 8, marginTop: 6, flexShrink: 0 } }, "\u25cf"),
+                      React.createElement("span", { style: { fontSize: 14, color: `${T.text}cc`, lineHeight: 1.5, fontFamily: "'Outfit', sans-serif" } }, d),
+                    )
+                  ),
+                ),
+
+                // Output tag
+                React.createElement("div", { style: {
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  padding: "8px 16px", borderRadius: 8,
+                  background: `${phase.color}12`, border: `1px solid ${phase.color}33`,
+                }},
+                  React.createElement("span", { style: { fontSize: 11, fontWeight: 700, color: `${phase.color}aa`, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1, textTransform: "uppercase" } }, "Output:"),
+                  React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: phase.color, fontFamily: "'Outfit', sans-serif" } }, phase.output),
+                  !isLast && React.createElement("span", { style: { fontSize: 14, color: `${phase.color}88` } }, "\u2192"),
+                ),
+              ),
+
+              // Data flow indicator
+              !isLast && React.createElement("div", { style: {
+                position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
+                background: `${phase.color}11`, overflow: "hidden",
+              }},
+                React.createElement("div", { style: {
+                  width: "30%", height: "100%",
+                  background: `linear-gradient(90deg, transparent, ${phase.color}44, transparent)`,
+                  animation: "dataFlow 3s linear infinite",
+                  animationDelay: `${i * 0.4}s`,
+                }}),
+              ),
+            ),
+          ),
+        );
+      }),
+
+      // Loop-back indicator
+      React.createElement("div", { style: {
+        marginTop: 40, textAlign: "center",
+        opacity: visible >= PHASES.length ? 1 : 0,
+        transition: "opacity 0.6s ease",
+      }},
+        React.createElement("div", { style: {
+          display: "inline-flex", alignItems: "center", gap: 16,
+          padding: "16px 32px", borderRadius: 14,
+          background: T.cardBg, border: `1px solid ${T.cardBorder}`,
+        }},
+          React.createElement("div", { style: { fontSize: 24, color: T.cyan, animation: "spin 4s linear infinite" } }, "\u21bb"),
+          React.createElement("div", null,
+            React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: T.text, fontFamily: "'Outfit', sans-serif" } }, "Continuous Optimization Cycle"),
+            React.createElement("div", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace", marginTop: 2 } }, "Process repeats with refined parameters"),
+          ),
+        ),
+      ),
+    ),
+
+    // Footer
+    React.createElement("footer", { style: {
+      padding: isMobile ? "16px 20px" : "14px 48px",
+      borderTop: `1px solid ${T.electric}44`,
+      background: `linear-gradient(180deg, ${T.emerald}, ${T.bg})`,
+      display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12,
+    }},
+      React.createElement("span", { style: { fontSize: 13, fontWeight: 800, letterSpacing: 1.5, color: T.electric, fontFamily: "'JetBrains Mono', monospace" } }, "\u0160KODA X \u2014 AI Brand Intelligence"),
+      React.createElement("span", { style: { fontSize: 12, fontWeight: 600, color: `${T.electric}88`, fontFamily: "'JetBrains Mono', monospace" } }, "GEO Process \u00b7 7 Phases \u00b7 Continuous Loop"),
+    ),
+  );
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById("root"));
+</script>
+</body>
+</html>
