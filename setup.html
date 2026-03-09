@@ -943,9 +943,9 @@ const STEP_COMPONENTS = {
 
 // ── VISUAL FLOW OVERLAY ──
 function VisualFlow({ onClose, onStepClick }) {
-  const canvasRef = useRef(null);
   const [appeared, setAppeared] = useState(false);
   const [hovered, setHovered] = useState(null);
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => { requestAnimationFrame(() => setAppeared(true)); }, []);
 
@@ -967,11 +967,11 @@ function VisualFlow({ onClose, onStepClick }) {
     return () => clearInterval(interval);
   }, []);
 
-  const nodeRadius = hovered !== null ? 32 : 28;
   const sepIndex = 7; // separator before scoring
+  const selStep = selected !== null ? STEPS[selected] : null;
 
   return React.createElement("div", {
-    onClick: (e) => { if (e.target === e.currentTarget) onClose(); },
+    onClick: (e) => { if (e.target === e.currentTarget) { if (selected !== null) setSelected(null); else onClose(); } },
     style: {
       position: "fixed", inset: 0, zIndex: 10000,
       background: "rgba(3,8,6,0.92)",
@@ -1024,10 +1024,16 @@ function VisualFlow({ onClose, onStepClick }) {
         fill: "none", stroke: `${T.electric}15`, strokeWidth: 1,
       }),
 
-      // Center hub
-      React.createElement("circle", { cx, cy, r: 48, fill: `${T.electric}08`, stroke: `${T.electric}22`, strokeWidth: 1 }),
-      React.createElement("text", { x: cx, y: cy - 8, textAnchor: "middle", fill: T.electric, fontSize: 12, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2 }, "GEO"),
-      React.createElement("text", { x: cx, y: cy + 8, textAnchor: "middle", fill: T.muted, fontSize: 9, fontFamily: "'JetBrains Mono', monospace" }, "11 STEPS"),
+      // Center hub — shows selected step info or default
+      React.createElement("circle", { cx, cy, r: 56, fill: `${T.electric}08`, stroke: selected !== null ? `${T.electric}44` : `${T.electric}22`, strokeWidth: selected !== null ? 2 : 1, style: { transition: "all 0.3s ease" } }),
+      selected !== null ? React.createElement(React.Fragment, null,
+        React.createElement("text", { x: cx, y: cy - 14, textAnchor: "middle", fill: (selected >= sepIndex ? T.amber : T.electric), fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, textTransform: "uppercase" }, `STEP ${selStep.num}`),
+        React.createElement("text", { x: cx, y: cy + 6, textAnchor: "middle", fill: T.text, fontSize: 13, fontWeight: 800, fontFamily: "'Outfit', sans-serif" }, selStep.title),
+        React.createElement("text", { x: cx, y: cy + 22, textAnchor: "middle", fill: T.muted, fontSize: 9, fontFamily: "'JetBrains Mono', monospace" }, "click again to open"),
+      ) : React.createElement(React.Fragment, null,
+        React.createElement("text", { x: cx, y: cy - 8, textAnchor: "middle", fill: T.electric, fontSize: 14, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2 }, "GEO"),
+        React.createElement("text", { x: cx, y: cy + 10, textAnchor: "middle", fill: T.muted, fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }, "11 STEPS"),
+      ),
 
       // Connection lines
       positions.map((p, i) => {
@@ -1048,7 +1054,9 @@ function VisualFlow({ onClose, onStepClick }) {
       // Lines to center
       positions.map((p, i) => React.createElement("line", {
         key: `spoke-${i}`, x1: cx, y1: cy, x2: p.x, y2: p.y,
-        stroke: `${T.electric}08`, strokeWidth: 0.5,
+        stroke: selected === i ? `${(i >= sepIndex ? T.amber : T.electric)}33` : `${T.electric}08`,
+        strokeWidth: selected === i ? 1.5 : 0.5,
+        style: { transition: "all 0.3s ease" },
       })),
 
       // Floating particles
@@ -1064,10 +1072,12 @@ function VisualFlow({ onClose, onStepClick }) {
       // Nodes
       positions.map((p, i) => {
         const isHov = hovered === i;
+        const isSel = selected === i;
         const isBelowSep = i >= sepIndex;
         const nodeColor = isBelowSep ? T.amber : T.electric;
         const glowId = isBelowSep ? "nodeGlowAmber" : "nodeGlow";
-        const r = isHov ? 34 : 28;
+        const r = isSel ? 36 : isHov ? 32 : 28;
+        const isActive = isHov || isSel;
         return React.createElement("g", {
           key: `node-${i}`,
           style: appeared ? {
@@ -1076,21 +1086,19 @@ function VisualFlow({ onClose, onStepClick }) {
           } : { opacity: 0 },
           onMouseEnter: () => setHovered(i),
           onMouseLeave: () => setHovered(null),
-          onClick: (e) => { e.stopPropagation(); onStepClick(i); },
+          onClick: (e) => { e.stopPropagation(); if (selected === i) { onStepClick(i); } else { setSelected(i); } },
         },
           // Glow
-          React.createElement("circle", { cx: p.x, cy: p.y, r: r + 20, fill: `url(#${glowId})`, style: isHov ? { animation: "glowPulse 1.5s ease-in-out infinite" } : {} }),
+          React.createElement("circle", { cx: p.x, cy: p.y, r: r + 24, fill: `url(#${glowId})`, style: isActive ? { animation: "glowPulse 1.5s ease-in-out infinite" } : {} }),
           // Node bg
-          React.createElement("circle", { cx: p.x, cy: p.y, r, fill: T.cardBg, stroke: isHov ? nodeColor : `${nodeColor}66`, strokeWidth: isHov ? 2.5 : 1.5, style: { transition: "all 0.25s ease", filter: isHov ? "url(#glow)" : "none" } }),
+          React.createElement("circle", { cx: p.x, cy: p.y, r, fill: isSel ? `${nodeColor}18` : T.cardBg, stroke: isActive ? nodeColor : `${nodeColor}66`, strokeWidth: isSel ? 3 : isHov ? 2.5 : 1.5, style: { transition: "all 0.25s ease", filter: isActive ? "url(#glow)" : "none" } }),
           // Number
-          React.createElement("text", { x: p.x, y: p.y - 4, textAnchor: "middle", fill: nodeColor, fontSize: isHov ? 16 : 13, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", dominantBaseline: "middle", style: { transition: "all 0.25s ease" } }, p.step.num),
-          // Icon below number
-          React.createElement("text", { x: p.x, y: p.y + 10, textAnchor: "middle", fill: `${nodeColor}88`, fontSize: 8, dominantBaseline: "middle" }, p.step.icon),
-          // Label outside
+          React.createElement("text", { x: p.x, y: p.y + 1, textAnchor: "middle", fill: nodeColor, fontSize: isSel ? 18 : isHov ? 16 : 14, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", dominantBaseline: "middle", style: { transition: "all 0.25s ease" } }, p.step.num),
+          // Label outside — always visible, bigger
           React.createElement("text", {
-            x: p.x, y: p.y + (p.y < cy ? -42 : 44),
-            textAnchor: "middle", fill: isHov ? T.text : T.muted,
-            fontSize: isHov ? 12 : 10, fontWeight: isHov ? 700 : 500,
+            x: p.x, y: p.y + (p.y < cy ? -46 : 48),
+            textAnchor: "middle", fill: isSel ? T.text : isHov ? T.textDim : T.muted,
+            fontSize: isSel ? 15 : isHov ? 14 : 13, fontWeight: isSel ? 800 : isHov ? 700 : 600,
             fontFamily: "'Outfit', sans-serif",
             style: { transition: "all 0.25s ease" },
           }, p.step.title),
@@ -1100,7 +1108,7 @@ function VisualFlow({ onClose, onStepClick }) {
 
     // Bottom hint
     React.createElement("div", { style: { position: "absolute", bottom: 28, fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace", opacity: 0.5 } },
-      "Click any step to navigate \u00b7 Click outside to close"),
+      selected !== null ? "Click step again to navigate \u00b7 Click outside to deselect" : "Click a step to see details \u00b7 Click outside to close"),
   );
 }
 
