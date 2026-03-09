@@ -5331,6 +5331,18 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
             textDecoration: "none",
           },
         }, "\u25c9 GEO Setup"),
+        React.createElement("a", {
+          href: "geo-process.html",
+          style: {
+            padding: mobile ? "8px 16px" : "7px 14px", borderRadius: 6, cursor: "pointer",
+            border: `1.5px solid ${THEME.electric}88`,
+            background: `linear-gradient(135deg, ${THEME.emeraldLight}, ${THEME.electric}20)`,
+            color: THEME.electric, fontSize: mobile ? 13 : 12, fontWeight: 700,
+            fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
+            transition: "all 0.3s ease", display: "flex", alignItems: "center", gap: 5,
+            textDecoration: "none",
+          },
+        }, "\u25b8 GEO Process"),
       ),
     ),
   );

@@ -16,19 +16,32 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #14352A; border-radius: 4px; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes slideRight { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 20px #78FAAE15; } 50% { box-shadow: 0 0 40px #78FAAE25; } }
-  @keyframes flowLine { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
-  @keyframes dataFlow { 0% { transform: translateX(-100%); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateX(200%); opacity: 0; } }
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  @keyframes breathe { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; } }
+  @keyframes stairAppear {
+    from { opacity: 0; transform: translateY(40px) scale(0.92); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px #78FAAE10; } 50% { box-shadow: 0 0 50px #78FAAE20; } }
+  @keyframes particleUp {
+    0% { opacity: 0; transform: translateY(0) scale(0); }
+    20% { opacity: 1; transform: translateY(-8px) scale(1); }
+    100% { opacity: 0; transform: translateY(-50px) scale(0.3); }
+  }
+  @keyframes arrowBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useCallback } = React;
 
 const T = {
   emerald: "#0E3A2F", electric: "#78FAAE", emeraldLight: "#14493B",
@@ -38,147 +51,98 @@ const T = {
   purple: "#B4A0FF", blue: "#5AA8D4",
 };
 
-const PHASES = [
+const STAIRS = [
   {
-    id: "strategy",
     num: "01",
-    title: "Strategy & Setup",
-    subtitle: "Define what to monitor",
+    title: "GEO Analytics",
+    desc: "Monitoring & data collection from AI platforms",
     color: T.electric,
-    icon: "\u25c6",
-    desc: "Define brand identity, select competitors by powertrain (ICE/Hybrid/BEV), choose AI platforms and target markets.",
-    details: [
-      "Brand keywords & product terminology",
-      "Competitor mapping (brand + model level)",
-      "AI platform selection & API budget",
-      "Market & language configuration",
-    ],
-    output: "Configuration profile",
+    details: "Systematic querying of ChatGPT, Claude, Gemini & Perplexity. Brand mention detection, position tracking, competitor analysis across all AI engines.",
   },
   {
-    id: "personas",
     num: "02",
-    title: "Persona & Query Design",
-    subtitle: "What real users ask AI",
+    title: "Executive Summary + Overview",
+    desc: "High-level visibility scorecard",
     color: T.cyan,
-    icon: "\u25c9",
-    desc: "Create realistic user personas and craft query templates across 19 categories per powertrain type.",
-    details: [
-      "Buyer personas with demographics & intent",
-      "19 query categories: Range, Safety, Price, Design\u2026",
-      "Localized queries per market & language",
-      "Query rotation to avoid pattern detection",
-    ],
-    output: "Query library",
+    details: "Consolidated KPI dashboard with visibility score, sentiment trends, competitive positioning and key findings for leadership review.",
   },
   {
-    id: "interrogation",
     num: "03",
-    title: "AI Interrogation",
-    subtitle: "Send queries to AI engines",
+    title: "Insights & Recommendations",
+    desc: "Data-driven optimization strategy",
     color: T.blue,
-    icon: "\u25b8",
-    desc: "Systematically query multiple AI platforms (ChatGPT, Claude, Gemini, Perplexity) with persona-based prompts.",
-    details: [
-      "Parallel API calls across platforms",
-      "Persona-context injection per query",
-      "Rate limiting & retry handling",
-      "Response timestamping & versioning",
-    ],
-    output: "Raw AI responses",
+    details: "Actionable recommendations based on gap analysis. Priority list of content improvements, keyword opportunities and competitive threats.",
   },
   {
-    id: "collection",
     num: "04",
-    title: "Response Analysis",
-    subtitle: "Extract brand signals",
+    title: "Content Sources",
+    subtitle: "Website Metadata \u00b7 Website Content \u00b7 Media Content \u00b7 Blogs Content",
+    desc: "Owned content optimization",
     color: T.purple,
-    icon: "\u25ce",
-    desc: "Parse AI responses to detect brand mentions, position in answer, accuracy of information, and citation sources.",
-    details: [
-      "Brand & competitor mention detection",
-      "Position analysis (1st mention, prominence)",
-      "Factual accuracy verification",
-      "Source & citation URL extraction",
-    ],
-    output: "Structured brand signals",
+    details: "Optimize website metadata, page content, media assets and blog articles for AI discoverability. Schema.org markup, structured data, factual accuracy.",
+    channels: ["Website Metadata", "Website Content", "Media Content", "Blogs Content"],
   },
   {
-    id: "scoring",
     num: "05",
-    title: "Scoring & KPIs",
-    subtitle: "Quantify brand visibility",
+    title: "External Channels",
+    subtitle: "Facebook \u00b7 YouTube \u00b7 Wikipedia \u00b7 Reddit",
+    desc: "Third-party presence & citations",
     color: T.amber,
-    icon: "\u25c7",
-    desc: "Compute visibility scores, sentiment analysis, content quality metrics, and citation tracking across all dimensions.",
-    details: [
-      "Visibility Score \u2014 mention rate & position",
-      "Sentiment \u2014 positive / neutral / negative",
-      "Content Quality \u2014 accuracy & depth",
-      "Citation tracking by source domain",
-    ],
-    output: "KPI dashboard data",
+    details: "Strengthen brand presence on platforms that AI engines use as training data and citation sources. Ensure consistent, accurate brand information.",
+    channels: ["Facebook", "YouTube", "Wikipedia", "Reddit"],
   },
   {
-    id: "insights",
     num: "06",
-    title: "Insights & Reporting",
-    subtitle: "Visualize & alert",
+    title: "Content Creation",
+    desc: "Produce optimized content",
     color: T.electric,
-    icon: "\u25a2",
-    desc: "Real-time dashboards for TV/panel/mobile display, automated alerts on score changes, trend analysis and exports.",
-    details: [
-      "Multi-format dashboards (TV, panel, mobile)",
-      "Threshold alerts & notifications",
-      "Trend analysis over time",
-      "PDF/CSV export & API webhooks",
-    ],
-    output: "Actionable reports",
+    details: "Create new content specifically designed for AI visibility \u2014 authoritative articles, FAQ pages, structured comparisons, expert guides.",
   },
   {
-    id: "optimize",
     num: "07",
-    title: "Optimization Loop",
-    subtitle: "Improve AI visibility",
+    title: "Implementation",
+    desc: "Deploy & measure impact",
     color: T.cyan,
-    icon: "\u21bb",
-    desc: "Use insights to optimize brand content, update website structured data, and improve AI training signals. Repeat the cycle.",
-    details: [
-      "Content recommendations for AI visibility",
-      "Structured data & schema.org optimization",
-      "Competitor gap analysis & opportunities",
-      "Continuous monitoring & A/B testing",
-    ],
-    output: "Feeds back to Step 01",
+    details: "Publish optimized content, update metadata, deploy changes across all channels. Monitor AI response changes and measure visibility improvement.",
   },
 ];
 
 function App() {
-  const [visible, setVisible] = useState(0);
-  const [activePhase, setActivePhase] = useState(null);
+  const [visibleSteps, setVisibleSteps] = useState(0);
+  const [activeStep, setActiveStep] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isTablet, setIsTablet] = useState(window.innerWidth < 1100);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    const onResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      setIsTablet(window.innerWidth < 1100);
-    };
+    const onResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
   useEffect(() => {
-    if (visible >= PHASES.length) return;
-    const t = setTimeout(() => setVisible(v => v + 1), 250);
+    if (!started) return;
+    if (visibleSteps >= STAIRS.length) return;
+    const t = setTimeout(() => setVisibleSteps(v => v + 1), 400);
     return () => clearTimeout(t);
-  }, [visible]);
+  }, [started, visibleSteps]);
 
-  const isActive = (i) => activePhase === i;
+  // Auto-start after mount
+  useEffect(() => {
+    const t = setTimeout(() => setStarted(true), 600);
+    return () => clearTimeout(t);
+  }, []);
 
-  return React.createElement("div", { style: { minHeight: "100vh", background: T.bg, position: "relative" } },
+  const stairW = isMobile ? 280 : 320;
+  const stairH = isMobile ? 110 : 120;
+  const stepX = isMobile ? 30 : 50;
+  const stepY = isMobile ? 90 : 105;
 
-    // Grid background
+  const totalW = stairW + stepX * (STAIRS.length - 1) + 40;
+  const totalH = stairH + stepY * (STAIRS.length - 1) + 60;
+
+  return React.createElement("div", { style: { minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column" } },
+
+    // Grid bg
     React.createElement("div", { style: {
       position: "fixed", inset: 0, opacity: 0.015, pointerEvents: "none",
       backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
@@ -187,227 +151,201 @@ function App() {
 
     // Header
     React.createElement("header", { style: {
-      position: "sticky", top: 0, zIndex: 50,
-      background: `linear-gradient(180deg, ${T.bg}, ${T.bg}ee 85%, transparent)`,
-      padding: isMobile ? "20px 20px 30px" : "28px 48px 36px",
+      padding: isMobile ? "16px 16px" : "20px 40px",
+      display: "flex", justifyContent: "space-between", alignItems: "center",
+      borderBottom: `1px solid ${T.cardBorder}`,
+      background: `${T.bg}ee`, backdropFilter: "blur(12px)",
+      position: "sticky", top: 0, zIndex: 50, flexWrap: "wrap", gap: 12,
     }},
-      React.createElement("div", { style: { maxWidth: 1400, margin: "0 auto" } },
-        // Nav
-        React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 } },
-          React.createElement("div", null,
-            React.createElement("div", { style: { fontSize: isMobile ? 11 : 13, fontWeight: 700, color: `${T.muted}aa`, letterSpacing: 3, fontFamily: "'Outfit', sans-serif", textTransform: "uppercase", marginBottom: 2 } }, "\u0160koda X"),
-            React.createElement("div", { style: { fontSize: isMobile ? 18 : 24, fontWeight: 900, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace" } }, "GEO PROCESS"),
-          ),
-          React.createElement("div", { style: { display: "flex", gap: 10 } },
-            React.createElement("a", { href: "flow.html", style: { padding: "8px 16px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.electric, fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1 } }, "\u25c9 Flow"),
-            React.createElement("a", { href: "setup.html", style: { padding: "8px 16px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.electric, fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1 } }, "\u2699 Setup"),
-            React.createElement("a", { href: "index.html", style: { padding: "8px 16px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.muted, fontSize: 12, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1 } }, "\u25c0 Dashboard"),
-          ),
-        ),
+      React.createElement("div", null,
+        React.createElement("div", { style: { fontSize: 12, fontWeight: 700, color: `${T.muted}aa`, letterSpacing: 3, fontFamily: "'Outfit', sans-serif", textTransform: "uppercase" } }, "\u0160koda X"),
+        React.createElement("div", { style: { fontSize: isMobile ? 16 : 22, fontWeight: 900, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace" } }, "GEO PROCESS"),
+      ),
+      React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
+        React.createElement("a", { href: "flow.html", style: { padding: "7px 14px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.electric, fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, "\u25c9 Flow"),
+        React.createElement("a", { href: "setup.html", style: { padding: "7px 14px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.electric, fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, "\u2699 Setup"),
+        React.createElement("a", { href: "index.html", style: { padding: "7px 14px", borderRadius: 8, textDecoration: "none", background: `${T.cardBg}aa`, border: `1px solid ${T.cardBorder}`, color: T.muted, fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" } }, "\u25c0 Dashboard"),
+      ),
+    ),
 
-        // Subtitle
-        React.createElement("div", { style: { maxWidth: 700 } },
-          React.createElement("p", { style: { fontSize: isMobile ? 14 : 16, color: T.textDim, lineHeight: 1.7, fontWeight: 400 } },
-            "Generative Engine Optimization je systematick\u00FD proces monitorov\u00E1n\u00ED a optimalizace viditelnosti zna\u010Dky v odpov\u011Bd\u00EDch AI platforem. Tento diagram zobrazuje cel\u00FD cyklus od strategie po optimalizaci."
-          ),
-        ),
+    // Main — staircase area
+    React.createElement("div", { style: {
+      flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+      padding: isMobile ? "20px 8px" : "40px 20px",
+      overflow: "auto",
+    }},
+      React.createElement("div", { style: {
+        position: "relative",
+        width: totalW,
+        height: totalH,
+        minWidth: totalW,
+        minHeight: totalH,
+      }},
 
-        // Process indicator
-        React.createElement("div", { style: { marginTop: 20, display: "flex", alignItems: "center", gap: 6 } },
-          PHASES.map((p, i) =>
-            React.createElement("div", { key: p.id, style: {
-              display: "flex", alignItems: "center", gap: 6,
+        // Stairs — bottom-left to top-right
+        STAIRS.map((stair, i) => {
+          const idx = i;
+          const fromBottom = i;
+          const x = stepX * i;
+          const y = totalH - stairH - stepY * i;
+          const show = idx < visibleSteps;
+          const active = activeStep === i;
+
+          return React.createElement("div", {
+            key: i,
+            onClick: () => setActiveStep(active ? null : i),
+            style: {
+              position: "absolute",
+              left: x,
+              top: y,
+              width: stairW,
+              height: stairH,
+              opacity: show ? 1 : 0,
+              transform: show ? "translateY(0) scale(1)" : "translateY(40px) scale(0.92)",
+              transition: "opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              cursor: "pointer",
+              zIndex: STAIRS.length - i,
+            },
+          },
+
+            // Stair block — the "step" shape
+            React.createElement("div", { style: {
+              width: "100%", height: "100%", borderRadius: 14,
+              background: active
+                ? `linear-gradient(135deg, ${stair.color}18, ${T.emeraldLight})`
+                : `linear-gradient(160deg, ${T.cardBg}, ${T.cardBg}dd)`,
+              border: `1.5px solid ${active ? stair.color + "66" : stair.color + "25"}`,
+              padding: isMobile ? "14px 16px" : "18px 22px",
+              display: "flex", flexDirection: "column", justifyContent: "center",
+              position: "relative", overflow: "hidden",
+              transition: "all 0.3s ease",
+              boxShadow: active
+                ? `0 8px 40px ${stair.color}20, 0 0 60px ${stair.color}08`
+                : `0 4px 20px rgba(0,0,0,0.3)`,
+              animation: active ? "glowPulse 2.5s ease-in-out infinite" : "none",
             }},
-              React.createElement("div", {
-                onClick: () => setActivePhase(activePhase === i ? null : i),
-                style: {
-                  width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, borderRadius: 8,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  background: activePhase === i ? `${p.color}22` : i < visible ? `${T.cardBg}` : "transparent",
-                  border: `1.5px solid ${activePhase === i ? p.color : i < visible ? p.color + "44" : T.cardBorder}`,
-                  color: activePhase === i ? p.color : i < visible ? `${p.color}99` : T.muted,
-                  fontSize: isMobile ? 10 : 12, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-                  cursor: "pointer", transition: "all 0.3s ease",
-                },
-              }, p.num),
-              i < PHASES.length - 1 && React.createElement("div", { style: {
-                width: isMobile ? 8 : isTablet ? 16 : 32, height: 2,
-                background: i < visible - 1 ? `linear-gradient(90deg, ${p.color}66, ${PHASES[i+1].color}66)` : T.cardBorder,
-                borderRadius: 1, transition: "background 0.5s ease",
+
+              // Watermark number
+              React.createElement("div", { style: {
+                position: "absolute", top: -4, right: 10,
+                fontSize: isMobile ? 60 : 72, fontWeight: 900,
+                fontFamily: "'JetBrains Mono', monospace",
+                color: `${stair.color}06`, lineHeight: 1, pointerEvents: "none",
+              }}, stair.num),
+
+              // Step label
+              React.createElement("div", { style: {
+                fontSize: 10, fontWeight: 700, color: active ? stair.color : `${stair.color}88`,
+                fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2,
+                marginBottom: 6, transition: "color 0.3s ease", textTransform: "uppercase",
+              }}, `Step ${stair.num}`),
+
+              // Title
+              React.createElement("div", { style: {
+                fontSize: isMobile ? 16 : 19, fontWeight: 800, color: active ? T.text : `${T.text}cc`,
+                fontFamily: "'Outfit', sans-serif", lineHeight: 1.25,
+                transition: "color 0.3s ease",
+              }}, stair.title),
+
+              // Subtitle (channels)
+              stair.subtitle && React.createElement("div", { style: {
+                fontSize: isMobile ? 10 : 11, color: `${stair.color}99`, marginTop: 4,
+                fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, lineHeight: 1.4,
+              }}, stair.subtitle),
+
+              // Desc
+              !stair.subtitle && React.createElement("div", { style: {
+                fontSize: isMobile ? 11 : 12, color: `${T.muted}cc`, marginTop: 4,
+                fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.4,
+              }}, stair.desc),
+
+              // Bottom accent line
+              React.createElement("div", { style: {
+                position: "absolute", bottom: 0, left: 0, right: 0, height: 3,
+                background: active ? `linear-gradient(90deg, ${stair.color}, ${stair.color}33)` : `${stair.color}15`,
+                transition: "background 0.3s ease",
               }}),
-            )
+
+              // Rising particles on active
+              active && [0,1,2].map(pi =>
+                React.createElement("div", { key: pi, style: {
+                  position: "absolute", bottom: 8, left: `${25 + pi * 25}%`,
+                  width: 4, height: 4, borderRadius: 2, background: stair.color,
+                  animation: `particleUp 2s ease-out infinite`,
+                  animationDelay: `${pi * 0.6}s`,
+                }})
+              ),
+            ),
+
+            // Arrow connector to next step
+            show && i < STAIRS.length - 1 && React.createElement("div", { style: {
+              position: "absolute",
+              right: isMobile ? -8 : -12,
+              top: isMobile ? -18 : -22,
+              fontSize: isMobile ? 16 : 20,
+              color: `${stair.color}55`,
+              animation: "arrowBounce 1.5s ease-in-out infinite",
+              animationDelay: `${i * 0.2}s`,
+              transform: "rotate(-45deg)",
+            }}, "\u2191"),
+          );
+        }),
+
+        // Completion badge
+        visibleSteps >= STAIRS.length && React.createElement("div", { style: {
+          position: "absolute",
+          left: stepX * STAIRS.length + 20,
+          top: totalH - stairH - stepY * STAIRS.length + 30,
+          animation: "slideUp 0.8s ease-out",
+        }},
+          React.createElement("div", { style: {
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "12px 20px", borderRadius: 12,
+            background: `${T.electric}12`, border: `1px solid ${T.electric}33`,
+          }},
+            React.createElement("div", { style: { fontSize: 22, color: T.electric } }, "\u2714"),
+            React.createElement("div", null,
+              React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: T.electric, fontFamily: "'Outfit', sans-serif" } }, "Repeat Cycle"),
+              React.createElement("div", { style: { fontSize: 10, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Continuous optimization"),
+            ),
           ),
         ),
       ),
     ),
 
-    // Main content
-    React.createElement("main", { style: {
-      maxWidth: 1400, margin: "0 auto", padding: isMobile ? "0 16px 60px" : "0 48px 80px",
+    // Detail panel — appears when a step is clicked
+    activeStep !== null && React.createElement("div", { style: {
+      padding: isMobile ? "20px 16px" : "24px 40px",
+      borderTop: `1px solid ${STAIRS[activeStep].color}33`,
+      background: `linear-gradient(180deg, ${STAIRS[activeStep].color}08, ${T.bg})`,
+      animation: "fadeIn 0.3s ease-out",
     }},
-
-      // Process phases
-      PHASES.map((phase, i) => {
-        const show = i < visible;
-        const active = activePhase === i;
-        const isLast = i === PHASES.length - 1;
-
-        return React.createElement("div", {
-          key: phase.id,
-          onClick: () => setActivePhase(active ? null : i),
-          style: {
-            opacity: show ? 1 : 0,
-            transform: show ? "translateY(0)" : "translateY(30px)",
-            transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            marginBottom: isLast ? 0 : 0,
-            cursor: "pointer",
-          },
-        },
-
-          // Phase row
+      React.createElement("div", { style: { maxWidth: 900, margin: "0 auto" } },
+        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 14, marginBottom: 14 } },
           React.createElement("div", { style: {
-            display: "flex", gap: isMobile ? 16 : 28, alignItems: "stretch", position: "relative",
-          }},
-
-            // Left: timeline
-            React.createElement("div", { style: {
-              display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0,
-              width: isMobile ? 48 : 64,
-            }},
-              // Number circle
-              React.createElement("div", { style: {
-                width: isMobile ? 48 : 64, height: isMobile ? 48 : 64, borderRadius: 16,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                background: active ? `linear-gradient(135deg, ${phase.color}22, ${phase.color}08)` : T.cardBg,
-                border: `2px solid ${active ? phase.color : phase.color + "44"}`,
-                fontSize: isMobile ? 16 : 20, fontWeight: 900, color: active ? phase.color : `${phase.color}bb`,
-                fontFamily: "'JetBrains Mono', monospace",
-                transition: "all 0.3s ease",
-                animation: active ? "pulseGlow 2s ease-in-out infinite" : "none",
-                flexShrink: 0,
-              }}, phase.num),
-              // Connector line
-              !isLast && React.createElement("div", { style: {
-                flex: 1, width: 2, minHeight: 20,
-                background: `linear-gradient(180deg, ${phase.color}44, ${PHASES[i+1].color}44)`,
-                margin: "8px 0",
-              }}),
-              // Loop arrow for last
-              isLast && React.createElement("div", { style: {
-                marginTop: 12, fontSize: 24, color: `${phase.color}88`,
-                animation: "spin 4s linear infinite",
-              }}, "\u21bb"),
-            ),
-
-            // Right: content card
-            React.createElement("div", { style: {
-              flex: 1, padding: isMobile ? "20px 18px" : "28px 32px",
-              borderRadius: 16,
-              background: active ? `linear-gradient(160deg, ${T.emeraldLight}, ${phase.color}08)` : T.cardBg,
-              border: `1.5px solid ${active ? phase.color + "55" : T.cardBorder}`,
-              marginBottom: isLast ? 0 : 16,
-              transition: "all 0.3s ease",
-              boxShadow: active ? `0 4px 40px ${phase.color}12` : "none",
-              position: "relative", overflow: "hidden",
-            }},
-
-              // Watermark
-              React.createElement("div", { style: {
-                position: "absolute", top: -10, right: isMobile ? 10 : 20,
-                fontSize: isMobile ? 80 : 120, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
-                color: `${phase.color}06`, lineHeight: 1, pointerEvents: "none",
-              }}, phase.num),
-
-              // Top row
-              React.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12 } },
-                React.createElement("div", null,
-                  React.createElement("div", { style: {
-                    fontSize: isMobile ? 10 : 11, fontWeight: 700, color: phase.color, letterSpacing: 2,
-                    fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginBottom: 6,
-                  }}, `Phase ${phase.num} \u2014 ${phase.subtitle}`),
-                  React.createElement("h2", { style: {
-                    fontSize: isMobile ? 20 : 26, fontWeight: 900, color: active ? T.text : `${T.text}dd`,
-                    fontFamily: "'Outfit', sans-serif", letterSpacing: -0.5, lineHeight: 1.2,
-                    transition: "color 0.3s ease",
-                  }}, phase.title),
-                ),
-                React.createElement("div", { style: {
-                  fontSize: 28, opacity: active ? 0.9 : 0.4, transition: "opacity 0.3s ease",
-                  animation: active ? "breathe 3s ease-in-out infinite" : "none",
-                }}, phase.icon),
-              ),
-
-              // Description
-              React.createElement("p", { style: {
-                fontSize: isMobile ? 13 : 15, color: T.textDim, lineHeight: 1.7, marginBottom: active ? 20 : 0,
-                maxWidth: 640,
-              }}, phase.desc),
-
-              // Expandable details
-              active && React.createElement("div", { style: {
-                animation: "fadeIn 0.4s ease-out",
-              }},
-                // Details grid
-                React.createElement("div", { style: {
-                  display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 20,
-                }},
-                  phase.details.map((d, di) =>
-                    React.createElement("div", { key: di, style: {
-                      display: "flex", alignItems: "flex-start", gap: 10,
-                      padding: "12px 16px", borderRadius: 10,
-                      background: `${phase.color}08`,
-                      border: `1px solid ${phase.color}18`,
-                    }},
-                      React.createElement("span", { style: { color: phase.color, fontSize: 8, marginTop: 6, flexShrink: 0 } }, "\u25cf"),
-                      React.createElement("span", { style: { fontSize: 14, color: `${T.text}cc`, lineHeight: 1.5, fontFamily: "'Outfit', sans-serif" } }, d),
-                    )
-                  ),
-                ),
-
-                // Output tag
-                React.createElement("div", { style: {
-                  display: "inline-flex", alignItems: "center", gap: 8,
-                  padding: "8px 16px", borderRadius: 8,
-                  background: `${phase.color}12`, border: `1px solid ${phase.color}33`,
-                }},
-                  React.createElement("span", { style: { fontSize: 11, fontWeight: 700, color: `${phase.color}aa`, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1, textTransform: "uppercase" } }, "Output:"),
-                  React.createElement("span", { style: { fontSize: 13, fontWeight: 600, color: phase.color, fontFamily: "'Outfit', sans-serif" } }, phase.output),
-                  !isLast && React.createElement("span", { style: { fontSize: 14, color: `${phase.color}88` } }, "\u2192"),
-                ),
-              ),
-
-              // Data flow indicator
-              !isLast && React.createElement("div", { style: {
-                position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
-                background: `${phase.color}11`, overflow: "hidden",
-              }},
-                React.createElement("div", { style: {
-                  width: "30%", height: "100%",
-                  background: `linear-gradient(90deg, transparent, ${phase.color}44, transparent)`,
-                  animation: "dataFlow 3s linear infinite",
-                  animationDelay: `${i * 0.4}s`,
-                }}),
-              ),
-            ),
-          ),
-        );
-      }),
-
-      // Loop-back indicator
-      React.createElement("div", { style: {
-        marginTop: 40, textAlign: "center",
-        opacity: visible >= PHASES.length ? 1 : 0,
-        transition: "opacity 0.6s ease",
-      }},
-        React.createElement("div", { style: {
-          display: "inline-flex", alignItems: "center", gap: 16,
-          padding: "16px 32px", borderRadius: 14,
-          background: T.cardBg, border: `1px solid ${T.cardBorder}`,
-        }},
-          React.createElement("div", { style: { fontSize: 24, color: T.cyan, animation: "spin 4s linear infinite" } }, "\u21bb"),
+            width: 40, height: 40, borderRadius: 10,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: `${STAIRS[activeStep].color}15`, border: `1.5px solid ${STAIRS[activeStep].color}44`,
+            fontSize: 14, fontWeight: 900, color: STAIRS[activeStep].color,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}, STAIRS[activeStep].num),
           React.createElement("div", null,
-            React.createElement("div", { style: { fontSize: 14, fontWeight: 700, color: T.text, fontFamily: "'Outfit', sans-serif" } }, "Continuous Optimization Cycle"),
-            React.createElement("div", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace", marginTop: 2 } }, "Process repeats with refined parameters"),
+            React.createElement("div", { style: { fontSize: 18, fontWeight: 800, color: T.text, fontFamily: "'Outfit', sans-serif" } }, STAIRS[activeStep].title),
+            React.createElement("div", { style: { fontSize: 12, color: STAIRS[activeStep].color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, marginTop: 2 } }, STAIRS[activeStep].desc),
+          ),
+        ),
+        React.createElement("p", { style: { fontSize: 15, color: T.textDim, lineHeight: 1.8, marginBottom: STAIRS[activeStep].channels ? 16 : 0 } }, STAIRS[activeStep].details),
+
+        // Channel tags
+        STAIRS[activeStep].channels && React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
+          STAIRS[activeStep].channels.map((ch, ci) =>
+            React.createElement("div", { key: ci, style: {
+              padding: "8px 16px", borderRadius: 8,
+              background: `${STAIRS[activeStep].color}10`,
+              border: `1px solid ${STAIRS[activeStep].color}30`,
+              fontSize: 13, fontWeight: 700, color: STAIRS[activeStep].color,
+              fontFamily: "'JetBrains Mono', monospace",
+            }}, ch)
           ),
         ),
       ),
@@ -415,13 +353,13 @@ function App() {
 
     // Footer
     React.createElement("footer", { style: {
-      padding: isMobile ? "16px 20px" : "14px 48px",
+      padding: isMobile ? "14px 16px" : "14px 40px",
       borderTop: `1px solid ${T.electric}44`,
       background: `linear-gradient(180deg, ${T.emerald}, ${T.bg})`,
       display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12,
     }},
       React.createElement("span", { style: { fontSize: 13, fontWeight: 800, letterSpacing: 1.5, color: T.electric, fontFamily: "'JetBrains Mono', monospace" } }, "\u0160KODA X \u2014 AI Brand Intelligence"),
-      React.createElement("span", { style: { fontSize: 12, fontWeight: 600, color: `${T.electric}88`, fontFamily: "'JetBrains Mono', monospace" } }, "GEO Process \u00b7 7 Phases \u00b7 Continuous Loop"),
+      React.createElement("span", { style: { fontSize: 12, fontWeight: 600, color: `${T.electric}88`, fontFamily: "'JetBrains Mono', monospace" } }, "GEO Process \u00b7 7 Steps \u00b7 Continuous Cycle"),
     ),
   );
 }
