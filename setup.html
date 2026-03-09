@@ -951,22 +951,72 @@ function VisualFlow({ onClose, onStepClick }) {
   const topSteps = STEPS.slice(0, sepIndex);
   const botSteps = STEPS.slice(sepIndex);
 
-  // Sequential reveal
   useEffect(() => {
     if (!started) return;
     if (visibleCount >= STEPS.length) return;
-    const t = setTimeout(() => setVisibleCount(v => v + 1), 180);
+    const t = setTimeout(() => setVisibleCount(v => v + 1), 200);
     return () => clearTimeout(t);
   }, [started, visibleCount]);
 
-  const boxW = 148, boxH = 88, gap = 8;
-  const totalTopW = topSteps.length * boxW + (topSteps.length - 1) * gap;
+  const gap = 14;
+
+  function FlowBox({ s, i, visible, color }) {
+    const isHov = hovered === i;
+    return React.createElement("div", {
+      key: s.id,
+      onClick: () => visible && onStepClick(i),
+      onMouseEnter: () => visible && setHovered(i),
+      onMouseLeave: () => setHovered(null),
+      style: {
+        flex: 1, minHeight: 0, borderRadius: 16, cursor: visible ? "pointer" : "default",
+        border: `1.5px solid ${isHov ? color : color + "33"}`,
+        background: isHov ? `linear-gradient(160deg, ${T.emeraldLight}, ${color}12)` : `${T.cardBg}ee`,
+        padding: "24px 22px 20px",
+        display: "flex", flexDirection: "column", justifyContent: "space-between",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.9)",
+        transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        boxShadow: isHov ? `0 4px 40px ${color}25, 0 0 60px ${color}10` : `0 2px 12px rgba(0,0,0,0.2)`,
+        position: "relative", overflow: "hidden",
+      },
+    },
+      // Large watermark number
+      React.createElement("div", { style: {
+        position: "absolute", top: -8, right: 6,
+        fontSize: 72, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
+        color: `${color}08`, lineHeight: 1, pointerEvents: "none",
+      }}, s.num),
+      // Content
+      React.createElement("div", null,
+        React.createElement("div", { style: {
+          fontSize: 11, fontWeight: 700, color: isHov ? color : `${color}99`,
+          fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 10,
+          transition: "color 0.2s ease",
+        }}, `STEP ${s.num}`),
+        React.createElement("div", { style: {
+          fontSize: 18, fontWeight: 800, color: isHov ? T.text : `${T.text}cc`,
+          fontFamily: "'Outfit', sans-serif", lineHeight: 1.25,
+          transition: "color 0.2s ease",
+        }}, s.title),
+      ),
+      React.createElement("div", { style: {
+        fontSize: 12, color: `${T.muted}cc`, marginTop: 12, lineHeight: 1.45,
+        fontFamily: "'JetBrains Mono', monospace",
+      }}, s.desc),
+      // Bottom accent
+      React.createElement("div", { style: {
+        position: "absolute", bottom: 0, left: 0, right: 0, height: 3,
+        background: isHov ? `linear-gradient(90deg, ${color}, ${color}44)` : `${color}18`,
+        transition: "background 0.25s ease",
+      }}),
+    );
+  }
 
   return React.createElement("div", {
     onClick: (e) => { if (e.target === e.currentTarget) onClose(); },
     style: {
       position: "fixed", inset: 0, zIndex: 10000,
-      background: `radial-gradient(ellipse at 50% 30%, ${T.emerald}55, ${T.bg} 70%)`,
+      background: `radial-gradient(ellipse at 50% 25%, ${T.emerald}55, ${T.bg} 70%)`,
       backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       animation: "flowFadeIn 0.5s ease-out", cursor: "default", overflow: "hidden",
@@ -974,189 +1024,98 @@ function VisualFlow({ onClose, onStepClick }) {
   },
     // Grid bg
     React.createElement("div", { style: {
-      position: "absolute", inset: 0, opacity: 0.025,
+      position: "absolute", inset: 0, opacity: 0.02,
       backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
-      backgroundSize: "60px 60px",
+      backgroundSize: "80px 80px",
     }}),
 
     // Header
-    React.createElement("div", { style: { position: "absolute", top: 32, left: 0, right: 0, display: "flex", justifyContent: "center", alignItems: "center" } },
-      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 16 } },
-        React.createElement("div", { style: { width: 40, height: 1, background: `linear-gradient(90deg, transparent, ${T.electric}55)` } }),
-        React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: T.electric, letterSpacing: 4, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" } }, "GEO Setup Flow"),
-        React.createElement("div", { style: { width: 40, height: 1, background: `linear-gradient(90deg, ${T.electric}55, transparent)` } }),
+    React.createElement("div", { style: { position: "absolute", top: 28, left: 0, right: 0, display: "flex", justifyContent: "center", alignItems: "center" } },
+      React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 20 } },
+        React.createElement("div", { style: { width: 50, height: 1, background: `linear-gradient(90deg, transparent, ${T.electric}55)` } }),
+        React.createElement("div", { style: { fontSize: 15, fontWeight: 800, color: T.electric, letterSpacing: 5, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase" } }, "GEO Setup Flow"),
+        React.createElement("div", { style: { width: 50, height: 1, background: `linear-gradient(90deg, ${T.electric}55, transparent)` } }),
       ),
-      React.createElement("button", { onClick: onClose, style: { position: "absolute", right: 32, background: `${T.cardBg}88`, border: `1px solid ${T.cardBorder}`, borderRadius: 8, color: T.muted, fontSize: 12, padding: "6px 14px", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace" } }, "\u2715"),
+      React.createElement("button", { onClick: onClose, style: { position: "absolute", right: 36, background: `${T.cardBg}88`, border: `1px solid ${T.cardBorder}`, borderRadius: 8, color: T.muted, fontSize: 13, padding: "8px 16px", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace" } }, "\u2715"),
     ),
 
-    // START button (before reveal)
+    // START
     !started && React.createElement("button", {
       onClick: () => { setStarted(true); setVisibleCount(1); },
       style: {
-        padding: "20px 52px", borderRadius: 14, cursor: "pointer", border: "none",
+        padding: "24px 64px", borderRadius: 16, cursor: "pointer", border: "none",
         background: `linear-gradient(135deg, ${T.electric}, ${T.cyan})`,
-        color: T.emerald, fontSize: 18, fontWeight: 800, letterSpacing: 3, textTransform: "uppercase",
+        color: T.emerald, fontSize: 20, fontWeight: 800, letterSpacing: 4, textTransform: "uppercase",
         fontFamily: "'JetBrains Mono', monospace",
-        boxShadow: `0 0 60px ${T.electric}30, 0 0 120px ${T.electric}15`,
+        boxShadow: `0 0 80px ${T.electric}30, 0 0 160px ${T.electric}10`,
         animation: "glowPulse 2s ease-in-out infinite",
-        transition: "all 0.3s ease",
       },
     }, "\u25b6  START SETUP"),
 
-    // Flow boxes
-    started && React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 24 } },
+    // Flow
+    started && React.createElement("div", { style: {
+      display: "flex", flexDirection: "column", alignItems: "stretch",
+      width: "calc(100vw - 80px)", maxWidth: 1600, gap: 20,
+      padding: "0 8px",
+    }},
 
-      // Row label: Configuration
+      // Row label
       React.createElement("div", { style: {
-        fontSize: 10, fontWeight: 700, color: `${T.electric}55`, letterSpacing: 3,
+        fontSize: 12, fontWeight: 700, color: `${T.electric}66`, letterSpacing: 4,
         fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
+        textAlign: "center",
         opacity: visibleCount > 0 ? 1 : 0, transition: "opacity 0.4s ease",
       }}, "Configuration"),
 
-      // Row 1: steps 1-7
+      // Row 1
       React.createElement("div", { style: { display: "flex", gap, alignItems: "stretch" } },
-        topSteps.map((s, i) => {
-          const visible = i < visibleCount;
-          const isHov = hovered === i;
-          return React.createElement("div", {
-            key: s.id,
-            onClick: () => visible && onStepClick(i),
-            onMouseEnter: () => visible && setHovered(i),
-            onMouseLeave: () => setHovered(null),
-            style: {
-              width: boxW, minHeight: boxH, borderRadius: 12, cursor: visible ? "pointer" : "default",
-              border: `1px solid ${isHov ? T.electric : T.electric + "33"}`,
-              background: isHov ? `linear-gradient(135deg, ${T.emeraldLight}, ${T.electric}15)` : `${T.cardBg}dd`,
-              padding: "14px 14px 12px",
-              display: "flex", flexDirection: "column", justifyContent: "space-between",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0) scale(1)" : "translateY(20px) scale(0.92)",
-              transition: "all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)",
-              boxShadow: isHov ? `0 0 30px ${T.electric}20` : "none",
-              position: "relative", overflow: "hidden",
-            },
-          },
-            // Number badge
-            React.createElement("div", { style: {
-              position: "absolute", top: 8, right: 10,
-              fontSize: 28, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
-              color: `${T.electric}12`, lineHeight: 1,
-            }}, s.num),
-            // Step number + title
-            React.createElement("div", null,
-              React.createElement("div", { style: {
-                fontSize: 10, fontWeight: 700, color: isHov ? T.electric : `${T.electric}88`,
-                fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.5, marginBottom: 6,
-                transition: "color 0.2s ease",
-              }}, `STEP ${s.num}`),
-              React.createElement("div", { style: {
-                fontSize: 13, fontWeight: 700, color: isHov ? T.text : T.textDim,
-                fontFamily: "'Outfit', sans-serif", lineHeight: 1.3,
-                transition: "color 0.2s ease",
-              }}, s.title),
-            ),
-            // Desc
-            React.createElement("div", { style: {
-              fontSize: 10, color: T.muted, marginTop: 6, lineHeight: 1.3,
-              fontFamily: "'JetBrains Mono', monospace",
-            }}, s.desc),
-            // Bottom accent line
-            React.createElement("div", { style: {
-              position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
-              background: isHov ? T.electric : `${T.electric}22`,
-              transition: "background 0.2s ease",
-            }}),
-          );
-        }),
+        topSteps.map((s, i) => FlowBox({ s, i, visible: i < visibleCount, color: T.electric })),
       ),
 
       // Separator
       visibleCount > sepIndex && React.createElement("div", { style: {
-        width: totalTopW, height: 1,
-        background: `linear-gradient(90deg, transparent, ${T.cardBorder}, transparent)`,
-        opacity: 1, transition: "opacity 0.4s ease",
+        height: 1, margin: "4px 0",
+        background: `linear-gradient(90deg, transparent 5%, ${T.cardBorder} 30%, ${T.cardBorder} 70%, transparent 95%)`,
+        animation: "fadeIn 0.4s ease-out",
       }}),
 
-      // Row label: Output & Launch
+      // Row 2 label
       visibleCount > sepIndex && React.createElement("div", { style: {
-        fontSize: 10, fontWeight: 700, color: `${T.amber}55`, letterSpacing: 3,
+        fontSize: 12, fontWeight: 700, color: `${T.amber}66`, letterSpacing: 4,
         fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
-        animation: "fadeIn 0.4s ease-out",
+        textAlign: "center", animation: "fadeIn 0.4s ease-out",
       }}, "Scoring, Output & Launch"),
 
-      // Row 2: steps 8-11 aligned under first 4 boxes
+      // Row 2 — same width grid, 4 boxes spread across 7 columns
       visibleCount > sepIndex && React.createElement("div", { style: {
-        display: "flex", gap, alignItems: "stretch",
-        width: totalTopW,
+        display: "grid",
+        gridTemplateColumns: "repeat(7, 1fr)",
+        gap,
       }},
         botSteps.map((s, bi) => {
           const i = bi + sepIndex;
-          const visible = i < visibleCount;
-          const isHov = hovered === i;
           return React.createElement("div", {
             key: s.id,
-            onClick: () => visible && onStepClick(i),
-            onMouseEnter: () => visible && setHovered(i),
-            onMouseLeave: () => setHovered(null),
-            style: {
-              width: boxW, minHeight: boxH, borderRadius: 12, cursor: visible ? "pointer" : "default",
-              border: `1px solid ${isHov ? T.amber : T.amber + "33"}`,
-              background: isHov ? `linear-gradient(135deg, ${T.emeraldLight}, ${T.amber}15)` : `${T.cardBg}dd`,
-              padding: "14px 14px 12px",
-              display: "flex", flexDirection: "column", justifyContent: "space-between",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0) scale(1)" : "translateY(20px) scale(0.92)",
-              transition: "all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)",
-              boxShadow: isHov ? `0 0 30px ${T.amber}20` : "none",
-              position: "relative", overflow: "hidden",
-            },
-          },
-            React.createElement("div", { style: {
-              position: "absolute", top: 8, right: 10,
-              fontSize: 28, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
-              color: `${T.amber}12`, lineHeight: 1,
-            }}, s.num),
-            React.createElement("div", null,
-              React.createElement("div", { style: {
-                fontSize: 10, fontWeight: 700, color: isHov ? T.amber : `${T.amber}88`,
-                fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.5, marginBottom: 6,
-                transition: "color 0.2s ease",
-              }}, `STEP ${s.num}`),
-              React.createElement("div", { style: {
-                fontSize: 13, fontWeight: 700, color: isHov ? T.text : T.textDim,
-                fontFamily: "'Outfit', sans-serif", lineHeight: 1.3,
-                transition: "color 0.2s ease",
-              }}, s.title),
-            ),
-            React.createElement("div", { style: {
-              fontSize: 10, color: T.muted, marginTop: 6, lineHeight: 1.3,
-              fontFamily: "'JetBrains Mono', monospace",
-            }}, s.desc),
-            React.createElement("div", { style: {
-              position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
-              background: isHov ? T.amber : `${T.amber}22`,
-              transition: "background 0.2s ease",
-            }}),
-          );
+            style: { gridColumn: `${bi * 2 + 1} / span ${bi < 3 ? 2 : 1}` },
+          }, FlowBox({ s, i, visible: i < visibleCount, color: T.amber }));
         }),
       ),
     ),
 
-    // Bottom legend
+    // Legend
     started && visibleCount >= STEPS.length && React.createElement("div", { style: {
-      position: "absolute", bottom: 28, display: "flex", alignItems: "center", gap: 24,
+      position: "absolute", bottom: 24, display: "flex", alignItems: "center", gap: 28,
       animation: "fadeIn 0.5s ease-out",
     }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
-        React.createElement("div", { style: { width: 8, height: 8, borderRadius: 4, background: T.electric } }),
-        React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Configuration"),
+        React.createElement("div", { style: { width: 10, height: 10, borderRadius: 5, background: T.electric } }),
+        React.createElement("span", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Configuration"),
       ),
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
-        React.createElement("div", { style: { width: 8, height: 8, borderRadius: 4, background: T.amber } }),
-        React.createElement("span", { style: { fontSize: 11, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Scoring & Output"),
+        React.createElement("div", { style: { width: 10, height: 10, borderRadius: 5, background: T.amber } }),
+        React.createElement("span", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Scoring & Output"),
       ),
-      React.createElement("span", { style: { fontSize: 11, color: `${T.muted}66`, fontFamily: "'JetBrains Mono', monospace" } }, "\u00b7"),
-      React.createElement("span", { style: { fontSize: 11, color: `${T.muted}88`, fontFamily: "'JetBrains Mono', monospace" } }, "Click any step to configure"),
+      React.createElement("span", { style: { fontSize: 12, color: `${T.muted}88`, fontFamily: "'JetBrains Mono', monospace" } }, "\u00b7  Click any step to configure"),
     ),
   );
 }
