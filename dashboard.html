@@ -5313,9 +5313,10 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
 
 // ── MAIN APP ──
 function App() {
-  const [blurActive, setBlurActive] = useState(true);
+  const alreadyUnlocked = sessionStorage.getItem("skodax_unlocked") === "1";
+  const [blurActive, setBlurActive] = useState(!alreadyUnlocked);
   const [blurFading, setBlurFading] = useState(false);
-  const [dashBlur, setDashBlur] = useState(0);
+  const [dashBlur, setDashBlur] = useState(alreadyUnlocked ? 3 : 0);
   const [pwd, setPwd] = useState("");
   const [pwdWrong, setPwdWrong] = useState(false);
   const [showPwd, setShowPwd] = useState(true);
@@ -5323,6 +5324,7 @@ function App() {
   const tryUnlock = useCallback((val) => {
     const v = (val || pwd).trim().toLowerCase();
     if (v === "skodax") {
+      sessionStorage.setItem("skodax_unlocked", "1");
       setDashBlur(1);
       setBlurFading(true);
       setTimeout(() => { setBlurActive(false); setBlurFading(false); setDashBlur(2); }, 800);

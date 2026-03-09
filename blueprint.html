@@ -21,6 +21,7 @@
   @keyframes glowPulse { 0%,100% { filter: drop-shadow(0 0 6px #78FAAE44); } 50% { filter: drop-shadow(0 0 18px #78FAAE88); } }
   @keyframes tooltipIn { from { opacity: 0; transform: translateX(-50%) translateY(6px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
   @keyframes tooltipInUp { from { opacity: 0; transform: translateX(-50%) translateY(-6px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 </style>
 </head>
 <body>
@@ -34,6 +35,59 @@ const T = {
   muted: "#4A7A6A", text: "#E8F5EE", textDim: "#9EC5B3",
   amber: "#F5C842", red: "#E85454", cyan: "#5AD4C4",
 };
+
+// ── PASSWORD GATE ──
+function PasswordGate({ children }) {
+  const [locked, setLocked] = useState(sessionStorage.getItem("skodax_unlocked") !== "1");
+  const [pwd, setPwd] = useState("");
+  const [wrong, setWrong] = useState(false);
+  const [fading, setFading] = useState(false);
+  const tryUnlock = () => {
+    if (pwd.trim().toLowerCase() === "skodax") {
+      sessionStorage.setItem("skodax_unlocked", "1");
+      setFading(true);
+      setTimeout(() => setLocked(false), 800);
+    } else { setWrong(true); setTimeout(() => setWrong(false), 600); }
+  };
+  if (!locked) return children;
+  return React.createElement("div", { style: {
+    position: "fixed", inset: 0, zIndex: 99999,
+    background: T.bg, display: "flex", flexDirection: "column",
+    alignItems: "center", justifyContent: "center",
+    opacity: fading ? 0 : 1, transition: "opacity 0.8s ease",
+  }},
+    React.createElement("div", { style: { position: "absolute", inset: 0, opacity: 0.02, pointerEvents: "none",
+      backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
+      backgroundSize: "80px 80px",
+    }}),
+    React.createElement("div", { style: { fontSize: 32, fontWeight: 700, color: T.electric, textAlign: "center",
+      fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${T.electric}60`,
+      letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, maxWidth: 600, padding: "0 20px",
+    }}, "Invisible to AI means invisible to buyers"),
+    React.createElement("div", { style: { fontSize: 16, fontWeight: 600, color: T.electric, textAlign: "center",
+      fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 6, opacity: 0.8,
+    }}, "GEO by \u0160koda X"),
+    React.createElement("div", { style: { fontSize: 14, color: T.textDim, textAlign: "center",
+      fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32, opacity: 0.7,
+    }}, "Generative Engine Optimization"),
+    React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center", animation: wrong ? "shake 0.4s ease" : "none" } },
+      React.createElement("input", { type: "password", value: pwd, onChange: (e) => setPwd(e.target.value),
+        onKeyDown: (e) => { if (e.key === "Enter") tryUnlock(); }, autoFocus: true, placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+        style: { width: 200, padding: "12px 16px", borderRadius: 8, border: `1px solid ${wrong ? T.red : T.electric}66`,
+          background: `${T.cardBg}cc`, color: T.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
+          outline: "none", textAlign: "center", letterSpacing: 3, transition: "border-color 0.3s ease",
+        },
+      }),
+      React.createElement("button", { onClick: tryUnlock, style: {
+        padding: "12px 20px", borderRadius: 8, cursor: "pointer",
+        background: `linear-gradient(135deg, ${T.emerald}, ${T.emeraldLight})`,
+        border: `1px solid ${T.electric}44`, color: T.electric, fontSize: 14, fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace",
+      }}, "\u2192"),
+    ),
+    wrong && React.createElement("div", { style: { fontSize: 12, color: T.red, fontFamily: "'JetBrains Mono', monospace", marginTop: 10 } }, "Wrong password"),
+  );
+}
 
 const STEPS = [
   { id: "brand", num: 1, title: "Brand Identity", desc: "Define your brand for AI monitoring" },
@@ -331,7 +385,7 @@ function App() {
   );
 }
 
-ReactDOM.render(React.createElement(App), document.getElementById("root"));
+ReactDOM.render(React.createElement(PasswordGate, null, React.createElement(App)), document.getElementById("root"));
 </script>
 </body>
 </html>
