@@ -23,6 +23,8 @@
   @keyframes nodeAppear { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
   @keyframes lineDraw { from { stroke-dashoffset: 200; } to { stroke-dashoffset: 0; } }
   @keyframes glowPulse { 0%,100% { filter: drop-shadow(0 0 6px #78FAAE44); } 50% { filter: drop-shadow(0 0 18px #78FAAE88); } }
+  @keyframes tooltipIn { from { opacity: 0; transform: translateX(-50%) translateY(6px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  @keyframes tooltipInUp { from { opacity: 0; transform: translateX(-50%) translateY(-6px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
   @keyframes orbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   @keyframes particleDrift { 0% { opacity: 0; transform: translateY(0) scale(0); } 20% { opacity: 1; transform: translateY(-10px) scale(1); } 100% { opacity: 0; transform: translateY(-60px) scale(0.3); } }
   input:focus, textarea:focus { outline: none; border-color: #78FAAE66 !important; box-shadow: 0 0 0 3px #78FAAE18; }
@@ -943,73 +945,17 @@ const STEP_COMPONENTS = {
 
 // ── VISUAL FLOW TOOLTIPS ──
 const STEP_TOOLTIPS = {
-  brand: [
-    "Brand name & industry vertical",
-    "Primary website URL for citation tracking",
-    "Brand keywords & product terminology",
-    "Target audience definition",
-  ],
-  competitors: [
-    "Brand-level competitors by powertrain (ICE / Hybrid / BEV)",
-    "Model-level competitors mapped to Škoda lineup",
-    "Custom competitor entries",
-    "Competitive priority ranking",
-  ],
-  platforms: [
-    "Select AI engines: ChatGPT, Claude, Gemini, Perplexity, Copilot",
-    "API tier & token budget per platform",
-    "Estimated monthly API cost calculator",
-    "Platform-specific prompt tuning",
-  ],
-  personas: [
-    "Define user personas who ask AI about your brand",
-    "Demographics: age, location, tech-savviness",
-    "Intent profiles: research, purchase, comparison",
-    "Persona-specific query templates",
-  ],
-  queries: [
-    "Query categories per powertrain (ICE / Hybrid / BEV)",
-    "19 categories: Range, Charging, Safety, Price, Design…",
-    "Custom query templates with brand placeholders",
-    "Query rotation & randomization settings",
-  ],
-  markets: [
-    "EU markets: 27 countries + UK, Norway, Switzerland",
-    "Non-EU markets: Turkey, Kazakhstan, India, Vietnam…",
-    "Language-specific query localization",
-    "Market priority tiers for monitoring frequency",
-  ],
-  models: [
-    "Škoda model lineup split by powertrain",
-    "ICE: Fabia, Scala, Octavia, Superb, Kamiq, Karoq, Kodiaq",
-    "Hybrid: Octavia iV, Superb iV, Kodiaq iV",
-    "BEV: Enyaq, Enyaq Coupé, Elroq, Epiq",
-  ],
-  scoring: [
-    "Visibility Score — brand mention rate & position",
-    "Content Quality — accuracy, depth, freshness",
-    "Sentiment Analysis — positive / neutral / negative",
-    "Citation tracking by source domain",
-    "Query performance overview & trends",
-  ],
-  schedule: [
-    "Update frequency: hourly / daily / weekly",
-    "Time-of-day scheduling for API calls",
-    "Burst mode for campaign launches",
-    "Rate limiting & retry policy",
-  ],
-  display: [
-    "Dashboard layout: TV, vertical panel, mobile",
-    "Export formats: PDF, CSV, API webhook",
-    "Alert thresholds & notification channels",
-    "Custom branding for client-facing reports",
-  ],
-  launch: [
-    "Review all configuration in one summary",
-    "Dry-run test with sample queries",
-    "Estimated monthly cost breakdown",
-    "One-click activation & first data fetch",
-  ],
+  brand: ["Brand name, website & keywords", "Target audience & vertical"],
+  competitors: ["ICE / Hybrid / BEV brand rivals", "Model-level competitor mapping"],
+  platforms: ["ChatGPT, Claude, Gemini, Perplexity", "API budget & cost estimation"],
+  personas: ["User profiles asking AI about you", "Demographics & purchase intent"],
+  queries: ["19 categories per powertrain", "Custom query templates"],
+  markets: ["EU + non-EU country selection", "Language localization"],
+  models: ["Škoda lineup by powertrain", "ICE, Hybrid & BEV models"],
+  scoring: ["Visibility, sentiment & content KPIs", "Citation & query tracking"],
+  schedule: ["Hourly / daily / weekly updates", "Rate limiting & burst mode"],
+  display: ["TV, panel & mobile layouts", "Exports, alerts & reports"],
+  launch: ["Full config summary & dry-run", "Cost breakdown & activation"],
 };
 
 // ── VISUAL FLOW OVERLAY ──
@@ -1034,6 +980,7 @@ function VisualFlow({ onClose, onStepClick }) {
 
   function FlowBox({ s, i, visible, color }) {
     const isHov = hovered === i;
+    const showBelow = i >= sepIndex;
     return React.createElement("div", {
       key: s.id,
       onClick: () => visible && onStepClick(i),
@@ -1081,42 +1028,50 @@ function VisualFlow({ onClose, onStepClick }) {
         background: isHov ? `linear-gradient(90deg, ${color}, ${color}44)` : `${color}18`,
         transition: "background 0.25s ease",
       }}),
-      // Tooltip popup on hover (hidden on mobile/touch)
+      // Tooltip popup on hover — above for top row, below for bottom row
       isHov && !flowMobile && STEP_TOOLTIPS[s.id] && React.createElement("div", {
-        style: {
-          position: "absolute", left: "50%", transform: "translateX(-50%)",
-          bottom: "calc(100% + 12px)",
-          minWidth: 260, maxWidth: 320, padding: "16px 20px",
+        style: Object.assign({
+          position: "absolute", left: "50%",
+          minWidth: 280, maxWidth: 340, padding: "18px 22px",
           borderRadius: 14,
           background: `linear-gradient(165deg, ${T.emeraldLight}, ${T.bg}f8)`,
           border: `1px solid ${color}44`,
           boxShadow: `0 12px 48px rgba(0,0,0,0.5), 0 0 24px ${color}15`,
           zIndex: 100, pointerEvents: "none",
-          animation: "flowFadeIn 0.2s ease-out",
-        },
+        }, showBelow ? {
+          top: "calc(100% + 14px)", transform: "translateX(-50%)",
+          animation: "tooltipIn 0.2s ease-out",
+        } : {
+          bottom: "calc(100% + 14px)", transform: "translateX(-50%)",
+          animation: "tooltipInUp 0.2s ease-out",
+        }),
       },
-        // Tooltip arrow
-        React.createElement("div", { style: {
+        // Arrow
+        React.createElement("div", { style: showBelow ? {
+          position: "absolute", top: -6, left: "50%", transform: "translateX(-50%) rotate(45deg)",
+          width: 12, height: 12,
+          background: T.emeraldLight, borderLeft: `1px solid ${color}44`, borderTop: `1px solid ${color}44`,
+        } : {
           position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%) rotate(45deg)",
           width: 12, height: 12,
           background: T.bg, borderRight: `1px solid ${color}44`, borderBottom: `1px solid ${color}44`,
         }}),
         // Tooltip title
         React.createElement("div", { style: {
-          fontSize: 11, fontWeight: 800, color, letterSpacing: 2,
+          fontSize: 13, fontWeight: 800, color, letterSpacing: 2,
           fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
-          marginBottom: 10, paddingBottom: 8,
+          marginBottom: 12, paddingBottom: 10,
           borderBottom: `1px solid ${color}22`,
         }}, `Step ${s.num} — ${s.title}`),
         // Tooltip items
         STEP_TOOLTIPS[s.id].map((tip, ti) =>
           React.createElement("div", { key: ti, style: {
-            display: "flex", alignItems: "flex-start", gap: 8,
-            fontSize: 12, color: `${T.text}dd`, lineHeight: 1.5,
+            display: "flex", alignItems: "flex-start", gap: 10,
+            fontSize: 15, color: `${T.text}dd`, lineHeight: 1.5,
             fontFamily: "'Outfit', sans-serif",
-            marginBottom: ti < STEP_TOOLTIPS[s.id].length - 1 ? 6 : 0,
+            marginBottom: ti < STEP_TOOLTIPS[s.id].length - 1 ? 8 : 0,
           }},
-            React.createElement("span", { style: { color, fontSize: 8, marginTop: 5, flexShrink: 0 } }, "\u25cf"),
+            React.createElement("span", { style: { color, fontSize: 9, marginTop: 6, flexShrink: 0 } }, "\u25cf"),
             tip,
           )
         ),
