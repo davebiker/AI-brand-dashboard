@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#161718">
+<meta name="theme-color" content="#0C1824">
 <title>Škoda X — Dashboard v2 (Elevated Dark Test)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -14,7 +14,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; overflow-wrap: break-word; word-break: break-word; }
   html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-  body { background: #3B4044; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  body { background: #0C1824; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)} }
   @keyframes fadeSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
@@ -61,20 +61,20 @@ const { useState, useEffect, useCallback, useRef } = React;
 // ŠKODA CI BARVY — Dark theme
 const TD = {
   emerald:      "#0E3A2F",
-  electric:     "#2E8B63",
-  emeraldLight: "#4A7A6C",
-  bg:           "#3B4044",
-  cardBg:       "#4A5258",
-  cardBorder:   "#5E686E",
-  muted:        "#A0AAB0",
-  text:         "#F2F4F5",
-  textDim:      "#C4CCD0",
-  amber:        "#F5A623",
-  red:          "#E85454",
-  cyan:         "#5AC4D4",
+  electric:     "#78FAAE",
+  emeraldLight: "#2D5A4A",
+  bg:           "#0C1824",
+  cardBg:       "#162334",
+  cardBorder:   "#233A50",
+  muted:        "#7A94A8",
+  text:         "#F0F4F8",
+  textDim:      "#A8BFCC",
+  amber:        "#FFB020",
+  red:          "#FF6B6B",
+  cyan:         "#56CCF2",
   claude:       "#D4A574",
-  shadow:       "rgba(0,0,0,0.15)",
-  gridOpacity:  0.05,
+  shadow:       "rgba(0,0,0,0.3)",
+  gridOpacity:  0.03,
   gridColor:    "#78FAAE",
 };
 
