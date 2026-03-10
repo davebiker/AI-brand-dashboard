@@ -14,7 +14,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; overflow-wrap: break-word; word-break: break-word; }
   html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-  body { background: #030806; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  body { background: #1A1D21; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(4px)} }
   @keyframes fadeSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
@@ -62,19 +62,19 @@ const { useState, useEffect, useCallback, useRef } = React;
 const TD = {
   emerald:      "#0E3A2F",
   electric:     "#78FAAE",
-  emeraldLight: "#254F42",
-  bg:           "#121516",
-  cardBg:       "#1C2B26",
-  cardBorder:   "#2A4D3F",
-  muted:        "#6B9E8E",
-  text:         "#EDF9F5",
-  textDim:      "#9EC8BB",
-  amber:        "#EC6513",
-  red:          "#E82B37",
-  cyan:         "#2D71D7",
+  emeraldLight: "#3A6558",
+  bg:           "#1A1D21",
+  cardBg:       "#252B2E",
+  cardBorder:   "#3A4945",
+  muted:        "#8FA8A0",
+  text:         "#F0F4F2",
+  textDim:      "#B0C4BB",
+  amber:        "#F5A623",
+  red:          "#E85454",
+  cyan:         "#5AC4D4",
   claude:       "#D4A574",
-  shadow:       "rgba(0,0,0,0.35)",
-  gridOpacity:  0.035,
+  shadow:       "rgba(0,0,0,0.25)",
+  gridOpacity:  0.04,
   gridColor:    "#78FAAE",
 };
 
