@@ -15,7 +15,7 @@
   body { background: #161718; overflow-x: hidden; -webkit-font-smoothing: antialiased; font-family: 'Outfit', sans-serif; color: #EDF9F5; }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #1F5044; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb, #1F5044); border-radius: 4px; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes flowFadeIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
   @keyframes glowPulse { 0%,100% { filter: drop-shadow(0 0 6px #78FAAE44); } 50% { filter: drop-shadow(0 0 18px #78FAAE88); } }
@@ -29,12 +29,29 @@
 <script type="text/babel">
 const { useState, useEffect } = React;
 
-const T = {
+const TD = {
   emerald: "#0E3A2F", electric: "#78FAAE", emeraldLight: "#1F5044",
   bg: "#161718", cardBg: "#00271D", cardBorder: "#1F5044",
   muted: "#4B7A6C", text: "#EDF9F5", textDim: "#9EC8BB",
   amber: "#EC6513", red: "#E82B37", cyan: "#2D71D7",
+  shadow: "rgba(0,0,0,0.2)", gridOpacity: 0.02, gridColor: "#78FAAE",
 };
+const TL = {
+  emerald: "#0E3A2F", electric: "#419468", emeraldLight: "#3A6558",
+  bg: "#FFFFFF", cardBg: "#F1F1F1", cardBorder: "#E4E4E4",
+  muted: "#5A5B5C", text: "#161718", textDim: "#464748",
+  amber: "#EC6513", red: "#E82B37", cyan: "#2D71D7",
+  shadow: "rgba(0,0,0,0.06)", gridOpacity: 0.03, gridColor: "#0E3A2F",
+};
+function getTheme() { return localStorage.getItem("skodax_theme") || "dark"; }
+function applyBodyTheme(mode) {
+  const t = mode === "dark" ? TD : TL;
+  document.body.style.background = t.bg;
+  document.body.style.color = t.text;
+  document.body.style.transition = "background 0.3s, color 0.3s";
+  document.querySelector('meta[name="theme-color"]').content = t.bg;
+  document.documentElement.style.setProperty("--scrollbar-thumb", mode === "dark" ? "#1F5044" : "#C4C6C7");
+}
 
 // ── PASSWORD GATE ──
 const PWD_HASH = "80cc50a3868ad7b9d1c1139dc3299ded82cbfa81e927b41279cd35e59830b87d";
@@ -47,6 +64,7 @@ function PasswordGate({ children }) {
   const [pwd, setPwd] = useState("");
   const [wrong, setWrong] = useState(false);
   const [fading, setFading] = useState(false);
+  const P = TD; // PasswordGate always dark
   const tryUnlock = async () => {
     const hash = await sha256(pwd.trim().toLowerCase());
     if (hash === PWD_HASH) {
@@ -58,40 +76,40 @@ function PasswordGate({ children }) {
   if (!locked) return children;
   return React.createElement("div", { style: {
     position: "fixed", inset: 0, zIndex: 99999,
-    background: T.bg, display: "flex", flexDirection: "column",
+    background: P.bg, display: "flex", flexDirection: "column",
     alignItems: "center", justifyContent: "center",
     opacity: fading ? 0 : 1, transition: "opacity 0.8s ease",
   }},
     React.createElement("div", { style: { position: "absolute", inset: 0, opacity: 0.02, pointerEvents: "none",
-      backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
+      backgroundImage: `linear-gradient(#78FAAE 1px, transparent 1px), linear-gradient(90deg, #78FAAE 1px, transparent 1px)`,
       backgroundSize: "80px 80px",
     }}),
-    React.createElement("div", { style: { fontSize: 32, fontWeight: 700, color: T.electric, textAlign: "center",
-      fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${T.electric}60`,
+    React.createElement("div", { style: { fontSize: 32, fontWeight: 700, color: "#78FAAE", textAlign: "center",
+      fontFamily: "'Outfit', sans-serif", textShadow: "0 0 40px #78FAAE60",
       letterSpacing: 3, textTransform: "uppercase", marginBottom: 12, maxWidth: 600, padding: "0 20px",
     }}, "Invisible to AI means invisible to buyers"),
-    React.createElement("div", { style: { fontSize: 16, fontWeight: 600, color: T.electric, textAlign: "center",
+    React.createElement("div", { style: { fontSize: 16, fontWeight: 600, color: "#78FAAE", textAlign: "center",
       fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 6, opacity: 0.8,
     }}, "GEO by \u0160koda X"),
-    React.createElement("div", { style: { fontSize: 14, color: T.textDim, textAlign: "center",
+    React.createElement("div", { style: { fontSize: 14, color: P.textDim, textAlign: "center",
       fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32, opacity: 0.7,
     }}, "Generative Engine Optimization"),
     React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center", animation: wrong ? "shake 0.4s ease" : "none" } },
       React.createElement("input", { type: "password", value: pwd, onChange: (e) => setPwd(e.target.value),
         onKeyDown: (e) => { if (e.key === "Enter") tryUnlock(); }, autoFocus: true, placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
-        style: { width: 200, padding: "12px 16px", borderRadius: 8, border: `1px solid ${wrong ? T.red : T.electric}66`,
-          background: `${T.cardBg}cc`, color: T.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
+        style: { width: 200, padding: "12px 16px", borderRadius: 8, border: `1px solid ${wrong ? P.red : "#78FAAE"}66`,
+          background: `${P.cardBg}cc`, color: P.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
           outline: "none", textAlign: "center", letterSpacing: 3, transition: "border-color 0.3s ease",
         },
       }),
       React.createElement("button", { onClick: tryUnlock, style: {
         padding: "12px 20px", borderRadius: 8, cursor: "pointer",
-        background: `linear-gradient(135deg, ${T.emerald}, ${T.emeraldLight})`,
-        border: `1px solid ${T.electric}44`, color: T.electric, fontSize: 14, fontWeight: 700,
+        background: `linear-gradient(135deg, ${P.emerald}, ${P.emeraldLight})`,
+        border: "1px solid #78FAAE44", color: "#78FAAE", fontSize: 14, fontWeight: 700,
         fontFamily: "'JetBrains Mono', monospace",
       }}, "\u2192"),
     ),
-    wrong && React.createElement("div", { style: { fontSize: 12, color: T.red, fontFamily: "'JetBrains Mono', monospace", marginTop: 10 } }, "Wrong password"),
+    wrong && React.createElement("div", { style: { fontSize: 12, color: P.red, fontFamily: "'JetBrains Mono', monospace", marginTop: 10 } }, "Wrong password"),
   );
 }
 
@@ -128,6 +146,13 @@ function App() {
   const [visibleCount, setVisibleCount] = useState(1);
   const [hovered, setHovered] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [mode, setMode] = useState(getTheme());
+  const t = mode === "dark" ? TD : TL;
+
+  useEffect(() => {
+    applyBodyTheme(mode);
+    localStorage.setItem("skodax_theme", mode);
+  }, [mode]);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -142,8 +167,8 @@ function App() {
   useEffect(() => {
     if (!started) return;
     if (visibleCount >= STEPS.length) return;
-    const t = setTimeout(() => setVisibleCount(v => v + 1), 200);
-    return () => clearTimeout(t);
+    const tmr = setTimeout(() => setVisibleCount(v => v + 1), 200);
+    return () => clearTimeout(tmr);
   }, [started, visibleCount]);
 
   const gap = 14;
@@ -160,13 +185,13 @@ function App() {
       style: {
         flex: 1, minHeight: 0, borderRadius: 16, cursor: visible ? "pointer" : "default",
         border: `1.5px solid ${isHov ? color : color + "33"}`,
-        background: isHov ? `linear-gradient(160deg, ${T.emeraldLight}, ${color}12)` : `${T.cardBg}ee`,
+        background: isHov ? `linear-gradient(160deg, ${t.emeraldLight}, ${color}12)` : `${t.cardBg}ee`,
         padding: "24px 22px 20px",
         display: "flex", flexDirection: "column", justifyContent: "space-between",
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0) scale(1)" : "translateY(30px) scale(0.9)",
         transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        boxShadow: isHov ? `0 4px 40px ${color}25, 0 0 60px ${color}10` : `0 2px 12px rgba(0,0,0,0.2)`,
+        boxShadow: isHov ? `0 4px 40px ${color}25, 0 0 60px ${color}10` : `0 2px 12px ${t.shadow}`,
         position: "relative", overflow: isHov ? "visible" : "hidden",
       },
     },
@@ -174,7 +199,7 @@ function App() {
       React.createElement("div", { style: {
         position: "absolute", top: -8, right: 6,
         fontSize: 72, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace",
-        color: `${color}08`, lineHeight: 1, pointerEvents: "none",
+        color: `${color}${mode === "dark" ? "08" : "15"}`, lineHeight: 1, pointerEvents: "none",
       }}, s.num),
       // Content
       React.createElement("div", null,
@@ -184,13 +209,13 @@ function App() {
           transition: "color 0.2s ease",
         }}, `STEP ${s.num}`),
         React.createElement("div", { style: {
-          fontSize: 18, fontWeight: 800, color: isHov ? T.text : `${T.text}cc`,
+          fontSize: 18, fontWeight: 800, color: isHov ? t.text : `${t.text}cc`,
           fontFamily: "'Outfit', sans-serif", lineHeight: 1.25,
           transition: "color 0.2s ease",
         }}, s.title),
       ),
       React.createElement("div", { style: {
-        fontSize: 12, color: `${T.muted}cc`, marginTop: 12, lineHeight: 1.45,
+        fontSize: 12, color: `${t.muted}cc`, marginTop: 12, lineHeight: 1.45,
         fontFamily: "'JetBrains Mono', monospace",
       }}, s.desc),
       // Bottom accent
@@ -205,9 +230,9 @@ function App() {
           position: "absolute", left: "50%",
           minWidth: 280, maxWidth: 340, padding: "18px 22px",
           borderRadius: 14,
-          background: `linear-gradient(165deg, ${T.emeraldLight}, ${T.bg}f8)`,
+          background: `linear-gradient(165deg, ${t.emeraldLight}, ${t.bg}f8)`,
           border: `1px solid ${color}44`,
-          boxShadow: `0 12px 48px rgba(0,0,0,0.5), 0 0 24px ${color}15`,
+          boxShadow: `0 12px 48px ${t.shadow}, 0 0 24px ${color}15`,
           zIndex: 100, pointerEvents: "none",
         }, showBelow ? {
           top: "calc(100% + 14px)", transform: "translateX(-50%)",
@@ -221,11 +246,11 @@ function App() {
         React.createElement("div", { style: showBelow ? {
           position: "absolute", top: -6, left: "50%", transform: "translateX(-50%) rotate(45deg)",
           width: 12, height: 12,
-          background: T.emeraldLight, borderLeft: `1px solid ${color}44`, borderTop: `1px solid ${color}44`,
+          background: t.emeraldLight, borderLeft: `1px solid ${color}44`, borderTop: `1px solid ${color}44`,
         } : {
           position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%) rotate(45deg)",
           width: 12, height: 12,
-          background: T.bg, borderRight: `1px solid ${color}44`, borderBottom: `1px solid ${color}44`,
+          background: t.bg, borderRight: `1px solid ${color}44`, borderBottom: `1px solid ${color}44`,
         }}),
         // Tooltip title
         React.createElement("div", { style: {
@@ -238,7 +263,7 @@ function App() {
         STEP_TOOLTIPS[s.id].map((tip, ti) =>
           React.createElement("div", { key: ti, style: {
             display: "flex", alignItems: "flex-start", gap: 10,
-            fontSize: 15, color: `${T.text}dd`, lineHeight: 1.5,
+            fontSize: 15, color: `${t.text}dd`, lineHeight: 1.5,
             fontFamily: "'Outfit', sans-serif",
             marginBottom: ti < STEP_TOOLTIPS[s.id].length - 1 ? 8 : 0,
           }},
@@ -253,26 +278,36 @@ function App() {
   return React.createElement("div", {
     style: {
       position: "fixed", inset: 0,
-      background: `radial-gradient(ellipse at 50% 25%, ${T.emerald}55, ${T.bg} 70%)`,
+      background: `radial-gradient(ellipse at 50% 25%, ${t.emerald}55, ${t.bg} 70%)`,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: isMobile ? "flex-start" : "center",
       overflowY: "auto", overflowX: "hidden",
       paddingTop: isMobile ? 80 : 0, paddingBottom: isMobile ? 40 : 0,
+      transition: "background 0.3s ease",
     },
   },
     // Grid bg
     React.createElement("div", { style: {
-      position: "absolute", inset: 0, opacity: 0.02, pointerEvents: "none",
-      backgroundImage: `linear-gradient(${T.electric} 1px, transparent 1px), linear-gradient(90deg, ${T.electric} 1px, transparent 1px)`,
+      position: "absolute", inset: 0, opacity: t.gridOpacity, pointerEvents: "none",
+      backgroundImage: `linear-gradient(${t.gridColor} 1px, transparent 1px), linear-gradient(90deg, ${t.gridColor} 1px, transparent 1px)`,
       backgroundSize: "80px 80px",
     }}),
 
     // Header
-    React.createElement("div", { style: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, display: "flex", justifyContent: "space-between", alignItems: "center", padding: isMobile ? "16px 16px" : "20px 40px", background: `linear-gradient(180deg, ${T.bg}ee, transparent)`, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" } },
+    React.createElement("div", { style: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, display: "flex", justifyContent: "space-between", alignItems: "center", padding: isMobile ? "16px 16px" : "20px 40px", background: `linear-gradient(180deg, ${t.bg}ee, transparent)`, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", transition: "background 0.3s ease" } },
       React.createElement("a", { href: "index.html", style: { textDecoration: "none", display: "flex", flexDirection: "column" } },
-        React.createElement("div", { style: { fontSize: isMobile ? 22 : 32, fontWeight: 900, color: T.text, letterSpacing: 1, fontFamily: "'Outfit', sans-serif" } }, "\u0160koda X"),
-        React.createElement("div", { style: { fontSize: isMobile ? 11 : 13, fontWeight: 700, color: T.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginTop: 2 } }, "Blueprint"),
+        React.createElement("div", { style: { fontSize: isMobile ? 22 : 32, fontWeight: 900, color: t.text, letterSpacing: 1, fontFamily: "'Outfit', sans-serif" } }, "\u0160koda X"),
+        React.createElement("div", { style: { fontSize: isMobile ? 11 : 13, fontWeight: 700, color: t.electric, letterSpacing: 3, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", marginTop: 2 } }, "Blueprint"),
       ),
-      React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
+      React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" } },
+      // Theme toggle
+      React.createElement("button", { onClick: () => setMode(m => m === "dark" ? "light" : "dark"), style: {
+        padding: "7px 12px", borderRadius: 8, cursor: "pointer",
+        background: mode === "dark" ? `${t.cardBg}aa` : `${t.cardBg}`,
+        border: `1px solid ${t.cardBorder}`,
+        color: t.electric, fontSize: 14, fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace",
+        transition: "all 0.3s ease",
+      }}, mode === "dark" ? "\u2600" : "\u263E"),
       [
         { href: "index.html", label: "\u25c6 Intro", active: false },
         { href: "blueprint.html", label: "\u25c9 Blueprint", active: true },
@@ -281,9 +316,9 @@ function App() {
         { href: "next-steps.html", label: "\u25b8 Next Steps", active: false },
       ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
         padding: "7px 14px", borderRadius: 8, textDecoration: "none",
-        background: l.active ? `${T.electric}18` : `${T.cardBg}aa`,
-        border: `1px solid ${l.active ? T.electric + "55" : T.cardBorder}`,
-        color: l.active ? T.electric : T.muted, fontSize: 11, fontWeight: 700,
+        background: l.active ? `${t.electric}18` : `${t.cardBg}aa`,
+        border: `1px solid ${l.active ? t.electric + "55" : t.cardBorder}`,
+        color: l.active ? t.electric : t.muted, fontSize: 11, fontWeight: 700,
         fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
         transition: "all 0.2s ease",
       }}, l.label)),
@@ -299,7 +334,7 @@ function App() {
 
       // Row 1 label
       React.createElement("div", { style: {
-        fontSize: isMobile ? 10 : 12, fontWeight: 700, color: `${T.electric}66`, letterSpacing: 4,
+        fontSize: isMobile ? 10 : 12, fontWeight: 700, color: `${t.electric}66`, letterSpacing: 4,
         fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
         textAlign: "center",
         opacity: visibleCount > 0 ? 1 : 0, transition: "opacity 0.4s ease",
@@ -307,19 +342,19 @@ function App() {
 
       // Row 1
       React.createElement("div", { style: { display: "flex", flexDirection: isMobile ? "column" : "row", gap, alignItems: "stretch" } },
-        topSteps.map((s, i) => FlowBox({ s, i, visible: i < visibleCount, color: T.electric })),
+        topSteps.map((s, i) => FlowBox({ s, i, visible: i < visibleCount, color: t.electric })),
       ),
 
       // Separator
       visibleCount > sepIndex && React.createElement("div", { style: {
         height: 1, margin: "4px 0",
-        background: `linear-gradient(90deg, transparent 5%, ${T.cardBorder} 30%, ${T.cardBorder} 70%, transparent 95%)`,
+        background: `linear-gradient(90deg, transparent 5%, ${t.cardBorder} 30%, ${t.cardBorder} 70%, transparent 95%)`,
         animation: "fadeIn 0.4s ease-out",
       }}),
 
       // Row 2 label
       visibleCount > sepIndex && React.createElement("div", { style: {
-        fontSize: isMobile ? 10 : 12, fontWeight: 700, color: `${T.amber}66`, letterSpacing: 4,
+        fontSize: isMobile ? 10 : 12, fontWeight: 700, color: `${t.amber}66`, letterSpacing: 4,
         fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase",
         textAlign: "center", animation: "fadeIn 0.4s ease-out",
       }}, "KPI, Monitoring & Launch"),
@@ -335,11 +370,11 @@ function App() {
         botSteps.map((s, bi) => {
           const i = bi + sepIndex;
           return isMobile
-            ? FlowBox({ s, i, visible: i < visibleCount, color: T.amber })
+            ? FlowBox({ s, i, visible: i < visibleCount, color: t.amber })
             : React.createElement("div", {
                 key: s.id,
                 style: { gridColumn: `${bi * 2 + 1} / span ${bi < 3 ? 2 : 1}` },
-              }, FlowBox({ s, i, visible: i < visibleCount, color: T.amber }));
+              }, FlowBox({ s, i, visible: i < visibleCount, color: t.amber }));
         }),
       ),
     ),
@@ -350,36 +385,37 @@ function App() {
       animation: "fadeIn 0.5s ease-out", padding: "0 20px",
     }},
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
-        React.createElement("div", { style: { width: 10, height: 10, borderRadius: 5, background: T.electric } }),
-        React.createElement("span", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Configuration"),
+        React.createElement("div", { style: { width: 10, height: 10, borderRadius: 5, background: t.electric } }),
+        React.createElement("span", { style: { fontSize: 12, color: t.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Configuration"),
       ),
       React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
-        React.createElement("div", { style: { width: 10, height: 10, borderRadius: 5, background: T.amber } }),
-        React.createElement("span", { style: { fontSize: 12, color: T.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Scoring & Output"),
+        React.createElement("div", { style: { width: 10, height: 10, borderRadius: 5, background: t.amber } }),
+        React.createElement("span", { style: { fontSize: 12, color: t.muted, fontFamily: "'JetBrains Mono', monospace" } }, "Scoring & Output"),
       ),
-      React.createElement("span", { style: { fontSize: 12, color: `${T.muted}88`, fontFamily: "'JetBrains Mono', monospace" } }, "\u00b7  Click any step to open Setup"),
+      React.createElement("span", { style: { fontSize: 12, color: `${t.muted}88`, fontFamily: "'JetBrains Mono', monospace" } }, "\u00b7  Click any step to open Setup"),
     ),
 
     // Footer
     React.createElement("div", { style: {
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
       padding: isMobile ? "14px 16px" : "14px 40px",
-      borderTop: `1px solid ${T.electric}33`,
-      background: `linear-gradient(180deg, ${T.emerald}ee, ${T.bg})`,
+      borderTop: `1px solid ${t.electric}33`,
+      background: `linear-gradient(180deg, ${t.emerald}ee, ${t.bg})`,
       backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
       display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12,
+      transition: "background 0.3s ease",
     }},
       React.createElement("div", null,
-        React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: T.electric, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.5 } }, "\u0160KODA X \u2014 AI Brand Intelligence"),
-        !isMobile && React.createElement("div", { style: { fontSize: 10, color: T.muted, marginTop: 2 } }, "Generative Engine Optimization \u00b7 Monitoring \u00b7 Optimization"),
+        React.createElement("div", { style: { fontSize: 13, fontWeight: 800, color: t.electric, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.5 } }, "\u0160KODA X \u2014 AI Brand Intelligence"),
+        !isMobile && React.createElement("div", { style: { fontSize: 10, color: t.muted, marginTop: 2 } }, "Generative Engine Optimization \u00b7 Monitoring \u00b7 Optimization"),
       ),
       React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
         [
-          { href: "index.html", label: "Intro", color: T.electric },
-          { href: "blueprint.html", label: "Blueprint", color: T.electric },
-          { href: "setup.html", label: "Setup", color: T.electric },
-          { href: "dashboard.html", label: "Dashboard", color: T.cyan },
-          { href: "next-steps.html", label: "Next Steps", color: T.amber },
+          { href: "index.html", label: "Intro", color: t.electric },
+          { href: "blueprint.html", label: "Blueprint", color: t.electric },
+          { href: "setup.html", label: "Setup", color: t.electric },
+          { href: "dashboard.html", label: "Dashboard", color: t.cyan },
+          { href: "next-steps.html", label: "Next Steps", color: t.amber },
         ].map((l, i) => React.createElement("a", { key: i, href: l.href, style: {
           padding: "5px 12px", borderRadius: 6, textDecoration: "none",
           border: `1px solid ${l.color}44`, background: `${l.color}08`,

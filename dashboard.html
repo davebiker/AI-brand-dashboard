@@ -45,7 +45,7 @@
   .boom-ring2{width:360px;height:360px;animation:ring2 1s ease-out 3.65s forwards;opacity:0}
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #1F5044; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb, #1F5044); border-radius: 4px; }
 </style>
 </head>
 <body>
@@ -58,8 +58,8 @@ const { useState, useEffect, useCallback, useRef } = React;
 // ███ KONFIGURACE — EDITUJ ZDE ███
 // ============================================================
 
-// ŠKODA CI BARVY
-const THEME = {
+// ŠKODA CI BARVY — Dark theme
+const TD = {
   emerald:      "#0E3A2F",
   electric:     "#78FAAE",
   emeraldLight: "#1F5044",
@@ -73,14 +73,40 @@ const THEME = {
   red:          "#E82B37",
   cyan:         "#2D71D7",
   claude:       "#D4A574",
+  shadow:       "rgba(0,0,0,0.2)",
+  gridOpacity:  0.02,
+  gridColor:    "#78FAAE",
 };
+
+// Light theme
+const TL = {
+  emerald: "#0E3A2F", electric: "#419468", emeraldLight: "#3A6558",
+  bg: "#FFFFFF", cardBg: "#F1F1F1", cardBorder: "#E4E4E4",
+  muted: "#5A5B5C", text: "#161718", textDim: "#464748",
+  amber: "#EC6513", red: "#E82B37", cyan: "#2D71D7",
+  claude: "#D4A574",
+  shadow: "rgba(0,0,0,0.06)", gridOpacity: 0.03, gridColor: "#0E3A2F",
+};
+
+function getTheme() { return localStorage.getItem("skodax_theme") || "dark"; }
+function applyBodyTheme(mode) {
+  const th = mode === "dark" ? TD : TL;
+  document.body.style.background = th.bg;
+  document.body.style.color = th.text;
+  document.body.style.transition = "background 0.3s, color 0.3s";
+  document.querySelector('meta[name="theme-color"]').content = th.bg;
+  document.documentElement.style.setProperty("--scrollbar-thumb", mode === "dark" ? "#1F5044" : "#C4C6C7");
+}
+
+// Dynamic theme reference (set per render in App)
+let THEME = TD;
 
 // PLATFORMY K TESTOVÁNÍ
 // Přidej/uber platformy které chceš monitorovat
 const PLATFORMS = [
-  { name: "Claude",     color: THEME.claude },
-  { name: "GPT-4o",     color: THEME.electric },
-  { name: "Gemini",     color: THEME.cyan },
+  { name: "Claude",     color: TD.claude },
+  { name: "GPT-4o",     color: TD.electric },
+  { name: "Gemini",     color: TD.cyan },
   { name: "Copilot",    color: "#26C6F0" },
   { name: "Perplexity", color: "#B4A0FF" },
   { name: "Grok",       color: "#FF6B4A" },
@@ -5313,6 +5339,10 @@ function VerticalLayout({ scores, displayCompetitors, displayTrendHistory, displ
 
 // ── MAIN APP ──
 function App() {
+  const [themeMode, setThemeMode] = useState(getTheme());
+  THEME = themeMode === "dark" ? TD : TL;
+  useEffect(() => { applyBodyTheme(themeMode); localStorage.setItem("skodax_theme", themeMode); }, [themeMode]);
+
   const alreadyUnlocked = sessionStorage.getItem("skodax_unlocked") === "1";
   const [blurActive, setBlurActive] = useState(!alreadyUnlocked);
   const [blurFading, setBlurFading] = useState(false);
@@ -5486,18 +5516,18 @@ function App() {
     display: "flex", flexDirection: "column", alignItems: "center",
   }},
     React.createElement("div", { style: {
-      fontSize: isMobile ? 20 : 32, fontWeight: 700, color: THEME.electric, textAlign: "center",
-      fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${THEME.electric}60`,
+      fontSize: isMobile ? 20 : 32, fontWeight: 700, color: TD.electric, textAlign: "center",
+      fontFamily: "'Outfit', sans-serif", textShadow: `0 0 40px ${TD.electric}60`,
       letterSpacing: isMobile ? 1.5 : 3, textTransform: "uppercase",
       marginBottom: 12, padding: isMobile ? "0 20px" : 0,
     }}, "Invisible to AI means invisible to buyers"),
     React.createElement("div", { style: {
-      fontSize: 16, fontWeight: 600, color: THEME.electric, textAlign: "center",
+      fontSize: 16, fontWeight: 600, color: TD.electric, textAlign: "center",
       fontFamily: "'JetBrains Mono', monospace",
       letterSpacing: 2, marginBottom: 6, opacity: 0.8,
     }}, "GEO by Škoda X"),
     React.createElement("div", { style: {
-      fontSize: 14, fontWeight: 400, color: THEME.textDim, textAlign: "center",
+      fontSize: 14, fontWeight: 400, color: TD.textDim, textAlign: "center",
       fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 32,
       opacity: 0.7,
     }}, "Generative Engine Optimization"),
@@ -5516,9 +5546,9 @@ function App() {
         placeholder: "••••••••",
         style: {
           width: 200, padding: "12px 16px", borderRadius: 8,
-          border: `1px solid ${pwdWrong ? THEME.red : THEME.electric}66`,
-          background: `${THEME.cardBg}cc`,
-          color: THEME.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
+          border: `1px solid ${pwdWrong ? TD.red : TD.electric}66`,
+          background: `${TD.cardBg}cc`,
+          color: TD.text, fontSize: 16, fontFamily: "'JetBrains Mono', monospace",
           outline: "none", textAlign: "center", letterSpacing: 3,
           transition: "border-color 0.3s ease",
         },
@@ -5527,16 +5557,16 @@ function App() {
         onClick: () => tryUnlock(),
         style: {
           padding: "12px 20px", borderRadius: 8, cursor: "pointer",
-          background: `linear-gradient(135deg, ${THEME.emerald}, ${THEME.emeraldLight})`,
-          border: `1px solid ${THEME.electric}44`,
-          color: THEME.electric, fontSize: 14, fontWeight: 700,
+          background: `linear-gradient(135deg, ${TD.emerald}, ${TD.emeraldLight})`,
+          border: `1px solid ${TD.electric}44`,
+          color: TD.electric, fontSize: 14, fontWeight: 700,
           fontFamily: "'JetBrains Mono', monospace",
           transition: "all 0.3s ease",
         },
       }, "→"),
     ),
     pwdWrong && React.createElement("div", { style: {
-      fontSize: 12, color: THEME.red, fontFamily: "'JetBrains Mono', monospace",
+      fontSize: 12, color: TD.red, fontFamily: "'JetBrains Mono', monospace",
       marginTop: 10, opacity: 0.9,
     }}, lang === "de" ? "Falsches Passwort" : lang === "en" ? "Wrong password" : lang === "hi" ? "ग़लत पासवर्ड" : lang === "no" ? "Feil passord" : "Špatné heslo"),
   );
@@ -5699,6 +5729,14 @@ function App() {
         fontFamily: "'JetBrains Mono', monospace",
         transition: "all 0.2s ease",
       }}, l.label)),
+      React.createElement("button", { onClick: () => setThemeMode(m => m === "dark" ? "light" : "dark"), style: {
+        padding: "7px 12px", borderRadius: 8, cursor: "pointer",
+        background: themeMode === "dark" ? `${THEME.cardBg}aa` : `${THEME.cardBg}`,
+        border: `1px solid ${THEME.cardBorder}`,
+        color: THEME.electric, fontSize: 14, fontWeight: 700,
+        fontFamily: "'JetBrains Mono', monospace",
+        transition: "all 0.3s ease",
+      }}, themeMode === "dark" ? "\u2600" : "\u263E"),
     ),
   );
 
@@ -5744,7 +5782,7 @@ function App() {
 
   // Preview mode
   return React.createElement(React.Fragment, null, TopNav, BlurOverlay, DashBlurOverlay, SetupModal, React.createElement("div", { style: {
-    minHeight: "100vh", background: "#030806", display: "flex", flexDirection: "column",
+    minHeight: "100vh", background: THEME.bg, display: "flex", flexDirection: "column",
     alignItems: "center", padding: "20px 10px", fontFamily: "'Outfit', sans-serif",
   }},
 
